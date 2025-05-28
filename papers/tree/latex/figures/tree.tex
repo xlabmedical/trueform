@@ -1,0 +1,82 @@
+\begin{figure}
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}[
+  id/.style={minimum width=1cm, minimum height=1cm, font=\small},
+  box/.style={fill=gray!15,draw, minimum width=1cm, minimum height=1cm, font=\small},
+  boxE/.style={fill=gray!30,draw, minimum width=1cm, minimum height=1cm, font=\small},
+  boxName/.style={minimum width=1cm, minimum height=1cm},
+  arr/.style={->, thick},
+  background rectangle/.style={fill=gray!5, rounded corners=5pt},
+  show background rectangle
+]
+
+
+\node[boxName] (N) {$N:$};
+\node[box, anchor=west] (N1) at (N.east) {$(o_i, s_i)$};
+\node[box, anchor=west] (N2) at (N1.east) {$(o_{i+1,} s_{i+1})$};
+\node[boxE, anchor=west] (N3) at (N2.east) {$\cdots$};
+\node[box, anchor=west] (N4) at (N3.east) {$(o_{o_i}, s_{s_i})$};
+\node[boxE, anchor=west] (N5) at (N4.east) {$\cdots$};
+\node[box, anchor=west] (N6) at (N5.east) {$(o_{k}, s_{k})$};
+\node[boxE, anchor=west] (N7) at (N6.east) {$\cdots$};
+
+\node[anchor=north] at (N1.south) {$i$};
+\node[anchor=north](name1) at (N2.south) {$i+1$};
+\node[anchor=north] at (N3.south) {$\cdots$};
+\node[anchor=north] at (N4.south) {$o_i$};
+\node[anchor=north] at (N5.south) {$\cdots$};
+\node[anchor=north] at (N6.south) {$o_i + s_i$};
+\node[anchor=north] at (N7.south) {$\cdots$};
+
+
+
+
+\draw[decorate,decoration={brace,amplitude=8pt}, thick]
+  (N4.north west) -- (N6.north east)
+  node(size0)[midway, above=10pt] {\scriptsize$N[o_i : o_i + s_i]$};
+
+
+\draw[thick, shorten <=5pt] 
+  (N1) -- ($(N1 |- size0)$);
+
+\draw[->, thick] 
+  ($(N1 |- size0)$) 
+  -- (size0)
+  node[midway, above] {\small children};
+
+
+
+
+
+\node[boxName] (I) at ($(N.south) + (0, -2)$) {$I:$};
+\node[box, anchor=west] (I1) at (I.east) {$I_j$};
+\node[box, anchor=west] (I2) at (I1.east) {$I_{j+1}$};
+\node[boxE, anchor=west] (I3) at (I2.east) {$\cdots$};
+\node[box, anchor=west] (I4) at (I3.east) {$I_{o_{i+1}}$};
+\node[box, anchor=west] (I5) at (I4.east) {$I_{o_{i+2}}$};
+\node[boxE, anchor=west] (I6) at (I5.east) {$\cdots$};
+\node[box, anchor=west] (I7) at (I6.east) {$I_{o_{i+1} + s_{i+1}}$};
+\node[boxE, anchor=west] (I8) at (I7.east) {$\cdots$};
+
+\draw[decorate,decoration={brace,amplitude=8pt}, thick]
+  (I4.north west) -- (I7.north east)
+  node(size1)[midway, above=10pt] {\scriptsize$I[o_{i+1} : o_{i+1} + s_{i+1}]$};
+
+
+\draw[thick, shorten <=2.5pt] 
+  (name1) -- ($(name1 |- size1)$);
+
+\draw[->, thick] 
+  ($(name1 |- size1)$) 
+  -- (size1)
+  node[midway, above] {\small children};
+\end{tikzpicture}
+}
+\caption{The node ($N$) and ID ($I$) arrays of tf::tree.
+The \emph{data} array $(o, s)$ specifies subranges within
+these arrays. The node $N_i$ is an inner node with children
+$N[o_i : o_i + s_i]$, while $N_{i+1}$ is a leaf node with
+children $I[o_{i+1} : o_{i+1} + s_{i+1}]$. All children are
+contiguous.}\label{fig:tree}
+\end{figure}
+

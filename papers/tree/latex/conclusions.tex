@@ -1,0 +1,60 @@
+\section{Conclusions}
+
+In this section, we summarize the key contributions of our
+work, acknowledge limitations, and outline possible 
+directions for future development. We conclude with a 
+brief reflection on the broader impact of our approach.
+
+\subsection{Summary}
+
+We introduced \texttt{tf::tree}, a spatial acceleration 
+structure built for performance, simplicity, and flexibility 
+in geometric computing. By combining data-oriented layouts, 
+in-place partitioning with state-of-the-art selection algorithms
+(ensuring $\mathcal{O}(n\log(n))$ average construction), and 
+stack-based traversal schemes, \texttt{tf::tree} achieves 
+high efficiency across construction, collision detection, 
+(self) intersection and nearness queries.
+
+Although \texttt{tf::tree} is structurally static, its 
+query APIs support geometry undergoing linear 
+transformations through user-defined callables. This 
+enables dynamic queries over moving or deforming models 
+without rebuilding the tree.
+
+Empirical evaluations show that \texttt{tf::tree} achieves
+near-linear scalability in construction and delivers real-time
+query performance on models with millions of primitives. Notably,
+in nearness queries, our Top-K sorted stack traversal provides a
+practical speedup of up to $3\times$ over traditional heap-based
+methods by trading an increase in AABB inspections for superior
+cache performance and execution efficiency, demonstrating the
+effectiveness of hardware-aware algorithmic design.
+
+\subsection{Limitations and Future Work}
+
+While \texttt{tf::tree} supports dynamic queries through
+transformed callables, its internal structure remains fixed
+after construction. Extending the system to support
+incremental updates or fully dynamic scenes—particularly
+those involving free-form deformation—remains a compelling
+direction for future work. Although we employ such
+capabilities in practice, the procedure has not yet been
+formalized or exposed through the public API.
+
+At present, search queries such as collision detection and 
+intersection are parallelized, whereas nearness queries 
+remain sequential. Parallelizing nearness queries presents 
+an opportunity to further improve performance, especially 
+on high-core-count systems. This is a natural extension of 
+our current design and will be addressed in future work.
+
+\subsection{Final Remarks}
+
+\texttt{tf::tree} offers a practical and performant 
+foundation for spatial queries in geometry processing. Its 
+modular, open-source design is intended to be easily 
+adapted and extended. We hope it proves valuable both as 
+a production tool and as a reference for building fast and 
+clean spatial structures.
+

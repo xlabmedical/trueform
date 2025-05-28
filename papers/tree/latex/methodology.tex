@@ -1,0 +1,371 @@
+\section{Methodology}
+
+This section presents the core components of \texttt{tf::tree}:
+its data structures, construction algorithm, and query mechanisms.
+
+We begin by describing the tree layout, designed for memory locality
+and structural simplicity. We then introduce a construction procedure
+based on in-place partitioning using state-of-the-art selection algorithms
+Finally, we outline how the tree supports collision, (self) intersection,
+and nearest-neighbor queries using stack-based traversals that
+outperform traditional priority queues in practice.
+
+
+\subsection{Tree Data Structure}
+
+For performance reasons, we must consider about how the processor accesses memory \cite{data-oriented-design}.
+That means paying attention to temporal and spatial locality. In practice, this leads to
+two important design rules: first, all our data should be stored in contiguous arrays;
+second, elements that are accessed together—like the children of a node—should also be
+laid out next to each other in memory.
+These simple but strict constraints shape the structure of our tree and how we represent
+its nodes, primitives, and their relationships.
+
+
+We now define the core data structures underlying our tree representation.
+
+
+\begin{definition}[ID range]\label{def:ids}
+	For a collection of primitives $P_i$, indexed by $i$,
+	an ID range is an array $I$ containing a permutation
+	of the sequence $[0 : N)$, where $N$ is the number of
+	primitives. An ID sub-range $I[i:j]$ is a sub-array of
+	$I$, containing elements $[I_i, I_{i+1}, \dots, I_{j-1}]$.
+	The sub-range $I[i:j]$ may also be denoted by $(i, j - i)\subseteq I$.
+\end{definition}
+
+
+\begin{definition}[Node]\label{def:node}
+	A node $N_i$ is part of an array of nodes $N$,
+	indexed by $i$. It consists of an axis-aligned bounding box
+	(\emph{aabb}) and associated metadata.
+
+	A node is classified as an \emph{inner node} if its
+	children are other nodes $N_c$, and as a \emph{leaf node}
+	if its children are primitives $P_k$.
+
+	The \emph{aabb} of $N_i$ encloses all primitives in its
+	subtree. The metadata includes:
+	\begin{itemize}
+		\item an \emph{axis}, indicating the dimension along
+		      which the node was partitioned (non-negative for
+		      inner nodes, negative for leaves), and
+		\item a \emph{data} range, given by an offset $o$ and
+		      size $s$, indexing into its children.
+	\end{itemize}
+
+	For leaf nodes, this range refers to an ID sub-range
+	$(o, s)$. For inner nodes, it refers to a node sub-range
+	$N[o : o + s]$ within the array $N$.
+
+	Thus, all child nodes $N_c$ of node $N_i$ must appear
+	consecutively in $N$; i.e., $N[o : o + s]$.
+\end{definition}
+
+\input{./figures/tree.tex}
+
+When interacting with the tree, all children of a node
+are always accessed together—either to decide whether
+to descend into them (in the case of an inner node)
+or to process the corresponding primitives $P_i$
+(for a leaf node). This access pattern reinforces our
+data layout strategy, which adheres closely to locality
+requirements.
+Fig.~\ref{fig:tree} illustrates how nodes and ID ranges
+are stored and referenced in memory. These two arrays—one
+representing the spatial hierarchy, the other indexing
+primitives—form the foundation of our data structure.
+
+\begin{definition}[tf::tree]\label{def:tree}
+	A \texttt{tf::tree} is defined as the pair $\langle I, N \rangle$,
+	where $I$ is an ID array (Def.~\ref{def:ids}) and $N$ is an array
+	of nodes (Def.~\ref{def:node}). In a balanced tree, we
+	additionally specify the number of children of inner-nodes
+	$k\in\mathbb{N}$ and the maximum number of children in an
+	inner node $l\in\mathbb{N}$.
+\end{definition}
+
+Together, these arrays encode both the structure and contents
+of the tree, enabling efficient construction, traversal and query.
+
+
+\input{./algorithms/tree-construction.tex}
+
+\subsection{Tree Construction}
+
+The construction of spatial partitioning trees generally
+follows a common pattern: the current node is divided into
+$k$ partitions, and recursion proceeds independently into
+each of them as they become child nodes. Because these
+child nodes are independent, the recursion can be
+parallelized. Thus, the computational bottleneck shifts to
+the partitioning step -- our primary area of contribution
+with tree construction.
+
+\subsubsection{Partitioning}
+
+Partitioning, in practical terms, means reordering the ID
+range $I[n_0:n_k]$ (see Def.~\ref{def:ids}) associated with a
+node’s primitives, and dividing it into $k$ non-overlapping
+sub-ranges:
+\[
+	\{I[n_0:n_1],\ I[n_1:n_2],\ \dots,\ I[n_{k-1}:n_k]\}
+\]
+Each of these sub-ranges corresponds to one child of an
+inner node (Def.~\ref{def:tree}), and together they fully
+cover $I[n_0:n_k]$.
+
+When a balanced tree is desired, one often turns to
+techniques in the spirit of Sort-Tile-Recursive (STR) trees
+\cite{str-tree}, where primitives are sorted by their AABB
+centroids before the range is evenly partitioned.
+
+To improve upon this and achieve $\mathcal{O}(n\log n)$
+construction time (on average), we leverage the insight
+that elements $I_i^{n_a}$ and $I_j^{n_b}$ from different
+sub-ranges must be separated, but elements within a
+sub-range need not be sorted. The same insight is commonly
+used in binning-based partitioning approaches \cite{bvh-survey},
+though they do not guarantee balanced splits.
+
+The requirement, then, becomes: given a position $n$ in
+the range $I$, reorder the elements such that
+$\forall_{j<n}I[j] \le I[n]$ and $\forall_{j>n}I[j] \ge I[n]$.
+That is, $I[n]$ is the partitioning $n$th element.
+
+\paragraph*{\texttt{F::partition}} is a function in the
+that satisfies this requirement
+with average-case complexity $\mathcal{O}(n)$. Our default is
+\texttt{nth\_element} from the
+$\cpp$ standard library \cite{nth-element}.
+It is typically implemented using a
+combination of \texttt{Quickselect} \cite{quickselect0} and
+\texttt{Introselect} \cite{introselect0}. A major advantage
+of using this general-purpose algorithm is that it benefits
+from continued optimization and tuning
+\cite{quickselect1, introselect1, selection}.
+
+In practice, we use \texttt{F::partition} to partition
+the ID range $I$ into $k$ disjoint sub-ranges that satisfy
+the partitioning requirement. This is achieved through
+$k - 1$ applications of the function, using the center of
+the primitives’ AABBs along the axis of the node being
+partitioned with the largest spatial extent.
+We compare the usage of state-of-the-art selection
+algorithms at this task in
+Section~\ref{sec:eval-partitions}.
+
+\subsubsection{Implementation}
+
+The construction procedure is detailed in
+Algorithm~\ref{alg:build-tree}. Before invoking the
+algorithm, we initialize the ID array $I$ with the sequence
+$[0 : P]$, where $P$ is the number of primitives. The node
+array $N$ is then allocated to accommodate the structure of
+a perfectly balanced \texttt{k}-ary tree. The index of the
+first child of node $n$ is computed as
+\[
+	\mathrm{first\_child\_index}(n) = k \cdot n + 1,
+\]
+where $k$ is the fixed number of children for each
+inner node. Hence, the nodes are laid out in memory
+in such a manner, that the children of a node are
+contiguous. Furthermore, all nodes on a specific level
+of the tree are contiguous.
+Since child nodes are independent, each
+recursive dispatch can be performed in parallel,
+using \texttt{tbb}\cite{tbb}.
+
+\begin{theorem}
+	Algorithm~\ref{alg:build-tree} runs in
+	$\mathcal{O}(n \log n)$ time on average, and
+	$\mathcal{O}(n \log^2 n)$ in the worst case.
+\end{theorem}
+
+\begin{proof}
+	This follows from the Master Theorem
+	\cite{master-theorem}, based on the complexity guarantees
+	of \texttt{F::partition}.
+\end{proof}
+
+\paragraph*{API.} Tree construction is performed via 
+\texttt{tf::tree::build} method that accepts three parameters:
+a range of input objects, an AABB generator, and
+a configuration object. The range can be any object 
+satisfying the \cpp range concept. The second parameter,
+\texttt{make\_aabb}, is a callable that receives an object
+from the range and returns its \texttt{tf::aabb}. The third parameter
+is a \texttt{tf::tree\_config} struct specifying inner-size and leaf-size.
+Optionally it can be passed an additional first parameter, i.e. \texttt{build(F,...)},
+where \texttt{F} specifies how the partitioning step is performed via
+a static \texttt{F::partition} method. \texttt{F} defaults to
+using \texttt{nth\_element}. We provide implementations of
+various state-of-the-art algorithms\cite{mini-select}
+(see Section~\ref{sec:eval-partitions})
+for comparison in the namespace \texttt{tf::strategy}.
+
+\subsection{Search Queries}
+
+Search queries operate by traversing the tree and descending
+into nodes whose AABBs contain or intersect the query volume.
+Queries may originate from a single primitive or from another
+spatial tree or itself.
+
+\subsubsection{Query by Primitive}
+This is the simplest case. Large regions of space can be
+quickly discarded by checking AABBs. Our implementation avoids
+recursion and instead uses a static stack (via
+\texttt{small\_vector}~\cite{llvm-small-vector} for safety) to
+improve both performance and cache locality.
+
+Such queries are useful for a variety of tasks, including
+collecting all primitives that satisfy a predicate or
+performing early-exit collision checks at the primitive level.
+
+\paragraph*{API.}
+A query by primitive is performed using the function
+\texttt{tf::search}, which accepts three parameters:
+the \texttt{tf::tree} to be queried, a callable
+\texttt{check\_aabb}: $\mathrm{tf::aabb} \to \texttt{bool}$
+that filters internal nodes based on their AABB,
+and \texttt{apply\_f}: $\mathrm{id}\in I \to \texttt{bool}$,
+which is invoked on the primitive id in the leaf nodes.
+If \texttt{apply\_f} returns \texttt{true}, the traversal
+terminates early. For example, in a collection query,
+\texttt{apply\_f} would return \texttt{false} after
+appending the intersecting results. We additionally
+supply \texttt{tf::search\_broad}, where
+\texttt{apply\_f}: $I[n_i:n_j] \to \texttt{bool}$
+is invoked on the sub-ID range within leaf nodes.
+
+	{\small \input{./algorithms/dual-search.tex}}
+
+\subsubsection{Query by Tree}
+In this case, the goal is to find all overlapping primitive
+pairs between two trees. The traversal resembles a nested
+search: for each pair of overlapping nodes $(N_0, N_1)$,
+we recurse into their children until both are leaf nodes.
+At that point, we process the candidate primitive pairs.
+All child dispatches can be executed in parallel.
+This type of query follows the recursive structure shown in
+Algorithm~\ref{alg:bvh-traversal}. 
+
+\paragraph*{API.}
+A query by tree is performed using the function
+\texttt{tf::search}, which accepts four parameters:
+a pair of \texttt{tf::tree}s, a callable
+\texttt{check\_aabb}: $(\mathrm{tf::aabb}, \mathrm{tf::aabb}) \to \texttt{bool}$
+that filters internal nodes based on their AABBs,
+and \texttt{apply\_f}: $(I_0[n_i:n_j], I_1[m_k:m_l]) \to \texttt{bool}$,
+which is invoked on the pair of sub-ID ranges within leaf nodes.
+If \texttt{apply\_f} returns \texttt{true}, the traversal
+terminates early. For example, in a collection query,
+\texttt{apply\_f} would return \texttt{false} after
+appending the intersecting results. We additionally
+supply \texttt{tf::search\_broad}, where
+\texttt{apply\_f}: $(I_0[n_i:n_j], I_1[m_k:m_l]) \to \texttt{bool}$
+is invoked on the sub-ID range within leaf nodes.
+
+Note that \texttt{apply\_f} must be thread-safe if it performs
+any shared-state mutation, such as populating a global list
+of collisions.
+
+\subsubsection{Query by Self}
+\texttt{tf::tree} supports queries by self via the
+\texttt{tf::search\_self} and 
+\texttt{tf::search\_self\_broad} functions. Their API
+mirrors that of Query by Tree.
+This feature is useful for detecting self-intersections
+in meshes and merging primitives in $\varepsilon$-proximity.
+
+
+\input{./figures/stack.tex}
+\subsection{Nearness Queries}
+
+Nearness queries---whether between a tree and a
+primitive, or between two trees---typically follow a
+standard strategy: nodes (or node pairs) are inserted
+into a priority queue, ordered by their distance to the
+query primitive, or by the distance between their AABBs
+in the tree-to-tree case. This approach allows early
+pruning of branches using heuristics such as the minimal
+distance and the maximum-of-minimal distances
+\cite{knn0, eknn}.
+
+The use of a priority queue guarantees that the closest
+nodes are explored first, minimizing the number of checks
+required. However, research has shown that on modern
+processors, reducing the number of operations does not
+always translate into faster execution time
+\cite{alexandrescu-sorting}. For instance, linear search
+outperforms binary search on small sorted arrays due to
+better cache locality and branch prediction.
+
+\subsubsection{Top-K Sorted Stack}\label{sec:top-k}
+
+Our implementation follows the standard strategy,
+but replaces the priority queue with a stack. To preserve
+ordering where it matters most, we sort the top $k$ elements
+of the stack after processing the popped element—
+as this processing may have pushed several new elements
+onto the stack.
+
+Here, $k$ is defined as the number of elements pushed onto the
+stack while processing the popped element, plus the number
+of nodes in the current inner-leaf. See Figure~\ref{fig:stack}
+for a demonstration.
+
+
+The Top-K Sorted Stack imposes sufficient ordering on the
+traversal of the search space that, even though the nearness
+query performs more operations than when using a
+priority queue, it achieves better overall performance in
+practice. These results are evaluated in
+Section~\ref{sec:topk}.
+
+\subsubsection{Implementation}
+
+We provide implementations for both query types:
+between a tree and a primitive, and between two trees.
+The function \texttt{tf::nearness\_search} supports an
+optional first parameter that selects the traversal
+strategy: \texttt{top\_k\_sorted} or \texttt{priority\_queue},
+both defined in the \texttt{tf::strategy} namespace.
+The remaining parameters follow the APIs described below.
+
+\paragraph*{API: Primitive to Tree}
+This variant accepts three arguments:
+the \texttt{tf::tree} being queried,
+a callable \texttt{aabb\_metric\_f}:
+$\mathrm{tf::aabb} \to \mathbb{R}$,
+which computes the distance to an AABB,
+and a callable \texttt{closest\_point\_f}:
+$i \in I \to \mathrm{tf::closest\_point}$,
+which maps a primitive ID to a closest point result.
+
+\paragraph*{API: Tree to Tree}
+This variant accepts four arguments:
+a pair of \texttt{tf::tree} instances to be queried,
+a callable \texttt{aabb\_metric\_f}:
+$(\mathrm{tf::aabb}, \mathrm{tf::aabb}) \to \mathrm{tf::aabb\_metrics}$,
+which returns the minimum and min–max distances between
+bounding volumes~\cite{eknn},
+and a callable \texttt{closest\_point\_f}:
+$(i_0 \in I_0, i_1 \in I_1) \to \mathrm{tf::closest\_point\_pair}$,
+which maps a pair of primitive IDs to a closest point pair result.
+
+\subsection{Dynamics of \texttt{tf::tree}}
+
+All query APIs operate on user-provided callables,
+allowing dynamic behavior to be expressed at the query level.
+Tree dynamics can thus be achieved by applying
+transformations within the supplied callables.
+
+We provide the utility function \texttt{tf::transformed},
+which modifies the tree’s AABBs to reflect a given
+transformation while preserving structural consistency.
+Likewise, users may apply transformations to primitives
+within the relevant callables, enabling queries over
+geometry undergoing linear motion or deformation,
+without rebuilding the tree.
+

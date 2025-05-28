@@ -1,0 +1,183 @@
+\section{Evaluations}\label{sec:eval}
+\input{./figures/tree-build-solo.tex}
+\input{./figures/partitions.tex}
+
+We evaluate the performance of our approach across three core tasks:
+tree construction using state-of-the-art selection algorithms,
+search queries for collision and (self) intersection detection,
+and nearness queries. For the latter, we compare the use of a
+top-\emph{k} sorted stack against a standard priority queue.
+
+All evaluations were conducted using our open-source
+implementation~\cite{trueform}, compiled with \texttt{clang18}
+using maximum optimization settings. Benchmarks were performed
+on an Intel i7-9750H CPU with 12 threads.
+
+The trees we evaluate on were configured using
+\texttt{tf::tree\_config}$(4, 4)$, meaning
+a $4$-ary tree, unless specified otherwise.
+
+The models used for these evaluations are available at
+Computer Graphics Archive\cite{McGuire2017Data} and
+The Stanford 3D Scanning Repository\cite{stanford3dscanrep}.
+
+
+\subsection{Tree Construction} \label{sec:eval-cons}
+
+We evaluate construction times across models of varying sizes,
+ranging from 15k to 1.6M triangles~\cite{trueform}. These baseline
+measurements are shown in Figure~\ref{fig:partitions}. On the
+tested hardware, we observe a construction rate of approximately
+$1.6 \cdot 10^7 \,\frac{\mathrm{triangles}}{\mathrm{second}}$.
+
+\subsubsection{Scalability}
+
+To assess scalability with respect to mesh size, we remeshed the
+Stanford Dragon model into six variants containing
+$[50\text{k},\, 125\text{k},\, 250\text{k},\, 500\text{k},\, 750\text{k},\, 1\text{M}]$ triangles.
+The results, presented in Figure~\ref{fig:tree-build-solo},
+demonstrate near-linear scaling behavior.
+
+\subsubsection{Partitioning}\label{sec:eval-partitions}
+
+We evaluate the impact of various state-of-the-art selection
+algorithms on the partitioning step of
+Algorithm~\ref{alg:build-tree}. The algorithms considered include:
+
+\begin{itemize}
+  \item PDQSelect (based on PDQSort)~\cite{pdqSort},
+  \item Floyd–Rivest~\cite{floyd1975expected},
+  \item Median of Medians~\cite{mom},
+  \item Median of Ninthers (also known as Alexandrescu’s
+        algorithm~\cite{alexandrescu-sorting}),
+  \item Median of Three (Quickselect with the median of three
+        random elements),
+  \item HeapSelect.
+\end{itemize}
+
+The comparative performance of
+Algorithm~\ref{alg:build-tree} with these selection strategies
+is shown in Figure~\ref{fig:partitions}, where all times are
+normalized to our baseline \texttt{nth\_element}.
+
+While performance varies across models, the three best-performing
+algorithms are consistently \texttt{nth\_element},
+\texttt{pdq\_select}, and \texttt{floyd\_rivest\_select}.
+Among these, \texttt{nth\_element} most often yields the
+fastest construction times.
+
+\input{./tables/tree-tree.tex}
+
+\subsection{Search Queries}
+
+We evaluate search queries by applying \texttt{tf::tree} to the tasks
+of collision detection and computing all pairs of (self) intersecting
+primitives enclosed by two spatial trees. Prior to evaluation, each
+pair of models was uniformly rescaled to fit within a common bounding
+sphere centered at the origin. 
+\input{./figures/self-search.tex}
+
+\subsubsection{Collision Detection}
+
+To assess collision detection performance, we sampled $10{,}000$
+relative configurations between each model pair and checked for
+collision in each case. Results show that the average time for
+detecting a collision between two models is $47$ ns. These values
+are reported in Table~\ref{tab:tree-tree} under the
+\textbf{collide} sub-heading.
+
+In practice, we employ \texttt{tf::tree} for collision detection in
+automatic model positioning pipelines, where models are
+continuously checked for contact during iterative placement.
+
+\subsubsection{Intersecting Primitive Pairs}
+
+To evaluate the performance of \texttt{tf::tree} in computing
+intersecting primitive pairs, we sampled $10{,}000$ relative
+configurations resulting in intersection between each model pair.
+For each sample, we computed all intersecting pairs of primitives.
+The average evaluation times are reported in
+Table~\ref{tab:tree-tree} under the
+\textbf{intersect} sub-heading.
+
+Our results show that \texttt{tf::tree} supports real-time
+computation of intersecting primitive pairs (on the order of
+milliseconds), even for large models. This capability forms the
+foundation of our real-time mesh boolean pipeline, where fast and
+reliable detection of intersections is the first step
+\cite{sajovic2025trueform}.
+
+\subsubsection{Self-Intersections with $\mathbf{\varepsilon}$ Tolerance}
+
+To evaluate \texttt{tf::tree} on tolerant self-intersection detection,
+we generated synthetic point clouds of varying sizes. For each size,
+a percentage $p$ of points was duplicated and offset by $\varepsilon$
+in a random direction—simulating geometric redundancy common in
+real-world data.
+
+The goal is to find all primitive pairs within $\varepsilon$ proximity,
+i.e., all $\varepsilon$-self-intersections. These pairs guide merging
+or deduplication, reducing the number of distinct points by roughly $p\%$.
+
+As shown in Figure~\ref{fig:self-search}, \texttt{tf::tree} sustains
+interactive self-query times even at large scales and high densities.
+
+\subsection{Nearness Queries}
+
+We evaluate the ability of \texttt{tf::tree} to efficiently compute
+the closest point between two models across a wide range of
+configurations. Given a pair of models, we first normalize them to
+fit within a common bounding sphere. We then sample $10{,}000$
+relative positions that result in an intersection, and for each
+configuration, we compute the closest point using two different
+strategies: a top-\emph{k} sorted stack and a standard priority queue.
+The priority queue was implemented using a flat heap, employing the
+\texttt{std::make\_heap}, \texttt{std::push\_heap}, and
+\texttt{std::pop\_heap} functions of the standard \cpp library.
+
+The results, averaged across all configurations, are reported in
+Table~\ref{tab:tree-tree} under the \textbf{Nearness} heading.
+
+\subsubsection{Top-K Stack}\label{sec:topk}
+
+We evaluate the effectiveness of the top-\emph{k}
+sorted stack strategy for nearness queries, which we configured
+as specified in Section~\ref{sec:top-k}. Specifically, we compare
+its runtime performance and the computational cost in terms of AABB
+inspections against the baseline heap-based approach. The results
+highlight the trade-off between increased traversal effort and
+practical speed-up.
+
+\input{./figures/ftime-matrix.tex}
+
+
+\paragraph*{AABB Inspections}
+
+When using the top-\emph{k} sorted stack, \texttt{tf::tree} inspects
+more AABBs during the search process compared to the heap-based
+approach. This is expected: the partially sorted stack imparts approximate
+ordering on the traverasal and does not prune optimally.
+The increased number of inspections is quantified by the column
+$\mathbf{f}^{\mathit{cost}}$, which reports the ratio of AABB
+inspections between the top-\emph{k} sorted stack and the heap strategies.
+
+Results show that the top-\emph{k} sorted stack performs $1.37\times$
+AABB inspections as the priority queue based strategy.
+Despite this increase, the sorted stack maintains a highly efficient
+query structure by reducing traversal overhead and taking advantage
+of cache-locality and simpler branching behavior.
+
+\paragraph*{Peformance}
+
+In practice, the top-\emph{k} sorted stack consistently outperforms
+the heap-based alternative in terms of runtime. As shown in the
+$\mathbf{f}_{\mathit{time}}$ column, it yields a speed-up factor
+ranging from $1.7\times$ to over $3\times$ on complex models.
+Furthermore, the performance benefit increases with
+higher tree arity, as demonstrated in Figure~\ref{fig:ftime-matrix}.
+
+While the heap strategy optimizes for minimal node visits, the
+stack-based approach emphasizes speed through structural simplicity
+and execution efficiency. These results demonstrate that even with
+more geometric operations, the top-\emph{k} method provides
+superior overall performance in practical applications.

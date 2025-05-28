@@ -1,0 +1,183 @@
+\begin{figure*}[!htb]
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}
+
+\newcommand{\dragonBars}[9]{%
+  \begin{scope}
+    \pgfmathsetmacro{\w}{0.2}
+    \pgfmathsetmacro{\g}{0.05}
+    \pgfmathsetmacro{\totalW}{7*\w + 6*\g}
+
+    % Store heights and colors
+    \pgfmathsetmacro{\hzero}{#3}
+    \pgfmathsetmacro{\hone}{#4}
+    \pgfmathsetmacro{\htwo}{#5}
+    \pgfmathsetmacro{\hthree}{#6}
+    \pgfmathsetmacro{\hfour}{#7}
+    \pgfmathsetmacro{\hfive}{#8}
+    \pgfmathsetmacro{\hsix}{#9}
+
+    % Find minimum value and index
+    \pgfmathsetmacro{\minVal}{min(\hzero,\hone,\htwo,\hthree,\hfour,\hfive,\hsix)}
+    \def\minIndex{0}
+    \def\minColor{dragonColor6}
+    \foreach \val/\col [count=\i from 0] in 
+        {\hzero/dragonColor6,\hone/dragonColor1,\htwo/dragonColor2,%
+         \hthree/dragonColor3,\hfour/dragonColor4,\hfive/dragonColor5,\hsix/dragonColor0} {
+      \pgfmathparse{\val==\minVal ? 1 : 0}
+      \ifnum\pgfmathresult=1
+        \xdef\minIndex{\i}
+        \xdef\minColor{\col}
+        \breakforeach
+      \fi
+    }
+
+    % Draw bars and min marker
+    \foreach \i/\h/\c in {
+        0/#3/dragonColor6,
+        1/#4/dragonColor1,
+        2/#5/dragonColor2,
+        3/#6/dragonColor3,
+        4/#7/dragonColor4,
+        5/#8/dragonColor5,
+        6/#9/dragonColor0} {
+      \pgfmathsetmacro{\x}{\i*\w + \i*\g}
+      \pgfmathsetmacro{\xend}{(\i+1)*\w + \i*\g}
+      \pgfmathsetmacro{\xcenter}{(\x + \xend)/2}
+      \draw[fill=\c, draw=edgeColor, thin, rounded corners=2pt]
+        (\x, 0) rectangle (\xend, \h);
+
+      \ifnum\i=\minIndex
+        \fill[\minColor] (\xcenter, \h + 0.125) circle (0.075);
+      \fi
+    }
+
+  \end{scope}
+}
+
+
+
+\newcommand{\tags}[3]{%
+  \begin{scope}
+    \pgfmathsetmacro{\w}{0.2}
+    \pgfmathsetmacro{\g}{0.05}
+    \pgfmathsetmacro{\totalW}{7*\w + 6*\g}
+
+    \node[anchor=north west, inner sep=0pt] at (0, -0.1) {%
+      \parbox[c][1.5cm][c]{\totalW cm}{\centering
+        {\small #1} \\[-0.1em]
+        \scriptsize{$\triangle$: #2} \\[-0.1em]
+        \scriptsize{$\tikz[baseline=-0.6ex]\fill[dragonColor6] (0,0) circle[radius=0.1cm];$: #3 ms}
+      }%
+    };
+  \end{scope}
+}
+
+
+
+  \fill[background, rounded corners=4pt] (-0.25, -0.3) rectangle (20, 7.7);
+  \fill[background!90!gray,] (-0.2, -0.2) rectangle (20, -1);
+  \fill[background!90!gray, rounded corners=4pt] (-0.2, -0.2) rectangle (20, -1.6);
+
+  \fill[background!90!gray,] (-0.6, -0.2) rectangle (-0.2, 7.7);
+\fill[background!90!gray, rounded corners=4pt] (-0.85, -0.2) rectangle (-0.2, 7.7);
+
+
+\fill[background!95!gray,rounded corners = 3pt, draw = edgeColor] (0.1, 7.4) rectangle (7.3, 5.6);
+
+\foreach \y in {1,...,7} {
+  \node[anchor=east] at (-0.3,\y) {\small \y};
+}
+
+\fill[fill=dragonColor6, draw = edgeColor] (0.4, 7) circle (0.1);
+\node[anchor=west] at (0.5, 7) {\scriptsize nth element};
+
+\fill[fill=dragonColor1, draw = edgeColor] (0.4, 6.5) circle (0.1);
+\node[anchor=west] at (0.5, 6.5) {\scriptsize pdq select};
+
+\fill[fill=dragonColor2, draw = edgeColor] (0.4, 6) circle (0.1);
+\node[anchor=west] at (0.5, 6) {\scriptsize floyd rivest};
+
+\fill[fill=dragonColor3, draw = edgeColor] (2.5, 7) circle (0.1);
+\node[anchor=west] at (2.6, 7) {\scriptsize median of medians};
+
+\fill[fill=dragonColor4, draw = edgeColor] (2.5, 6.5) circle (0.1);
+\node[anchor=west] at (2.6, 6.5) {\scriptsize median of ninthers};
+
+\fill[fill=dragonColor5, draw = edgeColor] (2.5, 6.0) circle (0.1);
+\node[anchor=west] at (2.6, 6) {\scriptsize median of 3 rand};
+
+\fill[fill=dragonColor0, draw = edgeColor] (5.5, 6.5) circle (0.1);
+\node[anchor=west] at (5.7, 6.5) {\scriptsize heap select};
+
+
+\begin{scope}[shift={(0,0)}]
+  \dragonBars{teapot}{15704}{1}{1.00106}{0.842194}{3.70787}{1.22738}{1.20532}{4.25655}{0.8}
+  \tags{teapot}{15704}{0.8}
+  \end{scope}
+
+\begin{scope}[shift={(2,0)}]
+  \dragonBars{head}{17680}{1}{1.13614}{1.04715}{3.02012}{1.17686}{1.19028}{4.94941}{1}
+  \tags{head}{17680}{1}
+  \end{scope}
+
+\begin{scope}[shift={(4,0)}]
+  \dragonBars{bunny}{69630}{1}{0.861341}{0.894227}{3.12069}{1.17719}{1.296}{4.48095}{4.7}
+  \tags{bunny}{69630}{4.7}
+  \end{scope}
+
+\begin{scope}[shift={(6,0)}]
+  \dragonBars{house}{126248}{1}{1.07349}{1.03612}{3.31762}{1.23652}{1.28092}{4.3947}{6.1}
+  \tags{house}{126248}{6.1}
+  \end{scope}
+
+\begin{scope}[shift={(8,0)}]
+  \dragonBars{armadillo}{212574}{1}{0.949872}{0.934036}{3.87292}{1.35477}{1.32157}{6.74034}{9.9}
+  \tags{armadillo}{212574}{9.9}
+  \end{scope}
+
+%\begin{scope}[shift={(10,0)}]
+%  \dragonBars{xyz\_dragon}{249882}{1}{0.93935}{1.21907}{3.93827}{1.22625}{1.24892}{4.23433}{11.7}
+%  \tags{xyz\_dragon}{249882}{11.7}
+%  \end{scope}
+
+\begin{scope}[shift={(10,0)}]
+  \dragonBars{car}{300395}{1}{1.06822}{1.03194}{3.72137}{1.33293}{1.33496}{5.79982}{15.8}
+  \tags{car}{300395}{15.8}
+  \end{scope}
+
+\begin{scope}[shift={(12,0)}]
+  \dragonBars{erato}{412498}{1}{0.889098}{0.874075}{3.13577}{1.04911}{1.17392}{4.56368}{28.3}
+  \tags{erato}{412498}{28.3}
+  \end{scope}
+
+
+\begin{scope}[shift={(14,0)}]
+  \dragonBars{dragon}{871414}{1}{1.09339}{0.873645}{4.36813}{1.26265}{1.29407}{6.29397}{53.5}
+  \tags{dragon}{871414}{53.5}
+  \end{scope}
+
+\begin{scope}[shift={(16,0)}]
+  \dragonBars{buddha}{1087474}{1}{1.11811}{1.0717}{3.64623}{1.12094}{1.34403}{5.95455}{62.4}
+  \tags{buddha}{1087474}{62.4}
+  \end{scope}
+
+\begin{scope}[shift={(18,0)}]
+  \dragonBars{bike}{1676774}{1}{1.08681}{1.03394}{4.04532}{1.19992}{1.25366}{5.68256}{110}
+  \tags{bike}{1676774}{110}
+  \end{scope}
+
+
+\end{tikzpicture}
+}
+
+\caption{
+  Build times of \texttt{tf::tree} using different selection algorithms. 
+  The chart shows times normalized relative to the baseline \texttt{nth\_element}.
+  A small circle over the bar marks the fastest algorithm of the group.
+  Each group corresponds to a specific model, with the number of triangles indicated next to~$\triangle$ 
+  and the baseline time shown alongside 
+  \protect\tikz[baseline=-0.6ex]\protect\fill[dragonColor6] (0,0) circle[radius=0.1cm];.
+} \label{fig:partitions}
+\end{figure*}
+

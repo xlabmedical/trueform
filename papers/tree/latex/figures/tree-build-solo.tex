@@ -1,0 +1,59 @@
+\begin{figure}[!t]
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}
+
+\def\barone{0.2}
+\def\bartwo{0.6}
+\def\barthree{1.2}
+\def\barfour{3.1}
+\def\barfive{4.2}
+\def\barsix{6.1}
+% Bar height
+\def\bh{0.6}
+
+\fill[background!90!gray, rounded corners = 3pt] (-1.6, 1.0) rectangle (1.5+\barsix, -5.3);
+\fill[background, rounded corners = 3pt] (-0.1, 1.0) rectangle (1.5+\barsix, -5.3);
+\fill[background] (-0.1, 1.0) rectangle (1, -5.3);
+
+% Draw bars
+\draw[fill=dragonColor0, draw=edgeColor, thin, rounded corners=2pt] (0,0) rectangle (\barone,\bh);
+\draw[fill=dragonColor1, draw=edgeColor, thin, rounded corners=4pt] (0,-1) rectangle (\bartwo,-1+\bh);
+\draw[fill=dragonColor2, draw=edgeColor, thin, rounded corners=4pt] (0,-2) rectangle (\barthree,-2+\bh);
+\draw[fill=dragonColor3, draw=edgeColor, thin, rounded corners=4pt] (0,-3) rectangle (\barfour,-3+\bh);
+\draw[fill=dragonColor4, draw=edgeColor, thin, rounded corners=4pt] (0,-4) rectangle (\barfive,-4+\bh);
+\draw[fill=dragonColor5, draw=edgeColor, thin, rounded corners=4pt] (0,-5) rectangle (\barsix,-5+\bh);
+
+\draw[fill=dragonColor0, thin, draw = edgeColor] (0.6+\barone, 0.3) circle (0.4);
+\draw[fill=dragonColor1, thin, draw = edgeColor] (0.6+\bartwo, -0.7) circle (0.4);
+\draw[fill=dragonColor2, thin, draw = edgeColor] (0.6+\barthree, -1.7) circle (0.4);
+\draw[fill=dragonColor3, thin, draw = edgeColor] (0.6+\barfour, -2.7) circle (0.4);
+\draw[fill=dragonColor4, thin, draw = edgeColor] (0.6+\barfive, -3.7) circle (0.4);
+\draw[fill=dragonColor5, thin, draw = edgeColor] (0.6+\barsix, -4.7) circle (0.4);
+
+
+\node(x0) at (0.6+\barone, 0.3) {\small \textbf{2}};
+\node (x1) at (0.6+\bartwo, -0.7) {\small \textbf{6}};
+\node (x2) at (0.6+\barthree, -1.7) {\small \textbf{12}};
+\node (x3) at (0.6+\barfour, -2.7) {\small \textbf{31}};
+\node(x4) at  (0.6+\barfive, -3.7) {\small \textbf{42}};
+\node(x5) at (0.6+\barsix, -4.7) {\small \textbf{61}};
+
+
+\node[fill=dragonColor5!40!background, draw=edgeColor, thin, rounded corners=2pt, minimum height = \bh, minimum width = 35, anchor = west] (t5) at (-1.5, -4.7) {\small \textbf{1~M}};
+\node[fill=dragonColor4!40!background, draw=edgeColor, thin, rounded corners=2pt, minimum height = \bh, minimum width = 35, anchor = west] (t4) at (-1.5, -3.7) {\small \textbf{750 k}};
+\node[fill=dragonColor3!40!background, draw=edgeColor, thin, rounded corners=2pt, minimum height = \bh, minimum width = 35, anchor = west] (t3) at (-1.5, -2.7) {\small \textbf{500 k}};
+\node[fill=dragonColor2!40!background, draw=edgeColor, thin, rounded corners=2pt, minimum height = \bh, minimum width = 35, anchor = west] (t2) at (-1.5, -1.7) {\small \textbf{250 k}};
+\node[fill=dragonColor1!40!background, draw=edgeColor, thin, rounded corners=2pt, minimum height = \bh, minimum width = 35, anchor = west] (t1) at (-1.5, -0.7) {\small \textbf{125 k}};
+\node[fill=dragonColor0!40!background, draw=edgeColor, thin, rounded corners=2pt, minimum height = \bh, minimum width = 35, anchor = west] (t0) at (-1.5, 0.3) {\small \textbf{50 k}};
+
+
+
+\node[rotate=90] at (-1.9, -2.15) {\textbf{Number of triangles}};
+\node at(2.9, -5.6) {\textbf{Build time [ms]}};
+\end{tikzpicture}
+}
+\caption{\texttt{tf::tree} construction times for models
+of various sizes, displaying near-linear scalability in
+  number of primitives. We observe a construction rate of approximately
+$1.6 \cdot 10^7 \,\frac{\mathrm{triangles}}{\mathrm{second}}$.}\label{fig:tree-build-solo}
+\end{figure}

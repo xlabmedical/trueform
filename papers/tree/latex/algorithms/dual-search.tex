@@ -1,0 +1,30 @@
+		\begin{algorithm}[!t]
+			\SetAlgoLined
+			\KwIn{Node $N_0$, Node $N_1$, Functions \texttt{fs}}
+
+			\If{\texttt{fs.abort\_f()} or !\texttt{fs.check\_aabbs}$(N_0.\mathrm{aabb}, N_1.\mathrm{aabb})$}{
+				\Return;
+			}
+
+			\If{$N_0$ and $N_1$ are both leaves}{
+				\texttt{fs.apply\_f}$(N_0.\mathrm{ids}(I), N_1.\mathrm{ids}(I))$\;
+			}
+			\ElseIf{$N_0$ is a leaf}{
+				\ForEach{child $N_i$ of $N_1$}{
+					Dispatch \texttt{Search}$(N_0, N_i, \texttt{fs})$\;
+				}
+			}
+			\ElseIf{$N_1$ is a leaf}{
+				\ForEach{child $N_i$ of $N_0$}{
+					Dispatch \texttt{Search}$(N_i, N_1, \texttt{fs})$\;
+				}
+			}
+			\Else{
+				\ForEach{child $N_i$ of $N_0$ and $N_j$ of $N_1$}{
+					Dispatch \texttt{Search}$(N_i, N_j, \texttt{fs})$\;
+				}
+			}
+
+			\caption{\texttt{Search}($N_0$, $N_1$, \texttt{fs})}
+			\label{alg:bvh-traversal}
+		\end{algorithm}

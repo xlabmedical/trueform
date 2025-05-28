@@ -1,0 +1,59 @@
+\begin{figure}[t]
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}[
+  id/.style={rounded corners, minimum width=1cm, minimum height=1cm, font=\small},
+  box/.style={fill=gray!25,draw, minimum width=1cm, minimum height=1cm, font=\small},
+  boxTop/.style={fill=gray!10,draw, minimum width=1cm, minimum height=1cm, font=\small},
+  boxE/.style={fill=gray!30,draw, minimum width=1cm, minimum height=1cm, font=\small},
+  boxName/.style={minimum width=1cm, minimum height=1cm},
+  arr/.style={->, thick},
+  background rectangle/.style={fill=gray!5, rounded corners=5pt},
+  show background rectangle
+]
+
+
+  \node[boxTop] (N0) {4};
+\node[boxTop, anchor=south] (N1) at (N0.north) {3};
+\node[boxTop, anchor=south] (N2) at (N1.north) {2};
+\node[boxTop, anchor=south] (N3) at (N2.north) {1};
+
+
+
+  \node[box, right = 2cm of N0] (M0) {4};
+\node[box, anchor=south] (M1) at (M0.north) {3};
+\node[box, anchor=south] (M2) at (M1.north) {2};
+\node[box, anchor=south] (M3) at (M2.north) {1};
+\node[boxTop, anchor=south] (M4) at (M3.north) {6};
+\node[boxTop, anchor=south] (M5) at (M4.north) {8};
+
+  \node[box, right = 2cm of M0] (O0) {4};
+\node[box, anchor=south] (O1) at (O0.north) {3};
+\node[boxTop, anchor=south] (O2) at (O1.north) {8};
+\node[boxTop, anchor=south] (O3) at (O2.north) {6};
+\node[boxTop, anchor=south] (O4) at (O3.north) {2};
+\node[boxTop, anchor=south] (O5) at (O4.north) {1};
+
+
+\draw[->, thick, shorten <=0.1cm, shorten >=0.1cm]
+  (N3) -- node[above]{\small Pushing}(M3); 
+\draw[->, thick, shorten <=0.1cm, shorten >=0.1cm]
+  (M3) -- node[above]{\small Sorting}(O3); 
+
+
+\node[fill = gray!10, below=0.5cm of N0, minimum height = 0.5cm, anchor=north, draw,semithick, rounded corners] (nm0) {Initial stack};
+\node[fill = gray!10, below=0.5cm of O0,minimum height = 0.5cm, anchor=north, draw, semithick, rounded corners] (nm1) {Next stack};
+
+  \draw[semithick] (nm0) -- (N0){};
+  \draw[semithick] (nm1) -- (O0){};
+  \draw[->, dashed, semithick, shorten <=0.2cm, shorten >=0.2cm] (nm0) -- node[above]{\small Processing} node[below]{\small the popped element}(nm1){};
+
+\end{tikzpicture}
+}
+\caption{
+Visualization of a Top-K Sorted Stack for a binary tree.
+On the left is the initial state of the stack after a pop
+operation. During processing, elements 6 and 8 are added.
+The top 4 elements (2 newly added and 2 existing) are then
+sorted, resulting in the stack for the next iteration.
+}\label{fig:stack}
+\end{figure}

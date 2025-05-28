@@ -1,0 +1,46 @@
+\begin{table*}[!ht]
+\caption{Comprehensive performance evaluation of \texttt{tf::tree}.
+Given two input models, we sample $10{,}000$ configurations
+  from the space of all relative placements. The table reports average results
+  across two categories: \textbf{Search} (intersecting configurations) and
+  \textbf{Nearness} (non-intersecting configurations).
+\textbf{Search:} The column \textbf{collide} reports the time required to detect
+whether the two models intersect, while \textbf{intersect} gives the time needed
+to collect all intersecting primitive pairs. Both queries execute in real time,
+even for models with a large number of primitives.
+\textbf{Nearness:} The column \textbf{top-k} shows the time needed to find the
+closest point between models using a top-\emph{k} sorted stack; \textbf{heap}
+reports the same using a priority queue. $\mathbf{f}_{\mathit{time}}$ indicates
+the speed-up factor achieved with the sorted stack, while $\mathbf{f}^{\mathit{cost}}$
+shows the corresponding increase in AABB inspections. Despite performing more
+  inspections, the top-\emph{k} strategy yields significantly better performance in practice.}
+  \label{tab:tree-tree}
+  \resizebox{\linewidth}{!}{
+\begin{tabular}{lcccccccc}
+\toprule
+  \multicolumn{3}{c}{\textbf{Input}} &
+\multicolumn{2}{c}{\textbf{Search}} &
+\multicolumn{4}{c}{\textbf{Nearness}} \\
+\cmidrule(lr){1-3}\cmidrule(lr){4-5} \cmidrule(lr){6-9}
+$\mathbf{model}_0$ & $\mathbf{model}_1$ & \textbf{primitives} &
+  \textbf{collide} \textbf{\scriptsize[ns]} & \textbf{intersect} \textbf{\scriptsize[ms]} &
+  \textbf{top-k \scriptsize[ms]} & \textbf{heap \scriptsize[ms]} & $\mathbf{f}_{time}$ & $\mathbf{f}^{cost}$ \\
+\midrule
+armadillo & bunny & 282204 & 33.20 & 0.76 & 1.49 & 3.00 & 2.02 & 1.26 \\
+erato & teapot & 428202 & 39.15 & 2.14 & 2.55 & 6.16 & 2.42 & 1.47 \\
+erato & bunny & 482128 & 35.42 & 1.42 & 1.40 & 2.60 & 1.86 & 1.40 \\
+erato & armadillo & 625072 & 50.99 & 1.46 & 1.36 & 2.35 & 1.72 & 1.51 \\
+buddha & teapot & 1103178 & 29.76 & 3.71 & 5.43 & 16.40 & 3.02 & 1.10 \\
+buddha & bunny & 1157104 & 38.17 & 2.01 & 2.90 & 6.07 & 2.09 & 1.47 \\
+buddha & armadillo & 1300048 & 52.51 & 1.99 & 2.79 & 5.21 & 1.87 & 1.52 \\
+buddha & erato & 1499972 & 46.50 & 2.41 & 1.47 & 2.50 & 1.70 & 1.40 \\
+bike & teapot & 1692478 & 25.89 & 8.65 & 1.40 & 3.46 & 2.47 & 1.13 \\
+bike & bunny & 1746404 & 48.86 & 2.93 & 1.21 & 2.37 & 1.96 & 1.47 \\
+bike & armadillo & 1889348 & 63.46 & 3.15 & 1.21 & 2.17 & 1.79 & 1.59 \\
+bike & erato & 2089272 & 66.89 & 3.34 & 0.78 & 1.51 & 1.92 & 1.25 \\
+bike & buddha & 2764248 & 61.07 & 2.94 & 2.30 & 3.87 & 1.68 & 1.58 \\
+\bottomrule
+\end{tabular}
+  }
+\end{table*}
+
