@@ -47,6 +47,8 @@ target_link_libraries(my_target PRIVATE tf::trueform)
 
 **A General-Purpose Spatial Hierarchy for Real-Time Geometry Queries.**
 
+The evaluations below were compiled with *Clang 18* using maximum optimization settings. Benchmarks were conducted on an `Intel i7-9750H` CPU with 6 physical cores.
+
 
 <p align="center">
   <img src="papers/tree/figures/libraries-cons.png" width="45%" alt="Libraries Comparison">
