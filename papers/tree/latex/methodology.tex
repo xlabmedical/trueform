@@ -140,20 +140,19 @@ with average-case complexity $\mathcal{O}(n)$. Our default is
 $\cpp$ standard library \cite{nth-element}.
 It is typically implemented using a
 combination of \texttt{Quickselect} \cite{quickselect0} and
-\texttt{Introselect} \cite{introselect0}. A major advantage
-of using this general-purpose algorithm is that it benefits
+\texttt{Introselect} \cite{introselect0}.
+Additionally, we provide implementations of
+PDQSelect (based on PDQSort)~\cite{pdqSort},
+Floyd–Rivest~\cite{floyd1975expected},
+Median of Ninthers (also known as Alexandrescu’s
+        algorithm~\cite{alexandrescu-sorting}),
+and others, that can be supplied to the 
+build method as a first parameter.
+A major advantage
+of using these general-purpose algorithms is that
+they benefits
 from continued optimization and tuning
 \cite{quickselect1, introselect1, selection}.
-
-In practice, we use \texttt{F::partition} to partition
-the ID range $I$ into $k$ disjoint sub-ranges that satisfy
-the partitioning requirement. This is achieved through
-$k - 1$ applications of the function, using the center of
-the primitives’ AABBs along the axis of the node being
-partitioned with the largest spatial extent.
-We compare the usage of state-of-the-art selection
-algorithms at this task in
-Section~\ref{sec:eval-partitions}.
 
 \subsubsection{Implementation}
 

@@ -81,6 +81,7 @@ std::vector<triangle_t> triangles;
 
 tf::tree<int, float, 3> tree;
 tree.build(
+    //tf::strategy::nth_element,
     triangles,
     [&points](const triangle_t &t) {
       return tf::aabb_union(
@@ -98,6 +99,7 @@ Construct a tree over a list of points, each represented by a single AABB.
 ```c++
 tf::tree<int, float, 3> point_tree;
 point_tree.build(
+    //tf::strategy::nth_element,
     points,
     [](const tf::vector<float, 3> &pt) { return tf::aabb_from(pt); },
     tf::tree_config{4, 4});

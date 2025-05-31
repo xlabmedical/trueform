@@ -1,46 +1,35 @@
 \begin{algorithm}[!t]
 \SetAlgoLined
 \KwIn{%
-AABBs of primitives: $\mathcal{B}$,\quad
-ID sub-range: $I^\prime$,\quad
-node index: $n$,\quad
-offset of $I$ in the original array: $o$,\quad
-configuration: $c$
+    AABBs of primitives: $\mathcal{B}$\;
+    ID sub-range: $I'$\;
+    Node index: $n$\;
+    Configuration: $c$
 }
 \KwOut{%
-Updated node array $N$,\quad
-partitioned ID array $I$
+    Updated node array $N$\;
+    Partitioned ID array $I$
 }
 
-Compute bounding box $A_n = \bigcup_{i \in I^\prime} \mathcal{B}[i]$\;
+Compute bounding box: $A_n \gets \bigcup_{i \in I'} \mathcal{B}[i]$\;
 
-\If{$|I| \leq c.\mathrm{leaf\_size}$}{
-  Mark $N[n]$ as a leaf with children $(o, |I^\prime|) \subseteq I$\;
-  \Return
+\If{$|I'| \leq c.\mathrm{leaf\_size}$}{
+    Mark $N[n]$ as a \textbf{leaf} with children range $(o, |I'|)$ in $I$\;
+    \Return
 }
 
-Set split axis $a \gets \arg\max \mathrm{diag}(A_n)$\;
+Set split axis: $a \gets \arg\max \mathrm{diag}(A_n)$\;
 Set $N[n].\mathrm{axis} \gets a$\;
+\hspace{1em} $first\_child \gets \mathrm{first\_child\_index}(n)$\;
 
-Initialize $work\_ids \gets I^\prime$,\quad
-$p \gets \mathrm{balanced\_split}(c.\mathrm{inner\_size})$,\quad
-$child \gets \mathrm{first\_child\_index}(n)$\;
+Partition $I^\prime$ into $c.\mathrm{inner\_size}$ parts using recursive applicatios of \texttt{F::partition} on split axis,
+and call \texttt{build\_tree} on each resulting range. Each range
+is a child node, starting at index $first\_child$.
 
-\While{$!work\_ids.\mathrm{empty}()$}{
-  \If{$|work\_ids| \geq p$}{
-    Apply \texttt{F::partition} (with $n = p$) to $work\_ids$ along axis $a$\;
-  }
-  $next\_ids \gets \mathrm{take}(work\_ids, p)$\;
-  
-  Dispatch on node $N[child]$ with $next\_ids$, offset $o + (|I| - |work\_ids|)$\;
-  
-  $work\_ids \gets \mathrm{drop}(work\_ids, |next\_ids|)$\;
-  $child \gets child + 1$\;
-}
+Mark $N[n]$ as an \textbf{inner node} with children range
+$(\mathrm{first\_child\_index}(n), c.\mathrm{inner\_size})$ in $N$\;
 
-Mark $N[n]$ as an inner node with children\\
-$(\mathrm{first\_child\_index}(n), c.\mathrm{inner\_size}) \subseteq N$\;
-
-	\caption{In-place tree construction with $\mathrm{nth\_element}$-based partitioning of ID range.}
-	\label{alg:build-tree}
+\caption{\texttt{build\_tree}}
+\label{alg:build-tree}
 \end{algorithm}
+

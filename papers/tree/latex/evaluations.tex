@@ -1,6 +1,14 @@
-\section{Evaluations}\label{sec:eval}
-\input{./figures/tree-build-solo.tex}
+\begin{figure}[!thp]
+\includegraphics[width=\linewidth]{../figures/build_scaling.pdf}
+\caption{%
+  Construction time of \texttt{tf::tree} as a function of the number of primitives, %
+  for varying thread counts. We observe that with 6 threads, %
+  construction time scales nearly linearly with the number of primitives.%
+}
+\label{fig:scaling}
+\end{figure}
 \input{./figures/partitions.tex}
+\section{Evaluations}\label{sec:eval}
 
 We evaluate the performance of our approach across three core tasks:
 tree construction using state-of-the-art selection algorithms,
@@ -11,7 +19,7 @@ top-\emph{k} sorted stack against a standard priority queue.
 All evaluations were conducted using our open-source
 implementation~\cite{trueform}, compiled with \texttt{clang18}
 using maximum optimization settings. Benchmarks were performed
-on an Intel i7-9750H CPU with 12 threads.
+on an Intel i7-9750H CPU with 6 cores.
 
 The trees we evaluate on were configured using
 \texttt{tf::tree\_config}$(4, 4)$, meaning
@@ -28,15 +36,23 @@ We evaluate construction times across models of varying sizes,
 ranging from 15k to 1.6M triangles~\cite{trueform}. These baseline
 measurements are shown in Figure~\ref{fig:partitions}. On the
 tested hardware, we observe a construction rate of approximately
-$1.6 \cdot 10^7 \,\frac{\mathrm{triangles}}{\mathrm{second}}$.
+$1.8 \cdot 10^7 \,\frac{\mathrm{primitives}}{\mathrm{second}}$.
 
 \subsubsection{Scalability}
 
-To assess scalability with respect to mesh size, we remeshed the
-Stanford Dragon model into six variants containing
-$[50\text{k},\, 125\text{k},\, 250\text{k},\, 500\text{k},\, 750\text{k},\, 1\text{M}]$ triangles.
-The results, presented in Figure~\ref{fig:tree-build-solo},
-demonstrate near-linear scaling behavior.
+To evaluate the scalability of our method with respect to input
+size and parallelism, we generated six variants of the Stanford
+Dragon model containing $50\text{k}$, $125\text{k}$, $250\text{k}$,
+$500\text{k}$, $750\text{k}$, and $1\text{M}$ triangles,
+respectively. For each mesh, we constructed the tree using
+between 1 and 6 threads, corresponding to the 6 physical cores
+available on the test system.
+
+As shown in Figure~\ref{fig:scaling}, construction time decreases
+consistently with more threads. At 6 threads, we operate at
+$66\%$ efficiency. Furtermore, we observe that with $6$
+threads, the construction is near-linear in number
+of primitives.
 
 \subsubsection{Partitioning}\label{sec:eval-partitions}
 
