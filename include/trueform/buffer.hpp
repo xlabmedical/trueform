@@ -82,7 +82,7 @@ public:
     std::fill(_data.get(), _end, std::move(t));
   }
 
-  auto erase_till_end(const T *_new_end) { _end = _new_end; }
+  auto erase_till_end(T *const _new_end) { _end = _new_end; }
 
   auto erase(const T *_from, const T *_to) {
     auto it = _to;

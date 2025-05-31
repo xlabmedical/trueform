@@ -45,6 +45,11 @@ auto make_span(Iterator it, std::size_t size) -> span<Iterator> {
   return span<Iterator>(it, size);
 }
 
+template <typename Iterator>
+auto make_span(Iterator it, Iterator end) -> span<Iterator> {
+  return span<Iterator>(it, end - it);
+}
+
 // From raw pointer + size
 template <typename T> auto make_span(T *ptr, std::size_t size) -> span<T *> {
   return span<T *>(ptr, size);
