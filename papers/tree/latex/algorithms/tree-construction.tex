@@ -14,7 +14,7 @@
 Compute bounding box: $A_n \gets \bigcup_{i \in I'} \mathcal{B}[i]$\;
 
 \If{$|I'| \leq c.\mathrm{leaf\_size}$}{
-    Mark $N[n]$ as a \textbf{leaf} with children range $(o, |I'|)$ in $I$\;
+    Mark $N[n]$ as a \textbf{leaf} with children range $I^\prime$\;
     \Return
 }
 
@@ -27,7 +27,7 @@ and call \texttt{build\_tree} on each resulting range. Each range
 is a child node, starting at index $first\_child$.
 
 Mark $N[n]$ as an \textbf{inner node} with children range
-$(\mathrm{first\_child\_index}(n), c.\mathrm{inner\_size})$ in $N$\;
+$(\mathrm{first\_child}, c.\mathrm{inner\_size})$ in $N$\;
 
 \caption{\texttt{build\_tree}}
 \label{alg:build-tree}
