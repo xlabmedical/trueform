@@ -37,7 +37,7 @@ target_include_directories(
                      $<INSTALL_INTERFACE:include>)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_subdirectory(examples)
+add_subdirectory(examples EXCLUDE_FROM_ALL)
 
 include(GNUInstallDirs)
 
