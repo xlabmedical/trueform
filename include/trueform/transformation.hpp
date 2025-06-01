@@ -12,12 +12,12 @@ template <typename T, std::size_t Dims> class transformation {
 public:
   transformation() = default;
   transformation(const std::array<std::array<T, 4>, Dims> &t) : _transform{t} {}
-  auto operator()(std::size_t i, std::size_t j) const -> decltype(auto) {
+  auto operator()(std::size_t i, std::size_t j) const -> const T & {
     return _transform[i][j];
   }
 
-  auto operator()(std::size_t i, std::size_t j) -> decltype(auto) {
-    return _transform(i, j);
+  auto operator()(std::size_t i, std::size_t j) -> T & {
+    return _transform[i][j];
   }
 
   template <typename Point0, typename Point1>
@@ -57,4 +57,21 @@ public:
 private:
   std::array<std::array<T, Dims + 1>, Dims> _transform;
 };
+
+template <typename T, std::size_t Dims> auto make_identity_transformation() {
+  transformation<T, Dims> out;
+  for (std::size_t i = 0; i < Dims; ++i)
+    for (std::size_t j = 0; j < Dims + 1; ++j)
+      out(i, j) = i == j;
+  return out;
+}
+
+template <typename T, std::size_t Dims>
+auto make_transformation_from_translation(
+    const tf::vector<T, Dims> &translation) {
+  auto out = make_identity_transformation<T, Dims>();
+  for (std::size_t i = 0; i < Dims; ++i)
+    out(i, Dims) = translation[i];
+  return out;
+}
 } // namespace tf

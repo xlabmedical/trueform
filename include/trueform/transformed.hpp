@@ -13,17 +13,17 @@ auto transformed(const transformation<T, Dims> &_this,
                  const transformation<U, Dims> &transform) {
   using real_t = decltype(_this(0, 0) * transform(0, 0));
   transformation<real_t, Dims> out_array;
-  for (int i = 0; i < Dims; ++i) {
-    for (int j = 0; j < Dims; ++j) {
+  for (std::size_t i = 0; i < Dims; ++i) {
+    for (std::size_t j = 0; j < Dims; ++j) {
       out_array(i, j) = 0;
-      for (int k = 0; k < Dims; ++k) {
+      for (std::size_t k = 0; k < Dims; ++k) {
         out_array(i, j) += transform(i, k) * _this(k, j);
       }
     }
   }
-  for (int i = 0; i < Dims; ++i) {
+  for (std::size_t i = 0; i < Dims; ++i) {
     out_array(i, Dims) = transform(i, Dims);
-    for (int j = 0; j < Dims; ++j) {
+    for (std::size_t j = 0; j < Dims; ++j) {
       out_array(i, Dims) += transform(i, j) * _this(j, Dims);
     }
   }

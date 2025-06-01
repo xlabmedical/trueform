@@ -6,6 +6,7 @@
 #pragma once
 
 #include <array>
+#include <cmath>
 
 namespace tf {
 
@@ -47,12 +48,14 @@ public:
 
   auto end() -> T * { return data.end(); }
 
-  auto length2() -> T {
+  auto length2() const -> T {
     T l2 = 0;
     for (int i = 0; i < int(N); ++i)
       l2 += data[i] * data[i];
     return l2;
   }
+
+  auto length() const -> T { return std::sqrt(length2()); }
 
   // Compound assignment: +=
   auto operator+=(const vector &other) -> vector & {
