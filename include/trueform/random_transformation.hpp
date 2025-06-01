@@ -11,7 +11,7 @@
 
 namespace tf {
 template <typename T, std::size_t Dims>
-auto random_transform(tf::vector<T, Dims> translation = {{0, 0, 0}})
+auto random_transformation(tf::vector<T, Dims> translation = {{0, 0, 0}})
     -> tf::transformation<T, 3> {
 
   T x0_rand = tf::random<T>(T(0), T(1));

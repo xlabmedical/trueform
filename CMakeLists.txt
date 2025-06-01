@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE
+      Release
+      CACHE STRING "Build type (default Release)" FORCE)
+endif()
+
 project(trueform LANGUAGES CXX)
 
 add_library(trueform INTERFACE)
@@ -28,6 +35,9 @@ target_link_libraries(trueform INTERFACE TBB::tbb)
 target_include_directories(
   trueform INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                      $<INSTALL_INTERFACE:include>)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_subdirectory(examples)
 
 include(GNUInstallDirs)
 
