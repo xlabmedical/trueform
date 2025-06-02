@@ -17,7 +17,8 @@ int main(int argc, char *argv[]) {
   using triangle_t = std::array<int, 3>;
   tf::tree<int, float, 3> mesh_tree;
   mesh_tree.build(
-      tf::strategy::floyd_rivest, triangles,
+      /*tf::strategy::floyd_rivest (or some other strategy),*/
+      triangles,
       [&points = points](const triangle_t &t) {
         return tf::aabb_union(
             tf::aabb_union(tf::make_aabb(points[t[0]], points[t[0]]),

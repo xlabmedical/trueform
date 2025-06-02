@@ -4,7 +4,7 @@
 
 This repository is a growing collection of fast, production-grade tools for general-purpose geometric computing.
 
-For usage examples and benchmarks, see the [Features](#features) section.
+For usage examples and benchmarks, see the [Features](#-features) section.
 
 ---
 
@@ -41,7 +41,7 @@ target_link_libraries(my_target PRIVATE tf::trueform)
 
 ### Examples
 
-Examples are located in the director [examples](./examples/). To build them, run:
+Examples are located in the directory [examples](./examples/). To build them, run:
 
 ```bash
 mkdir build
@@ -58,7 +58,7 @@ make examples -j8
 
 **A General-Purpose Spatial Hierarchy for Real-Time Geometry Queries.**
 
-`tf::tree` is a modern C++ library with an STL-inspired design. Its behavior, from construction to queries, is fully customizable using lambdas. This allows you to easily build trees over any kind of primitives and inject custom behaviour, like transformations or filtering, directly into the query.
+`tf::tree` is written in modern C++ with an STL-inspired interface. Its behavior, from construction to queries, is fully customizable using lambdas. This allows you to easily build trees over any kind of primitives and inject custom behaviour, like transformations or filtering, directly into the query.
 
 For a comprehensive discussion of methodology, benchmarking, and implementation, refer to our [technical paper (PDF)](papers/tree.pdf).
 
@@ -84,15 +84,17 @@ Supports search queries between:
 - [`search_tree_by_primitive.cpp`](./examples/search_tree_by_primitive.cpp)  
   Finds the all triangles within epsilon of a query point.
 - [`search_tree_by_tree.cpp`](./examples/search_tree_by_tree.cpp)  
-  Finds all primitive-id pairs within epsilon of eachother.
+  Finds all primitive-id pairs within epsilon of each other.
+- [`search_tree_by_tree_collision.cpp`](./examples/search_tree_by_tree_collision.cpp)  
+  Finds first collision of primitives within epsilon of each other.
 - [`search_tree_by_self.cpp`](./examples/search_tree_by_self.cpp)  
-  Finds all primitive-id pairs within epislon of eachother in a point cloud.
+  Finds all primitive-id pairs within epislon of each other in a point cloud.
 
 ---
 
 ### 🌌 Nearness Queries
 
-Supports earness queries between:
+Supports nearness queries between:
 - A primitive and a tree
 - Two trees
 

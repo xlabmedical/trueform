@@ -42,7 +42,8 @@ int main(int argc, char *argv[]) {
 
   tf::tree<int, float, 3> tree;
   tree.build(
-      tf::strategy::floyd_rivest, duplicated_points,
+      /*tf::strategy::floyd_rivest (or some other strategy),*/
+      duplicated_points,
       [](const tf::vector<float, 3> &pt) { return tf::aabb_from(pt); },
       tf::tree_config{4, 4});
   std::cout << "---------------------------------" << std::endl;

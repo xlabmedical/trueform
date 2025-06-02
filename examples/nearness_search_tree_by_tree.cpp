@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
 
   tf::tree<int, float, 3> tree;
   tree.build(
-      tf::strategy::floyd_rivest, points,
-      [](const tf::vector<float, 3> &pt) { return tf::aabb_from(pt); },
+      /*tf::strategy::floyd_rivest (or some other strategy),*/
+      points, [](const tf::vector<float, 3> &pt) { return tf::aabb_from(pt); },
       tf::tree_config{4, 4});
   std::cout << "Build point tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
@@ -61,12 +61,11 @@ int main(int argc, char *argv[]) {
         return tf::make_aabb_metrics(aabb0,
                                      tf::transformed(aabb1, transformation));
       },
-      [&points = points, &transformation, i0 = id0, i1 = id1](auto id0,
-                                                              auto id1) {
+      [&points = points, &transformation](auto id0, auto id1) {
         auto tpt = transformation.transform_point(points[id1]);
         auto d2 = (points[id0] - tpt).length2();
         return tf::make_closest_point_pair(d2, points[id0], tpt);
-      });
+      } /*, search_radius */);
 
   auto [primitive_id0, primitive_id1] = primitive_ids;
   auto [metric, point0, point1] = closest_point_pair;
@@ -90,8 +89,7 @@ int main(int argc, char *argv[]) {
         return tf::make_aabb_metrics(aabb0,
                                      tf::transformed(aabb1, transformation));
       },
-      [&points = points, &transformation, i0 = id0, i1 = id1](auto id0,
-                                                              auto id1) {
+      [&points = points, &transformation](auto id0, auto id1) {
         auto tpt = transformation.transform_point(points[id1]);
         auto d2 = (points[id0] - tpt).length2();
         return tf::make_closest_point_pair(d2, points[id0], tpt);

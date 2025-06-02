@@ -21,7 +21,8 @@ int main(int argc, char *argv[]) {
   using triangle_t = std::array<int, 3>;
   tf::tree<int, float, 3> mesh_tree;
   mesh_tree.build(
-      tf::strategy::floyd_rivest, triangles,
+      /*tf::strategy::floyd_rivest (or some other strategy),*/
+      triangles,
       [&points = points](const triangle_t &t) {
         return tf::aabb_union(
             tf::aabb_union(tf::make_aabb(points[t[0]], points[t[0]]),
@@ -32,6 +33,10 @@ int main(int argc, char *argv[]) {
   std::cout << "---------------------------------" << std::endl;
   std::cout << "Build triangle tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
+
+  std::cout << "We will pick a random triangle and compute its center. Then we "
+               "will find all primitive ids within epsilon of this center."
+            << std::endl;
 
   // pick random triangle
   auto id = tf::random<int>(0, triangles.size() - 1);
@@ -54,6 +59,8 @@ int main(int argc, char *argv[]) {
                                                     points, center))
                 .length2() < std::numeric_limits<float>::epsilon())
           ids_in_tolerance.push_back(triangle_id);
+        // return true (inside condition) if you want to stop the search at
+        // first "collision"
         return false;
       });
 

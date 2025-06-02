@@ -7,11 +7,10 @@ foreach(src ${example_sources})
   get_filename_component(name ${src} NAME_WE)
   set(alias_target "example-${name}")
 
-  # Define the real executable
   add_executable(${name} ${src})
   target_link_libraries(${name} PRIVATE tf::trueform)
+  target_compile_options(${name} PRIVATE -Wall -Wextra -Wpedantic)
 
-  # Define a lightweight alias target: 'make example-foo'
   add_custom_target(${alias_target} DEPENDS ${name})
   list(APPEND EXAMPLE_TARGETS ${alias_target})
   list(APPEND EXAMPLE_EXECUTABLES ${name})

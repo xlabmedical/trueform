@@ -9,6 +9,5 @@ namespace tf {
 struct tree_config {
   int inner_size;
   int leaf_size;
-  int task_cutoff_depth = 12;
 };
 } // namespace tf

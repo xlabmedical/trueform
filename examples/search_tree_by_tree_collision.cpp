@@ -1,5 +1,4 @@
 #include "./util/read_mesh.hpp"
-#include "tbb/concurrent_vector.h"
 #include "trueform/intersects.hpp"
 #include "trueform/random.hpp"
 #include "trueform/random_transformation.hpp"
@@ -7,6 +6,7 @@
 #include "trueform/transformation.hpp"
 #include "trueform/transformed.hpp"
 #include "trueform/tree.hpp"
+#include <atomic>
 #include <iostream>
 #include <string>
 
@@ -28,22 +28,23 @@ int main(int argc, char *argv[]) {
   auto id1 = tf::random<int>(0, points.size() - 1);
   auto pt1 = points[id1];
 
-  std::cout << "We will use the points of the dataset. We will place spheres "
-               "with radius epsilon on each point and "
-               "transform one copy of the point-cloud. Then we will find all "
-               "intersecting sphere pairs."
-            << std::endl;
-  std::cout << "Selected points with ids: " << id0 << ", " << id1
-            << " to align under random rotation." << std::endl;
-
   tf::tree<int, float, 3> tree;
   tree.build(
       /*tf::strategy::floyd_rivest (or some other strategy),*/
       points, [](const tf::vector<float, 3> &pt) { return tf::aabb_from(pt); },
       tf::tree_config{4, 4});
-  std::cout << "---------------------------------" << std::endl;
   std::cout << "Build point tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
+
+  std::cout << "We will use the points of the dataset. We will place spheres "
+               "with radius epsilon on each point and "
+               "transform one copy of the point-cloud. Then we will find if "
+               "the clouds are in collision."
+            << std::endl;
+  std::cout << "Selected points with ids: " << id0 << ", " << id1
+            << " to align under random rotation." << std::endl;
+  std::cout << "---------------------------------" << std::endl;
+
 
   // create transform that:
   // 1. makes pt1 the origin
@@ -53,10 +54,7 @@ int main(int argc, char *argv[]) {
       tf::transformed(tf::make_transformation_from_translation(-pt1),
                       tf::random_transformation<float, 3>(pt0));
 
-  // you could have a buffer per thread using
-  // tbb::this_task_arena::current_thread_index()
-  // to index into them for more efficiency
-  tbb::concurrent_vector<std::pair<int, int>> ids;
+  std::atomic<bool> are_colliding{false};
   // we may use the same tree, as we will simply
   // apply the transformation to the aabbs and primitives.
   tf::search(
@@ -65,19 +63,16 @@ int main(int argc, char *argv[]) {
         return tf::intersects(aabb0, tf::transformed(aabb1, transformation),
                               std::numeric_limits<float>::epsilon());
       },
-      [&points = points, &transformation, &ids](auto id0, auto id1) {
+      [&points = points, &transformation, &are_colliding](auto id0, auto id1) {
         if ((points[id0] - transformation.transform_point(points[id1]))
-                .length2() < std::numeric_limits<float>::epsilon())
-          ids.emplace_back(id0, id1);
-        // return true (inside condition) if you want to stop the search at
-        // first "collision"
+                .length2() < std::numeric_limits<float>::epsilon()) {
+          are_colliding.store(true);
+          return true;
+        }
         return false;
-      }, // never abort the search. You could track only an atomic found
-         // variable and abort on first collision
-      [] { return false; });
+      },
+      [&are_colliding] { return are_colliding.load(); });
 
-  std::cout << "Found " << ids.size()
-            << " point pairs within epsilon of eachother" << std::endl;
-  for (auto id : ids)
-    std::cout << "  " << id.first << ", " << id.second << std::endl;
+  std::cout << "Are clouds colliding: " << (are_colliding.load() ? "yes" : "no")
+            << std::endl;
 }
