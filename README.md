@@ -98,9 +98,9 @@ Supports earness queries between:
 
 📎 **Examples:**
 - [`nearness_search_tree_by_primitive.cpp`](./examples/nearness_search_tree_by_primitive.cpp)  
-  Finds the closest point on the triangle mesh to a query point.
+  Finds the closest point (and knn) on the triangle mesh to a query point.
 - [`nearness_search_tree_by_tree.cpp`](./examples/nearness_search_tree_by_tree.cpp)  
-  Finds a closest point pair between two point clouds.
+  Finds a closest point pair (and knn) between two point clouds.
 
 ---
 
