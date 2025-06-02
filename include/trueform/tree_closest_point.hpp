@@ -10,10 +10,16 @@ namespace tf {
 
 template <typename Index, typename RealT, std::size_t Dims>
 struct tree_closest_point {
+  using index_t = Index;
+  using real_t = RealT;
+  using element_t = Index;
+  using closest_point_t = tf::closest_point<RealT, Dims>;
+  //
   static constexpr Index no_id = -1;
   Index element{no_id};
   tf::closest_point<RealT, Dims> point;
 
   operator bool() const { return element != no_id; }
+  auto metric() const -> real_t { return point.metric; }
 };
 } // namespace tf

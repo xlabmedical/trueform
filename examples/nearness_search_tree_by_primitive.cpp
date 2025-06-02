@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         auto cpt = tf::closest_point_on_triangle(triangles[triangle_id], points,
                                                  query_pt);
         return tf::make_closest_point((cpt - query_pt).length2(), cpt);
-      });
+      } /*, search_radius */);
 
   auto [metric, point] = closest_point;
 
@@ -62,4 +62,35 @@ int main(int argc, char *argv[]) {
             << point[2] << " on primitive: " << primitive_id << std::endl;
   std::cout << "At distance: " << std::sqrt(metric) << " from query_pt"
             << std::endl;
+
+  std::cout << "---------------------------------" << std::endl;
+  std::cout << "Now we will compute 4 nearest points" << std::endl;
+  std::cout << "(If the closest point is on a vertex, these might be the same)"
+            << std::endl;
+
+  std::array<tf::tree_closest_point<int, float, 3>, 4> closest_points;
+  auto knn = tf::make_tree_knn(closest_points.begin(), 4 /*, search_radius */);
+
+  tf::nearness_search(
+      mesh_tree,
+      [query_pt](const tf::aabb<float, 3> &aabb) {
+        return tf::distance2(aabb, query_pt);
+      },
+      [&query_pt, &points = points,
+       &triangles = triangles](const auto &triangle_id) {
+        auto cpt = tf::closest_point_on_triangle(triangles[triangle_id], points,
+                                                 query_pt);
+        return tf::make_closest_point((cpt - query_pt).length2(), cpt);
+      },
+      knn);
+
+  std::cout << "---------------------------------" << std::endl;
+  std::cout << "Closest points: " << knn.size() << std::endl;
+  for (auto [primitive_id, closest_point] : knn) {
+    auto [metric, point] = closest_point;
+    std::cout << "  Closest point: " << point[0] << ", " << point[1] << ", "
+              << point[2] << " on primitive: " << primitive_id << std::endl;
+    std::cout << "  At distance: " << std::sqrt(metric) << " from query_pt"
+              << std::endl;
+  }
 }

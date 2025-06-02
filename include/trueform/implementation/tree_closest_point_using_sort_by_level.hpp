@@ -12,11 +12,10 @@
 
 namespace tf::implementation {
 template <typename Index, typename RealT, std::size_t N, typename F0,
-          typename F1>
+          typename F1, typename Result>
 auto tree_closest_point_using_sort_by_level(
     const buffer<tree_node<Index, RealT, N>> &nodes, const buffer<Index> &ids,
-    const F0 &aabb_metric_f, const F1 &closest_point_f,
-    implementation::tree_closest_point<Index, RealT, N> &result) {
+    const F0 &aabb_metric_f, const F1 &closest_point_f, Result &result) {
   if (!nodes.size())
     return;
   using real_type = RealT;
@@ -69,11 +68,10 @@ auto tree_closest_point_using_sort_by_level(
 }
 
 template <typename Index, typename RealT, std::size_t N, typename F0,
-          typename F1>
+          typename F1, typename Result>
 auto tree_closest_point_using_heap(
     const buffer<tree_node<Index, RealT, N>> &nodes, const buffer<Index> &ids,
-    const F0 &aabb_metric_f, const F1 &closest_point_f,
-    implementation::tree_closest_point<Index, RealT, N> &result) {
+    const F0 &aabb_metric_f, const F1 &closest_point_f, Result &result) {
   if (!nodes.size())
     return;
   using real_type = RealT;

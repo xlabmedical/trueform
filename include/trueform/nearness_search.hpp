@@ -8,6 +8,7 @@
 #include "./implementation/tree_closest_point_using_sort_by_level.hpp"
 #include "./implementation/tree_tree_proximity.hpp"
 #include "./tree.hpp"
+#include "./tree_knn.hpp"
 
 namespace tf {
 
@@ -158,6 +159,67 @@ auto nearness_search(strategy::priority_queue_t,
   tf::implementation::tree_tree_proximity_heap(tree0, tree1, aabb_metrics_f,
                                                closest_points_f, result);
   return result.points;
+}
+
+// knn
+
+template <typename Index, typename RealT, std::size_t N, typename F0,
+          typename F1, typename RandomIt>
+auto nearness_search(strategy::top_k_sorted_t,
+                     const tf::tree<Index, RealT, N> &tree,
+                     const F0 &aabb_metric, const F1 &closest_point_f,
+                     tf::tree_knn<RandomIt> &knn) {
+  tf::implementation::tree_closest_point_using_sort_by_level(
+      tree.nodes(), tree.ids(), aabb_metric, closest_point_f, knn);
+}
+template <typename Index, typename RealT, std::size_t N, typename F0,
+          typename F1, typename RandomIt>
+auto nearness_search(const tf::tree<Index, RealT, N> &tree,
+                     const F0 &aabb_metric, const F1 &closest_point_f,
+                     tf::tree_knn<RandomIt> &knn) {
+  return nearness_search(strategy::top_k_sorted, tree, aabb_metric,
+                         closest_point_f, knn);
+}
+template <typename Index, typename RealT, std::size_t N, typename F0,
+          typename F1, typename RandomIt>
+auto nearness_search(strategy::priority_queue_t,
+                     const tf::tree<Index, RealT, N> &tree,
+                     const F0 &aabb_metric, const F1 &closest_point_f,
+                     tf::tree_knn<RandomIt> &knn) {
+  tf::implementation::tree_closest_point_using_heap(
+      tree.nodes(), tree.ids(), aabb_metric, closest_point_f, knn);
+}
+
+template <typename Index, typename RealT, std::size_t N, typename F0,
+          typename F1, typename RandomIt>
+auto nearness_search(strategy::top_k_sorted_t,
+                     const tf::tree<Index, RealT, N> &tree0,
+                     const tf::tree<Index, RealT, N> &tree1,
+                     const F0 &aabb_metrics_f, const F1 &closest_points_f,
+                     tree_knn<RandomIt> &knn) {
+  tf::implementation::tree_tree_proximity_sort(tree0, tree1, aabb_metrics_f,
+                                               closest_points_f, knn);
+}
+
+template <typename Index, typename RealT, std::size_t N, typename F0,
+          typename F1, typename RandomIt>
+auto nearness_search(const tf::tree<Index, RealT, N> &tree0,
+                     const tf::tree<Index, RealT, N> &tree1,
+                     const F0 &aabb_metrics_f, const F1 &closest_points_f,
+                     tree_knn<RandomIt> &knn) {
+  return nearness_search(strategy::top_k_sorted, tree0, tree1, aabb_metrics_f,
+                         closest_points_f, knn);
+}
+
+template <typename Index, typename RealT, std::size_t N, typename F0,
+          typename F1, typename RandomIt>
+auto nearness_search(strategy::priority_queue_t,
+                     const tf::tree<Index, RealT, N> &tree0,
+                     const tf::tree<Index, RealT, N> &tree1,
+                     const F0 &aabb_metrics_f, const F1 &closest_points_f,
+                     tree_knn<RandomIt> &knn) {
+  tf::implementation::tree_tree_proximity_heap(tree0, tree1, aabb_metrics_f,
+                                               closest_points_f, knn);
 }
 
 } // namespace tf

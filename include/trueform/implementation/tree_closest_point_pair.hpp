@@ -15,10 +15,10 @@ public:
   tree_closest_point_pair() = default;
   tree_closest_point_pair(RealT metric) { points.points.metric = metric; }
 
-  auto update(Index c_element0, Index c_element1,
+  auto update(std::pair<Index, Index> elements,
               const tf::closest_point_pair<RealT, Dims> &c_points) -> void {
     if (c_points.metric < points.points.metric) {
-      points.elements = {c_element0, c_element1};
+      points.elements = elements;
       points.points = c_points;
     }
   }
