@@ -54,6 +54,15 @@ public:
   }
 
   template <typename U,
+            typename = std::enable_if_t<std::is_assignable_v<T &, const U &>>>
+  auto operator=(const vector_view<U, N> &other)
+      -> vector_view & {
+    for (std::size_t i = 0; i < N; ++i)
+      base_t::data[i] = other[i];
+    return *this;
+  }
+
+  template <typename U,
             typename = std::enable_if_t<std::is_convertible_v<T, U>, void>>
   operator vector<U, N>() const {
     vector<U, N> out;
@@ -148,7 +157,10 @@ public:
 
   // Equality
   friend auto operator==(const vector_view &a, const vector_view &b) -> bool {
-    return a.data == b.data;
+    for (std::size_t i = 0; i < N; ++i)
+      if (a[i] != b[i])
+        return false;
+    return true;
   }
 
   friend auto operator!=(const vector_view &a, const vector_view &b) -> bool {
@@ -156,11 +168,23 @@ public:
   }
 
   friend auto operator<(const vector_view &a, const vector_view &b) -> bool {
-    return a.data < b.data;
+    for (int i = 0; i < N; i++) {
+      if (a[i] < b[i])
+        return true;
+      if (a[i] > b[i])
+        return false;
+    }
+    return false;
   }
 
   friend auto operator>(const vector_view &a, const vector_view &b) -> bool {
-    return a.data > b.data;
+    for (int i = 0; i < N; i++) {
+      if (a[i] > b[i])
+        return true;
+      if (a[i] < b[i])
+        return false;
+    }
+    return false;
   }
 
   friend auto operator<=(const vector_view &a, const vector_view &b) -> bool {
@@ -170,13 +194,10 @@ public:
   friend auto operator>=(const vector_view &a, const vector_view &b) -> bool {
     return !(a < b);
   }
-
-private:
-  T *data;
 };
 
 template <std::size_t N, typename T>
-auto make_vector_view(const T *ptr) -> vector_view<T, N> {
+auto make_vector_view(const T *ptr) -> vector_view<const T, N> {
   return vector_view<const T, N>(ptr);
 }
 
