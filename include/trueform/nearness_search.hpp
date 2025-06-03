@@ -5,6 +5,8 @@
  */
 #pragma once
 
+#include "./implementation/tree_closest_point.hpp"
+#include "./implementation/tree_closest_point_pair.hpp"
 #include "./implementation/tree_closest_point_using_sort_by_level.hpp"
 #include "./implementation/tree_tree_proximity.hpp"
 #include "./tree.hpp"
