@@ -6,10 +6,15 @@
 #pragma once
 #include "./aabb.hpp"
 #include "./vector.hpp"
+#include "./vector_view.hpp"
 
 namespace tf {
 template <typename T, std::size_t N>
 auto aabb_from(const vector<T, N> &pt) -> aabb<T, N> {
+  return aabb<T, N>{pt, pt};
+}
+template <typename T, std::size_t N>
+auto aabb_from(const vector_view<T, N> &pt) -> aabb<T, N> {
   return aabb<T, N>{pt, pt};
 }
 } // namespace tf

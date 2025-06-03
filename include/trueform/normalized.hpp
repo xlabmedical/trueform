@@ -12,4 +12,10 @@ auto normalized(const tf::vector<T, Dims> &v) -> tf::vector<T, Dims> {
   auto out = v;
   return normalize(out);
 }
+
+template <typename T, std::size_t Dims>
+auto normalized(const tf::vector_view<T, Dims> &v) -> tf::vector_view<T, Dims> {
+  auto out = v;
+  return normalize(out);
+}
 } // namespace tf

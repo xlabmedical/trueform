@@ -5,6 +5,7 @@
  */
 #pragma once
 #include "./aabb.hpp"
+#include "./vector_view.hpp"
 
 namespace tf {
 template <typename T, std::size_t N>
@@ -37,6 +38,24 @@ auto aabb_union_inplace(aabb<T, N> &aabb0, const vector<T, N> &pt)
 
 template <typename T, std::size_t N>
 auto aabb_union(const aabb<T, N> &aabb0, const vector<T, N> &pt) -> aabb<T, N> {
+  aabb<T, N> out = aabb0;
+  aabb_union_inplace(out, pt);
+  return out;
+}
+
+template <typename T, std::size_t N>
+auto aabb_union_inplace(aabb<T, N> &aabb0, const vector_view<T, N> &pt)
+    -> aabb<T, N> & {
+  for (int i = 0; i < int(N); i++) {
+    aabb0.min[i] = std::min(aabb0.min[i], pt[i]);
+    aabb0.max[i] = std::max(aabb0.max[i], pt[i]);
+  }
+  return aabb0;
+}
+
+template <typename T, std::size_t N>
+auto aabb_union(const aabb<T, N> &aabb0, const vector_view<T, N> &pt)
+    -> aabb<T, N> {
   aabb<T, N> out = aabb0;
   aabb_union_inplace(out, pt);
   return out;

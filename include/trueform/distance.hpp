@@ -7,6 +7,7 @@
 
 #include "./aabb.hpp"
 #include "./vector.hpp"
+#include "./vector_view.hpp"
 #include <cmath>
 
 namespace tf {
@@ -25,6 +26,23 @@ auto distance2(const vector<T, N> &a, const vector<T, N> &b) -> T {
 // Euclidean distance
 template <typename T, std::size_t N>
 auto distance(const vector<T, N> &a, const vector<T, N> &b) -> T {
+  return std::sqrt(distance2(a, b));
+}
+
+// squared distance between two vectors
+template <typename T, std::size_t N>
+auto distance2(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
+  T sum = T{};
+  for (std::size_t i = 0; i < N; ++i) {
+    T d = a[i] - b[i];
+    sum += d * d;
+  }
+  return sum;
+}
+
+// Euclidean distance
+template <typename T, std::size_t N>
+auto distance(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
   return std::sqrt(distance2(a, b));
 }
 
@@ -78,6 +96,37 @@ auto distance(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
 
 template <typename T, std::size_t N>
 auto distance(const vector<T, N> &_point, const aabb<T, N> &_bbox) {
+  return std::sqrt(distance2(_bbox, _point));
+}
+
+template <typename T, std::size_t N>
+auto distance2(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
+  decltype(_bbox.min[0] - _bbox.min[0]) dist2{};
+  const auto &min = _bbox.min;
+  const auto &max = _bbox.max;
+  for (int i = 0; i < int(N); ++i) {
+    auto outside_low =
+        std::max(min[i] - _point[i], decltype(min[i] - _point[i]){0});
+    auto outside_high =
+        std::max(_point[i] - max[i], decltype(_point[i] - max[i]){0});
+    outside_high *= outside_low == 0;
+    dist2 += outside_low * outside_low + outside_high * outside_high;
+  }
+  return dist2;
+}
+
+template <typename T, std::size_t N>
+auto distance2(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {
+  return distance2(_bbox, _point);
+}
+
+template <typename T, std::size_t N>
+auto distance(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
+  return std::sqrt(distance2(_bbox, _point));
+}
+
+template <typename T, std::size_t N>
+auto distance(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {
   return std::sqrt(distance2(_bbox, _point));
 }
 

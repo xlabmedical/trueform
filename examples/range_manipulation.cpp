@@ -5,7 +5,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "trueform/vector_view.hpp"
 
 int main() {
   std::array<int, 3> static_ids{2, 3, 4};
@@ -33,21 +32,4 @@ int main() {
   std::cout << std::equal(static_mapped.begin(), static_mapped.end(),
                           mapped.begin())
             << std::endl;
-
-  float xx0[3]{0, 1, 2};
-  float xx1[3];
-
-  tf::vector<float, 3> p2{{3, 4, 5}};    
-
-  auto p0 = tf::make_vector_view<3>(xx0);
-  auto p1 = tf::make_vector_view<3>(xx1);
-
-  p1 = p0;
-  p1=p2;
-
-  p2=p0;
-
-  std::cout << p1[0] << ", " <<p1[1] << ", " << p1[2] << std::endl;
-  std::cout << p0[0] << ", " <<p0[1] << ", " << p0[2] << std::endl;
-
 }

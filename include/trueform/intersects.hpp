@@ -7,6 +7,7 @@
 
 #include "./aabb.hpp"
 #include "./vector.hpp"
+#include "./vector_view.hpp"
 
 namespace tf {
 
@@ -55,6 +56,36 @@ auto intersects(const vector<T, N> &point, const aabb<T, N> &box, T epsilon)
 template <typename T, std::size_t N>
 auto intersects(const aabb<T, N> &box, const vector<T, N> &point, T epsilon)
     -> bool {
+  return intersects(point, box, epsilon);
+}
+
+template <typename T, std::size_t N>
+auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box) -> bool {
+  for (std::size_t i = 0; i < N; ++i) {
+    if (point[i] < box.min[i] || point[i] > box.max[i])
+      return false;
+  }
+  return true;
+}
+
+template <typename T, std::size_t N>
+auto intersects(const aabb<T, N> &box, const vector_view<T, N> &point) -> bool {
+  return intersects(point, box);
+}
+
+template <typename T, std::size_t N>
+auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box,
+                T epsilon) -> bool {
+  for (std::size_t i = 0; i < N; ++i) {
+    if (point[i] + epsilon < box.min[i] || point[i] - epsilon > box.max[i])
+      return false;
+  }
+  return true;
+}
+
+template <typename T, std::size_t N>
+auto intersects(const aabb<T, N> &box, const vector_view<T, N> &point,
+                T epsilon) -> bool {
   return intersects(point, box, epsilon);
 }
 
