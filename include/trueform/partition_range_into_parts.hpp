@@ -1,5 +1,5 @@
 #pragma once
-#include "./span.hpp"
+#include "./range.hpp"
 #include "tbb/parallel_invoke.h"
 
 namespace tf {
@@ -30,20 +30,20 @@ auto partition_range_into_parts(Range &&range, std::size_t parts,
     tbb::parallel_invoke(
         [&]() {
           count_left = partition_range_into_parts(
-              tf::make_span(range.begin(), mid), left_parts, partition_range_f,
+              tf::make_range(range.begin(), mid), left_parts, partition_range_f,
               apply_f, partition_id);
         },
         [&]() {
           count_right = partition_range_into_parts(
-              tf::make_span(mid, range.end()), right_parts, partition_range_f,
+              tf::make_range(mid, range.end()), right_parts, partition_range_f,
               apply_f, partition_id + left_parts);
         });
   } else {
-    count_left = partition_range_into_parts(tf::make_span(range.begin(), mid),
+    count_left = partition_range_into_parts(tf::make_range(range.begin(), mid),
                                             left_parts, partition_range_f,
                                             apply_f, partition_id);
     count_right = partition_range_into_parts(
-        tf::make_span(mid, range.end()), right_parts, partition_range_f, apply_f,
+        tf::make_range(mid, range.end()), right_parts, partition_range_f, apply_f,
         partition_id + left_parts);
   }
 

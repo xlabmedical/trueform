@@ -4,7 +4,7 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
-#include "../span.hpp"
+#include "../range.hpp"
 #include "tbb/task_group.h"
 
 namespace tf::implementation {
@@ -33,8 +33,8 @@ auto tree_self_search(
   const auto &data1 = node1.get_data();
 
   if (node0.is_leaf() && node1.is_leaf()) {
-    if (params.apply(tf::span(params.ids0.begin() + data0[0], data0[1]),
-                     tf::span(params.ids1.begin() + data1[0], data1[1]),
+    if (params.apply(tf::make_range(params.ids0.begin() + data0[0], data0[1]),
+                     tf::make_range(params.ids1.begin() + data1[0], data1[1]),
                      id0 == id1))
       return;
 

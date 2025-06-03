@@ -6,7 +6,7 @@
 #pragma once
 #include "../buffer.hpp"
 #include "../small_buffer.hpp"
-#include "../span.hpp"
+#include "../range.hpp"
 #include "../tree_node.hpp"
 
 namespace tf::implementation {
@@ -25,7 +25,7 @@ auto tree_search(const buffer<tree_node<Index, RealT, N>> &nodes,
     const auto &node = nodes[current_i];
     const auto &data = node.get_data();
     if (node.is_leaf()) {
-      if (leaf_apply(tf::span(ids.begin() + data[0], data[1])))
+      if (leaf_apply(tf::make_range(ids.begin() + data[0], data[1])))
         return;
       continue;
     }

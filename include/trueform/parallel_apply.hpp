@@ -13,7 +13,10 @@ auto parallel_apply(Iterator first, Iterator last, Func &&f) -> void {
       tbb::blocked_range<Iterator>(first, last),
       [f = static_cast<Func &&>(f)](const tbb::blocked_range<Iterator> &range) {
         for (Iterator it = range.begin(); it != range.end(); ++it) {
-          f(*it);
+          if constexpr (std::is_integral<Iterator>::value)
+            f(it);
+          else
+            f(*it);
         }
       });
 }
@@ -24,16 +27,18 @@ auto parallel_apply(Range &&r, Func &&f) -> void {
 }
 
 template <typename Iterator0, typename Iterator1, typename Func>
-auto parallel_apply(std::tuple<Iterator0, Iterator1> first,
+auto parallel_apply(std::pair<Iterator0, Iterator1> first,
                     std::pair<Iterator0, Iterator1> last, Func &&f) -> void {
-  tbb::parallel_for(
-      tbb::blocked_range<std::size_t>(0, last - first),
-      [f = static_cast<Func &&>(f),
-       first](const tbb::blocked_range<std::size_t> &range) {
-        for (std::size_t i = range.begin(); i < range.end(); ++i) {
-          f(std::forward_as_tuple(*(first.first + i), *(first.second + i)));
-        }
-      });
+  tbb::parallel_for(tbb::blocked_range<std::size_t>(0, last - first),
+                    [f = static_cast<Func &&>(f),
+                     first](const tbb::blocked_range<std::size_t> &range) {
+                      auto it_first = first.first + range.begin();
+                      auto it_second = first.second + range.begin();
+                      for (std::size_t i = range.begin(); i < range.end();
+                           ++i) {
+                        f(*it_first++, *it_second++);
+                      }
+                    });
 }
 
 template <typename Range0, typename Range1, typename Func>
@@ -41,8 +46,10 @@ auto parallel_apply(std::tuple<Range0, Range1> r, Func &&f) -> void {
   tbb::parallel_for(tbb::blocked_range<std::size_t>(0, std::get<0>(r).size()),
                     [f = static_cast<Func &&>(f),
                      &r](const tbb::blocked_range<std::size_t> &range) {
+                      auto it_first = std::get<0>(r).begin() + range.begin();
+                      auto it_second = std::get<1>(r).begin() + range.begin();
                       for (std::size_t i = range.begin(); i < range.end(); ++i)
-                        f(std::get<0>(r)[i], std::get<1>(r)[i]);
+                        f(*it_first++, *it_second++);
                     });
 }
 } // namespace tf

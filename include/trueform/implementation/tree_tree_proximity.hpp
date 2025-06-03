@@ -7,7 +7,6 @@
 
 #include "../small_buffer.hpp"
 #include "../tree.hpp"
-#include "./tree_closest_point_pair.hpp"
 namespace tf::implementation {
 template <typename Index, typename RealT, std::size_t N, typename F0,
           typename F1, typename Result>

@@ -5,10 +5,9 @@
  */
 #pragma once
 #include "../buffer.hpp"
+#include "../range.hpp"
 #include "../small_buffer.hpp"
-#include "../span.hpp"
 #include "../tree_node.hpp"
-#include "./tree_closest_point.hpp"
 
 namespace tf::implementation {
 template <typename Index, typename RealT, std::size_t N, typename F0,
@@ -59,7 +58,7 @@ auto tree_closest_point_using_sort_by_level(
                     std::max(Index(current_offset) - data[1], Index(0)),
                 stack.end(), compare);
     } else {
-      for (const auto &id : tf::make_span(ids.begin() + data[0], data[1])) {
+      for (const auto &id : tf::make_range(ids.begin() + data[0], data[1])) {
         auto closest_pt = closest_point_f(id);
         result.update(id, closest_pt);
       }
@@ -114,7 +113,7 @@ auto tree_closest_point_using_heap(
         ++next_id;
       }
     } else {
-      for (const auto &id : tf::make_span(ids.begin() + data[0], data[1])) {
+      for (const auto &id : tf::make_range(ids.begin() + data[0], data[1])) {
         auto closest_pt = closest_point_f(id);
         result.update(id, closest_pt);
       }
