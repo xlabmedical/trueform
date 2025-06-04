@@ -5,8 +5,8 @@
  */
 #pragma once
 #include "../buffer.hpp"
-#include "../small_buffer.hpp"
 #include "../range.hpp"
+#include "../small_buffer.hpp"
 #include "../tree_node.hpp"
 
 namespace tf::implementation {
@@ -16,7 +16,7 @@ auto tree_search(const buffer<tree_node<Index, RealT, N>> &nodes,
                  const buffer<Index> &ids, const F0 &aabb_check,
                  const F1 &leaf_apply) {
   if (!nodes.size())
-    return;
+    return false;
   tf::small_buffer<Index, 512> stack;
   stack.push_back(0);
   while (stack.size()) {
@@ -26,7 +26,7 @@ auto tree_search(const buffer<tree_node<Index, RealT, N>> &nodes,
     const auto &data = node.get_data();
     if (node.is_leaf()) {
       if (leaf_apply(tf::make_range(ids.begin() + data[0], data[1])))
-        return;
+        return true;
       continue;
     }
     auto it = nodes.begin() + data[0];
@@ -39,5 +39,6 @@ auto tree_search(const buffer<tree_node<Index, RealT, N>> &nodes,
       ++next_id;
     }
   }
+  return false;
 }
 } // namespace tf::implementation

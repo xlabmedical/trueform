@@ -18,6 +18,7 @@ struct tree_dual_search_params {
   const F &boxes_apply;
   const F1 &apply;
   const F2 &abort;
+  mutable bool found = false;
 };
 
 template <typename Range0, typename Range1, typename Range2, typename Range3,
@@ -34,9 +35,12 @@ auto tree_dual_search(
   const auto &data1 = node1.get_data();
 
   if (node0.is_leaf() && node1.is_leaf()) {
-    if (params.apply(tf::make_range(params.ids0.begin() + data0[0], data0[1]),
-                     tf::make_range(params.ids1.begin() + data1[0], data1[1])))
+    if (params.apply(
+            tf::make_range(params.ids0.begin() + data0[0], data0[1]),
+            tf::make_range(params.ids1.begin() + data1[0], data1[1]))) {
+      params.found = true;
       return;
+    }
 
   } else {
     tbb::task_group tg;
@@ -80,13 +84,14 @@ template <typename Range0, typename Range1, typename Range2, typename Range3,
 auto tree_dual_search(const Range0 &nodes0, const Range1 &ids0,
                       const Range2 &nodes1, const Range3 &ids1,
                       const F &boxes_apply, const F1 &apply, const F2 &abort,
-                      int paralelism_depth = 6) {
+                      int paralelism_depth = 6) -> bool {
   if (!nodes0.size() || !nodes1.size())
-    return;
+    return false;
   if (!boxes_apply(nodes0[0].aabb, nodes1[0].aabb))
-    return;
+    return false;
   tree_dual_search_params<Range0, Range1, Range2, Range3, F, F1, F2> params{
       nodes0, ids0, nodes1, ids1, boxes_apply, apply, abort};
   tree_dual_search(0, 0, paralelism_depth, params);
+  return params.found;
 }
 } // namespace tf::implementation

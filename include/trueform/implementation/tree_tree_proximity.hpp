@@ -14,6 +14,8 @@ auto tree_tree_proximity_sort(const tf::tree<Index, RealT, N> &tree0,
                               const tf::tree<Index, RealT, N> &tree1,
                               const F0 &aabb_dists_f, const F1 &closest_pts,
                               Result &result) {
+  if (!tree0.nodes().size() || !tree1.nodes().size())
+    return;
   struct holder_t {
     RealT min2;
     RealT min_max2;
@@ -91,6 +93,8 @@ auto tree_tree_proximity_heap(const tf::tree<Index, RealT, N> &tree0,
                               const tf::tree<Index, RealT, N> &tree1,
                               const F0 &aabb_dists_f, const F1 &closest_pts,
                               Result &result) {
+  if (!tree0.nodes().size() || !tree1.nodes().size())
+    return;
   struct holder_t {
     RealT min2;
     RealT min_max2;
