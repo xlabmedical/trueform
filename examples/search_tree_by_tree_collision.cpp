@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
   std::atomic<bool> are_colliding{false};
   // we may use the same tree, as we will simply
   // apply the transformation to the aabbs and primitives.
-  tf::search(
+  bool collision_test = tf::search(
       tree, tree,
       [&](const auto &aabb0, const auto &aabb1) { // transform the aabb
         return tf::intersects(aabb0, tf::transformed(aabb1, transformation),
@@ -72,6 +72,6 @@ int main(int argc, char *argv[]) {
       },
       [&are_colliding] { return are_colliding.load(); });
 
-  std::cout << "Are clouds colliding: " << (are_colliding.load() ? "yes" : "no")
+  std::cout << "Are clouds colliding: " << (collision_test ? "yes" : "no")
             << std::endl;
 }
