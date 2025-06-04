@@ -8,6 +8,17 @@
 
 namespace tf {
 
+/// @brief Result of a nearest-point query against a spatial tree.
+///
+/// Represents the closest primitive and corresponding point found during a spatial query.
+/// The result includes the primitive's index and its nearest point, along with the distance metric.
+///
+/// This struct is returned by `tf::nearness_search(...)` when querying a single tree,
+/// and provides utilities to access the result’s validity and metric.
+///
+/// @tparam Index The type used for primitive identifiers (typically an integer).
+/// @tparam RealT The scalar coordinate type (e.g., float or double).
+/// @tparam Dims The spatial dimension (typically 2 or 3).
 template <typename Index, typename RealT, std::size_t Dims>
 struct tree_closest_point {
   using index_t = Index;

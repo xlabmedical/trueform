@@ -11,6 +11,12 @@
 
 namespace tf {
 
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between
+/// two AABBs.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 template <typename T, std::size_t N>
 auto intersects(const aabb<T, N> &a, const aabb<T, N> &b) -> bool {
   for (std::size_t i = 0; i < N; ++i) {
@@ -19,6 +25,12 @@ auto intersects(const aabb<T, N> &a, const aabb<T, N> &b) -> bool {
   }
   return true;
 }
+
+/// @brief Check whether two geometric primitives intersect within epsilon.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 
 template <typename T, std::size_t N>
 auto intersects(const aabb<T, N> &a, const aabb<T, N> &b, T epsilon) -> bool {
@@ -29,6 +41,12 @@ auto intersects(const aabb<T, N> &a, const aabb<T, N> &b, T epsilon) -> bool {
   return true;
 }
 
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+
 template <typename T, std::size_t N>
 auto intersects(const vector<T, N> &point, const aabb<T, N> &box) -> bool {
   for (std::size_t i = 0; i < N; ++i) {
@@ -38,10 +56,22 @@ auto intersects(const vector<T, N> &point, const aabb<T, N> &box) -> bool {
   return true;
 }
 
+/// @brief Check whether two geometric primitives intersect within epsilon.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+
 template <typename T, std::size_t N>
 auto intersects(const aabb<T, N> &box, const vector<T, N> &point) -> bool {
   return intersects(point, box);
 }
+
+/// @brief Check whether two geometric primitives intersect within epsilon.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 
 template <typename T, std::size_t N>
 auto intersects(const vector<T, N> &point, const aabb<T, N> &box, T epsilon)
@@ -53,12 +83,22 @@ auto intersects(const vector<T, N> &point, const aabb<T, N> &box, T epsilon)
   return true;
 }
 
+/// @brief Check whether two geometric primitives intersect within epsilon.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 template <typename T, std::size_t N>
 auto intersects(const aabb<T, N> &box, const vector<T, N> &point, T epsilon)
     -> bool {
   return intersects(point, box, epsilon);
 }
 
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 template <typename T, std::size_t N>
 auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box) -> bool {
   for (std::size_t i = 0; i < N; ++i) {
@@ -68,11 +108,23 @@ auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box) -> bool {
   return true;
 }
 
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+/// Requires appropriate intersection logic for the given argument types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+
 template <typename T, std::size_t N>
 auto intersects(const aabb<T, N> &box, const vector_view<T, N> &point) -> bool {
   return intersects(point, box);
 }
 
+/// @brief Check whether two geometric primitives intersect within epsilon.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 template <typename T, std::size_t N>
 auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box,
                 T epsilon) -> bool {
@@ -83,6 +135,11 @@ auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box,
   return true;
 }
 
+/// @brief Check whether two geometric primitives intersect within epsilon.
+///
+/// This overload of `intersects` checks for intersection between specific types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 template <typename T, std::size_t N>
 auto intersects(const aabb<T, N> &box, const vector_view<T, N> &point,
                 T epsilon) -> bool {
@@ -90,3 +147,4 @@ auto intersects(const aabb<T, N> &box, const vector_view<T, N> &point,
 }
 
 } // namespace tf
+
