@@ -28,7 +28,7 @@ public:
       return tf::make_range(base_t::begin().base_iter(),
                             base_t::end().base_iter());
     else
-      tf::make_range<N>(base_t::begin().base_iter());
+      return tf::make_range<N>(base_t::begin().base_iter());
   }
 };
 

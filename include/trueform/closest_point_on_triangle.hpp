@@ -6,11 +6,12 @@
 #pragma once
 #include "./dot.hpp"
 #include "./vector.hpp"
+#include "./vector_view.hpp"
 
 namespace tf {
 template <typename Range0, typename Range1, typename T>
 auto closest_point_on_triangle(const Range0 &triangle_ids, const Range1 &points,
-                               const tf::vector<T, 3> &point) {
+                               const tf::vector_view<T, 3> &point) {
   auto ab = points[triangle_ids[1]] - points[triangle_ids[0]];
   auto ac = points[triangle_ids[2]] - points[triangle_ids[0]];
   auto ap = point - points[triangle_ids[0]];
@@ -58,5 +59,12 @@ auto closest_point_on_triangle(const Range0 &triangle_ids, const Range1 &points,
   auto v = vb * denom;
   auto w = vc * denom;
   return points[triangle_ids[0]] + ab * v + ac * w;
+}
+
+template <typename Range0, typename Range1, typename T>
+auto closest_point_on_triangle(const Range0 &triangle_ids, const Range1 &points,
+                               const tf::vector<T, 3> &point) {
+  return closest_point_on_triangle(triangle_ids, points,
+                                   tf::make_vector_view<3>(point.begin()));
 }
 } // namespace tf

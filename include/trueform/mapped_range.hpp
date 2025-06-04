@@ -11,8 +11,7 @@
 
 namespace tf {
 template <typename Range, typename F> auto make_mapped_range(Range &&r, F &&f) {
-  auto begin =
-      tf::implementation::iter::make_mapped(r.begin(), static_cast<F &&>(f));
+  auto begin = tf::implementation::iter::make_mapped(r.begin(), f);
   auto end =
       tf::implementation::iter::make_mapped(r.end(), static_cast<F &&>(f));
   return tf::make_range<tf::static_size_v<std::decay_t<Range>>>(

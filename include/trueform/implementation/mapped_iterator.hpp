@@ -8,13 +8,23 @@
 #include <iterator>
 namespace tf::implementation::iter {
 
-template <typename Derived, typename Iterator, typename DereferncePolicy>
+template <typename Derived, typename Iterator, typename DereferncePolicy,
+          bool defer = false>
 struct forward_mapped_crtp : protected dereference_policy<DereferncePolicy> {
+private:
+  template <typename It, typename DP, bool> struct reference_helper {
+    using type = decltype(std::declval<DP>()(*std::declval<It>()));
+  };
+
+  template <typename It, typename DP> struct reference_helper<It, DP, true> {
+    using type =
+        decltype(std::declval<DereferncePolicy>()(std::declval<Iterator>()));
+  };
 
 protected:
   using dref_base_t = dereference_policy<DereferncePolicy>;
   using reference_t =
-      decltype(std::declval<DereferncePolicy>()(*std::declval<Iterator>()));
+      typename reference_helper<Iterator, DereferncePolicy, defer>::type;
 
   Iterator iter;
 
@@ -43,13 +53,19 @@ public:
   auto base_iter() const { return iter; }
 
   auto operator*() const -> decltype(auto) {
-    return static_cast<const dref_base_t &>(*this)(*iter);
+    if constexpr (defer)
+      return static_cast<const dref_base_t &>(*this)(iter);
+    else
+      return static_cast<const dref_base_t &>(*this)(*iter);
   }
 
   template <typename T = reference_t,
             typename = std::enable_if_t<std::is_reference<T>::value, void>>
   auto operator->() const {
-    return std::addressof(static_cast<const dref_base_t &>(*this)(*iter));
+    if constexpr (defer)
+      return std::addressof(static_cast<const dref_base_t &>(*this)(*iter));
+    else
+      return std::addressof(static_cast<const dref_base_t &>(*this)(*iter));
   }
 
   auto operator++() -> Derived & {
@@ -71,11 +87,13 @@ public:
   }
 };
 
-template <typename Derived, typename Iterator, typename DereferncePolicy>
+template <typename Derived, typename Iterator, typename DereferncePolicy,
+          bool defer = false>
 struct bidirectional_mapped_crtp
-    : forward_mapped_crtp<Derived, Iterator, DereferncePolicy> {
+    : forward_mapped_crtp<Derived, Iterator, DereferncePolicy, defer> {
 private:
-  using base_t = forward_mapped_crtp<Derived, Iterator, DereferncePolicy>;
+  using base_t =
+      forward_mapped_crtp<Derived, Iterator, DereferncePolicy, defer>;
 
 public:
   using base_t::base_t;
@@ -92,11 +110,13 @@ public:
   }
 };
 
-template <typename Derived, typename Iterator, typename DereferncePolicy>
+template <typename Derived, typename Iterator, typename DereferncePolicy,
+          bool defer = false>
 struct random_access_mapped_crtp
-    : bidirectional_mapped_crtp<Derived, Iterator, DereferncePolicy> {
+    : bidirectional_mapped_crtp<Derived, Iterator, DereferncePolicy, defer> {
 private:
-  using base_t = bidirectional_mapped_crtp<Derived, Iterator, DereferncePolicy>;
+  using base_t =
+      bidirectional_mapped_crtp<Derived, Iterator, DereferncePolicy, defer>;
 
 public:
   using base_t::base_t;
@@ -150,39 +170,45 @@ public:
 };
 
 template <typename Tag, typename Derived, typename Iterator,
-          typename DereferncePolicy>
+          typename DereferncePolicy, bool defer>
 struct mapped_crtp_picker {
-  using type = forward_mapped_crtp<Derived, Iterator, DereferncePolicy>;
+  using type = forward_mapped_crtp<Derived, Iterator, DereferncePolicy, defer>;
 };
 
-template <typename Derived, typename Iterator, typename DereferncePolicy>
+template <typename Derived, typename Iterator, typename DereferncePolicy,
+          bool defer>
 struct mapped_crtp_picker<std::forward_iterator_tag, Derived, Iterator,
-                          DereferncePolicy> {
-  using type = forward_mapped_crtp<Derived, Iterator, DereferncePolicy>;
+                          DereferncePolicy, defer> {
+  using type = forward_mapped_crtp<Derived, Iterator, DereferncePolicy, defer>;
 };
 
-template <typename Derived, typename Iterator, typename DereferncePolicy>
+template <typename Derived, typename Iterator, typename DereferncePolicy,
+          bool defer>
 struct mapped_crtp_picker<std::bidirectional_iterator_tag, Derived, Iterator,
-                          DereferncePolicy> {
-  using type = bidirectional_mapped_crtp<Derived, Iterator, DereferncePolicy>;
+                          DereferncePolicy, defer> {
+  using type =
+      bidirectional_mapped_crtp<Derived, Iterator, DereferncePolicy, defer>;
 };
 
-template <typename Derived, typename Iterator, typename DereferncePolicy>
+template <typename Derived, typename Iterator, typename DereferncePolicy,
+          bool defer>
 struct mapped_crtp_picker<std::random_access_iterator_tag, Derived, Iterator,
-                          DereferncePolicy> {
-  using type = random_access_mapped_crtp<Derived, Iterator, DereferncePolicy>;
+                          DereferncePolicy, defer> {
+  using type =
+      random_access_mapped_crtp<Derived, Iterator, DereferncePolicy, defer>;
 };
 
 template <typename Iterator, typename DereferncePolicy>
 struct mapped : mapped_crtp_picker<
                     typename std::iterator_traits<Iterator>::iterator_category,
                     mapped<Iterator, DereferncePolicy>, Iterator,
-                    DereferncePolicy>::type {
+                    DereferncePolicy, false>::type {
 
 private:
   using base_t = typename mapped_crtp_picker<
       typename std::iterator_traits<Iterator>::iterator_category,
-      mapped<Iterator, DereferncePolicy>, Iterator, DereferncePolicy>::type;
+      mapped<Iterator, DereferncePolicy>, Iterator, DereferncePolicy,
+      false>::type;
 
 public:
   using base_t::base_t;
@@ -191,6 +217,29 @@ public:
 template <typename Iterator, typename DereferncePolicy>
 auto make_mapped(Iterator iter, DereferncePolicy &&dereference_policy) {
   return mapped<Iterator, std::decay_t<DereferncePolicy>>{
+      std::move(iter), static_cast<DereferncePolicy &&>(dereference_policy)};
+}
+
+template <typename Iterator, typename DereferncePolicy>
+struct iter_mapped
+    : mapped_crtp_picker<
+          typename std::iterator_traits<Iterator>::iterator_category,
+          iter_mapped<Iterator, DereferncePolicy>, Iterator, DereferncePolicy,
+          true>::type {
+
+private:
+  using base_t = typename mapped_crtp_picker<
+      typename std::iterator_traits<Iterator>::iterator_category,
+      iter_mapped<Iterator, DereferncePolicy>, Iterator, DereferncePolicy,
+      true>::type;
+
+public:
+  using base_t::base_t;
+};
+
+template <typename Iterator, typename DereferncePolicy>
+auto make_iter_mapped(Iterator iter, DereferncePolicy &&dereference_policy) {
+  return iter_mapped<Iterator, std::decay_t<DereferncePolicy>>{
       std::move(iter), static_cast<DereferncePolicy &&>(dereference_policy)};
 }
 } // namespace tf::implementation::iter
