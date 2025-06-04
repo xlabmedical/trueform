@@ -15,7 +15,13 @@ auto parallel_for(Iterator first, Iterator last, Func &&f) -> void {
         f(range.begin(), range.end());
       });
 }
-
+/// @brief Executes a parallel for loop over a container-like range.
+///
+///
+/// @tparam Range Type of the container or range (must provide `.begin()` and `.end()`).
+/// @tparam Func Callable type; must accept `(Iterator, Iterator)` arguments.
+/// @param r The container or range to iterate over.
+/// @param f Function to apply to each subrange in parallel.
 template <typename Range, typename Func>
 auto parallel_for(Range &&r, Func &&f) -> void {
   return parallel_for(r.begin(), r.end(), static_cast<Func &&>(f));

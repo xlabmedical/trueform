@@ -21,7 +21,7 @@ namespace tf {
 /// ensuring efficient memory layout and predictable query performance.
 ///
 /// All query operations are exposed as free functions in the `tf::` namespace—
-/// including `tf::search`, `tf::search_self`, and `tf::nearness_search`—and accept
+/// including @ref tf::search, @ref tf::search_self, and @ref tf::nearness_search —and accept
 /// user-defined callbacks for full control over traversal and primitive evaluation.
 ///
 /// For details on the underlying methodology and performance characteristics, refer to the accompanying technical paper.
@@ -58,7 +58,7 @@ public:
 /// @param objects The range of primitives to insert into the tree.
 /// @param config Configuration parameters including the `make_aabb` function,
 ///               leaf size, and partitioning strategy. It is constructed via
-///               `tf::config_tree` free function for convenience.
+///               @ref tf::config_tree free function for convenience.
 ///
 /// @return void
   template <typename Range, typename FC>

@@ -12,7 +12,12 @@
 
 namespace tf {
 
-// squared distance between two vectors
+/// @brief Computes the squared Euclidean distance between two vectors.
+/// @tparam T The scalar type.
+/// @tparam N The dimensionality.
+/// @param a First vector.
+/// @param b Second vector.
+/// @return Squared distance between a and b.
 template <typename T, std::size_t N>
 auto distance2(const vector<T, N> &a, const vector<T, N> &b) -> T {
   T sum = T{};
@@ -23,13 +28,23 @@ auto distance2(const vector<T, N> &a, const vector<T, N> &b) -> T {
   return sum;
 }
 
-// Euclidean distance
+/// @brief Computes the Euclidean distance between two vectors.
+/// @tparam T The scalar type.
+/// @tparam N The dimensionality.
+/// @param a First vector.
+/// @param b Second vector.
+/// @return Distance between a and b.
 template <typename T, std::size_t N>
 auto distance(const vector<T, N> &a, const vector<T, N> &b) -> T {
   return std::sqrt(distance2(a, b));
 }
 
-// squared distance between two vectors
+/// @brief Computes the squared Euclidean distance between two vector views.
+/// @tparam T The scalar type.
+/// @tparam N The dimensionality.
+/// @param a First vector view.
+/// @param b Second vector view.
+/// @return Squared distance between a and b.
 template <typename T, std::size_t N>
 auto distance2(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
   T sum = T{};
@@ -40,13 +55,24 @@ auto distance2(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
   return sum;
 }
 
-// Euclidean distance
+/// @brief Computes the Euclidean distance between two vector views.
+/// @tparam T The scalar type.
+/// @tparam N The dimensionality.
+/// @param a First vector view.
+/// @param b Second vector view.
+/// @return Distance between a and b.
 template <typename T, std::size_t N>
 auto distance(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
   return std::sqrt(distance2(a, b));
 }
 
-// squared distance between AABBs (0 if they overlap)
+/// @brief Computes the squared distance between two AABBs.
+/// The result is 0 if they overlap.
+/// @tparam T The scalar type.
+/// @tparam N The dimensionality.
+/// @param a First AABB.
+/// @param b Second AABB.
+/// @return Squared distance between AABBs.
 template <typename T, std::size_t N>
 auto distance2(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
   T sum = T{};
@@ -62,12 +88,23 @@ auto distance2(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
   return sum;
 }
 
-// distance between AABBs
+/// @brief Computes the distance between two AABBs.
+/// @tparam T The scalar type.
+/// @tparam N The dimensionality.
+/// @param a First AABB.
+/// @param b Second AABB.
+/// @return Distance between AABBs.
 template <typename T, std::size_t N>
 auto distance(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
   return std::sqrt(distance2(a, b));
 }
 
+/// @brief Computes the squared distance from a point to an AABB.
+/// @tparam T The scalar type.
+/// @tparam N The dimensionality.
+/// @param _bbox The AABB.
+/// @param _point The point.
+/// @return Squared distance from point to AABB.
 template <typename T, std::size_t N>
 auto distance2(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
   decltype(_bbox.min[0] - _bbox.min[0]) dist2{};
@@ -84,21 +121,25 @@ auto distance2(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
   return dist2;
 }
 
+/// @brief Computes the squared distance from a point to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance2(const vector<T, N> &_point, const aabb<T, N> &_bbox) {
   return distance2(_bbox, _point);
 }
 
+/// @brief Computes the distance from a point to an AABB.
 template <typename T, std::size_t N>
 auto distance(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
   return std::sqrt(distance2(_bbox, _point));
 }
 
+/// @brief Computes the distance from a point to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance(const vector<T, N> &_point, const aabb<T, N> &_bbox) {
   return std::sqrt(distance2(_bbox, _point));
 }
 
+/// @brief Computes the squared distance from a vector view to an AABB.
 template <typename T, std::size_t N>
 auto distance2(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
   decltype(_bbox.min[0] - _bbox.min[0]) dist2{};
@@ -115,19 +156,21 @@ auto distance2(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
   return dist2;
 }
 
+/// @brief Computes the squared distance from a vector view to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance2(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {
   return distance2(_bbox, _point);
 }
 
+/// @brief Computes the distance from a vector view to an AABB.
 template <typename T, std::size_t N>
 auto distance(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
   return std::sqrt(distance2(_bbox, _point));
 }
 
+/// @brief Computes the distance from a vector view to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {
   return std::sqrt(distance2(_bbox, _point));
 }
-
 } // namespace tf

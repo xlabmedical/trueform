@@ -13,7 +13,7 @@ namespace tf {
 /// Represents the closest primitive and corresponding point found during a spatial query.
 /// The result includes the primitive's index and its nearest point, along with the distance metric.
 ///
-/// This struct is returned by `tf::nearness_search(...)` when querying a single tree,
+/// This struct is returned by @ref tf::nearness_search when querying a single tree,
 /// and provides utilities to access the result’s validity and metric.
 ///
 /// @tparam Index The type used for primitive identifiers (typically an integer).

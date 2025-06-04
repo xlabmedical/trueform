@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   // 3. aligns pt1 to pt0
   auto transformation =
       tf::transformed(tf::make_transformation_from_translation(-pt1),
-                      tf::random_transformation<float, 3>(pt0));
+                      tf::random_transformation<float>(pt0));
 
   // you could have a buffer per thread using
   // tbb::this_task_arena::current_thread_index()

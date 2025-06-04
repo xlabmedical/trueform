@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   // 3. aligns pt1 to pt0
   auto transformation =
       tf::transformed(tf::make_transformation_from_translation(-pt1),
-                      tf::random_transformation<float, 3>(pt0));
+                      tf::random_transformation<float>(pt0));
 
   std::atomic<bool> are_colliding{false};
   // we may use the same tree, as we will simply

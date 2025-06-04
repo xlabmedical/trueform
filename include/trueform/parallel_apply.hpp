@@ -20,7 +20,23 @@ auto parallel_apply(Iterator first, Iterator last, Func &&f) -> void {
         }
       });
 }
-
+/// @brief Applies a function to each element of a range in parallel.
+///
+/// This function applies the given functor `f` to each element of the input range `r`,
+/// using parallel execution. Internally, it leverages @ref parallel_for to split
+/// the range and apply the function concurrently.
+///
+/// @tparam Range A range type that supports random-access iteration.
+/// @tparam Func A callable that takes a reference to an element of the range.
+/// @param r The range to iterate over.
+/// @param f The function to apply to each element in the range.
+///
+/// @note This is a parallel equivalent of a simple for-loop like:
+/// @code
+/// for (auto &elem : r) f(elem);
+/// @endcode
+///
+/// @see @ref parallel_for
 template <typename Range, typename Func>
 auto parallel_apply(Range &&r, Func &&f) -> void {
   return parallel_apply(r.begin(), r.end(), static_cast<Func &&>(f));

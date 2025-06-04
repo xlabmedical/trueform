@@ -8,6 +8,22 @@
 #include "./transformation.hpp"
 
 namespace tf {
+
+/// @brief Compose two affine transformations.
+///
+/// Given two affine transformations, this returns a new transformation
+/// that is equivalent to applying `_this` first, then `transform`.
+///
+/// This performs standard matrix composition:
+/// `result = transform * _this`
+///
+/// @tparam T Scalar type of the left-hand transformation.
+/// @tparam Dims Dimensionality of the transformation.
+/// @tparam U Scalar type of the right-hand transformation.
+/// @param _this The transformation to apply first.
+/// @param transform The transformation to apply second.
+/// @return A new @ref tf::transformation representing the composed
+/// transformation.
 template <typename T, std::size_t Dims, typename U>
 auto transformed(const transformation<T, Dims> &_this,
                  const transformation<U, Dims> &transform) {
@@ -30,6 +46,19 @@ auto transformed(const transformation<T, Dims> &_this,
   return out_array;
 }
 
+/// @brief Apply a transformation to an axis-aligned bounding box (AABB).
+///
+/// Computes a conservative transformed bounding box by applying the given
+/// affine transformation to the input AABB. The resulting box is guaranteed
+/// to contain the transformed shape, even under rotation or shear.
+///
+///
+/// @tparam T Scalar type of the input AABB.
+/// @tparam Dims Dimensionality of the AABB and transformation.
+/// @tparam U Scalar type of the transformation matrix.
+/// @param _this The input AABB to be transformed.
+/// @param transform The affine transformation to apply.
+/// @return A new AABB that conservatively bounds the transformed input.
 template <typename T, std::size_t Dims, typename U>
 auto transformed(const aabb<T, Dims> &_this,
                  const transformation<U, Dims> &transform) {

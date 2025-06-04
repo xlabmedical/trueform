@@ -10,8 +10,22 @@
 #include <cmath>
 
 namespace tf {
-template <typename T, std::size_t Dims>
-auto random_transformation(tf::vector<T, Dims> translation = {{0, 0, 0}})
+/// @brief Generates a random 3D rigid transformation matrix with optional translation.
+///
+/// This function returns a randomly generated 3D transformation of type
+/// @ref tf::transformation. The transformation includes a uniformly sampled random
+/// rotation matrix and an optional translation vector. The rotation is sampled uniformly
+/// over SO(3) using the method of uniform sampling from a quaternion-like approach
+/// (see "Uniform Random Rotations" by Ken Shoemake, 1992).
+///
+/// @tparam T The scalar type, typically `float` or `double`.
+/// @param translation Optional translation vector. Defaults to the zero vector.
+/// @return A 3D transformation matrix of type @ref tf::transformation<T, 3>.
+///
+/// @see @ref tf::random
+/// @see @ref tf::transformation
+template <typename T>
+auto random_transformation(tf::vector<T, 3> translation = {{0, 0, 0}})
     -> tf::transformation<T, 3> {
 
   T x0_rand = tf::random<T>(T(0), T(1));

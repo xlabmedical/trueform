@@ -1,5 +1,6 @@
 #include "./util/read_mesh.hpp"
 #include "trueform/closest_point_on_triangle.hpp"
+#include "trueform/indirect_range.hpp"
 #include "trueform/intersects.hpp"
 #include "trueform/random.hpp"
 #include "trueform/search.hpp"
@@ -53,8 +54,10 @@ int main(int argc, char *argv[]) {
       },
       [&center, &points = points, &triangles = triangles,
        &ids_in_tolerance](const auto &triangle_id) {
-        if ((center - tf::closest_point_on_triangle(triangles[triangle_id],
-                                                    points, center))
+        if ((center -
+             tf::closest_point_on_triangle(
+                 tf::make_indirect_range(triangles[triangle_id], points),
+                 center))
                 .length2() < std::numeric_limits<float>::epsilon())
           ids_in_tolerance.push_back(triangle_id);
         // return true (inside condition) if you want to stop the search at

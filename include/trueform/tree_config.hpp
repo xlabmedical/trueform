@@ -21,7 +21,7 @@ struct tree_node_config {
 /// `tree_config` defines the parameters and behavior used during tree construction,
 /// including maximum node sizes and the function for generating primitive AABBs.
 ///
-/// Users are encouraged to create this object using the `tf::config_tree` helper
+/// Users are encouraged to create this object using the @ref tf::config_tree helper
 /// functions, which provide type deduction and convenient defaults.
 ///
 /// @tparam F A callable type used to generate an AABB from a primitive.

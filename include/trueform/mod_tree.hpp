@@ -12,8 +12,34 @@
 #include <algorithm>
 
 namespace tf {
-template <typename Index, typename RealType, std::size_t Dims> class mod_tree {
+/**
+ * @brief A dynamic spatial tree that combines a persistent main tree with a transient delta tree.
+ * 
+ * This structure supports efficient incremental updates by separating static data (stored in
+ * the main @ref tf::tree) from newly added or moved data (stored in the delta @ref tf::tree). 
+ * The delta tree is rebuilt from scratch on each update, while the main tree is pruned.
+ *
+ * @tparam Index    Index type used for object references
+ * @tparam RealType Floating-point type used for coordinates
+ * @tparam Dims     Dimensionality of the space (e.g., 2 or 3)
+ *
+ * @see tf::tree
+ * @see tf::mapping
+ */
+template <typename Index, typename RealType, std::size_t Dims> 
+class mod_tree {
 public:
+  /**
+   * @brief Builds the main tree from a given range of objects using a specified partitioner.
+   *
+   * This clears any delta data and constructs the main tree.
+   *
+   * @tparam Partitioner A strategy type used for partitioning during tree construction
+   * @tparam Range       A range of geometric objects
+   * @tparam FC          A callable or policy object passed to the tree config
+   * @param objects      The input range of geometric objects
+   * @param config       Tree configuration (see ref::tree_config)
+   */
   template <typename Partitioner, typename Range, typename FC>
   auto build(const Range &objects, const tf::tree_config<FC> &config) -> void {
     _delta_ids.clear();
@@ -21,11 +47,36 @@ public:
     _main_tree.build(objects, make_aabb, config);
   }
 
+  /**
+   * @brief Builds the main tree using the default nth-element partitioner.
+   *
+   * Convenience overload of @ref ::build with a default partitioner.
+   *
+   * @tparam Range A range of geometric objects
+   * @tparam FC    A callable or policy object passed to the tree config
+   * @param objects The input range of geometric objects
+   * @param config  Tree configuration (see ref::tree_config)
+   */
   template <typename Range, typename FC>
   auto build(const Range &objects, const tf::tree_config<FC> &config) -> void {
     return build<strategy::nth_element_t>(objects, config);
   }
 
+  /**
+   * @brief Updates the tree with new or modified objects.
+   *
+   * This prunes the main tree using the `keep_if` predicate and constructs the delta tree
+   * from the given set of new objects and their corresponding IDs.
+   *
+   * @tparam Range0  A range of geometric objects
+   * @tparam Range1  A range of object indices
+   * @tparam F       A unary predicate defining which indices to keep
+   * @tparam FC      A callable or policy object passed to the tree config
+   * @param objects  New or updated geometric objects
+   * @param ids      Indices of the updated objects
+   * @param keep_if  Predicate returning true for IDs that should remain in the tree
+   * @param config   Tree configuration (see ref::tree_config)
+   */
   template <typename Range0, typename Range1, typename F, typename FC>
   auto update(const Range0 &objects, const Range1 &ids, const F &keep_if,
               const tf::tree_config<FC> &config) {
@@ -33,6 +84,22 @@ public:
     update_delta_tree(objects, ids, keep_if, config);
   }
 
+  /**
+   * @brief Updates the tree using an index remapping (via ref::mapping).
+   *
+   * Used when object IDs have been remapped or reordered. This prunes the main tree and 
+   * constructs a new delta tree using the remapped IDs.
+   *
+   * @tparam Range     A range of geometric objects
+   * @tparam Range1    Underlying type for `mapping::f()` (forward map)
+   * @tparam Range2    Underlying type for `mapping::kept_ids()` (kept/valid IDs)
+   * @tparam F         A predicate that determines which IDs to keep
+   * @tparam FC        A callable or policy object passed to the tree config
+   * @param objects    New or updated geometric objects
+   * @param mapping    Index remapping (see ref::mapping)
+   * @param keep_if    Predicate for keeping existing IDs
+   * @param config     Tree configuration (see ref::tree_config)
+   */
   template <typename Range, typename Range1, typename Range2, typename F,
             typename FC>
   auto update_tree(const Range &objects,
@@ -42,18 +109,33 @@ public:
     update_delta_tree(objects, mapping, keep_if, config);
   }
 
+  /**
+   * @brief Returns a const reference to the main tree.
+   */
   auto main_tree() const -> const tree<Index, RealType, Dims> & {
     return _main_tree;
   }
 
+  /**
+   * @brief Returns a mutable reference to the main tree.
+   */
   auto main_tree() -> tree<Index, RealType, Dims> & { return _main_tree; }
 
+  /**
+   * @brief Returns a const reference to the delta tree.
+   */
   auto delta_tree() const -> const tree<Index, RealType, Dims> & {
     return _delta_tree;
   }
 
+  /**
+   * @brief Returns a mutable reference to the delta tree.
+   */
   auto delta_tree() -> tree<Index, RealType, Dims> & { return _delta_tree; }
 
+  /**
+   * @brief Clears all data from both the main and delta trees.
+   */
   auto clear() {
     _main_tree.clear();
     _delta_tree.clear();

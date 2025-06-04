@@ -17,6 +17,14 @@ auto distribution_sample(Distribution &distribution) {
 }
 } // namespace implementation
 
+/// @brief Generate a random value in a specified range.
+///
+/// Produces a random value of type `T` uniformly distributed in the interval [`from`, `to`].
+///
+/// @tparam T A numeric type supporting uniform distribution (e.g., `float`, `double`, or integral).
+/// @param from Lower bound of the range (inclusive).
+/// @param to Upper bound of the range (inclusive or exclusive depending on `T`).
+/// @return A randomly generated value of type `T`.
 template <typename T> auto random(T from, T to) -> T {
   if constexpr (std::is_floating_point_v<T>) {
     std::uniform_real_distribution<T> distribution(from, to);
@@ -27,6 +35,12 @@ template <typename T> auto random(T from, T to) -> T {
   }
 }
 
+/// @brief Generate a random value in the default range [`0`, `1`].
+///
+/// Equivalent to `tf::random(T(0), T(1))`. Useful for floating-point types.
+///
+/// @tparam T A numeric type supporting uniform distribution.
+/// @return A randomly generated value of type `T` in the default range.
 template <typename T> auto random() -> T { return tf::random(T(0), T(1)); }
 
 } // namespace tf

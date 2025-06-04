@@ -40,7 +40,7 @@ protected:
 
 /// @brief Lightweight non-owning view of a fixed-size N-dimensional vector.
 ///
-/// `tf::vector_view<T, N>` provides the same interface as `tf::vector<T, N>`,
+/// `tf::vector_view<T, N>` provides the same interface as @ref tf::vector,
 /// but wraps a raw pointer instead of owning the underlying data. It is useful
 /// for referencing external memory (e.g., interleaved buffers, mapped arrays)
 /// without copying or allocating.
@@ -54,7 +54,7 @@ protected:
 /// - length() method
 ///
 /// This class does not perform bounds checking or lifetime management.
-/// Use `tf::make_vector_view(...)` to create views from raw pointers.
+/// Use @ref tf::make_vector_view to create views from raw pointers.
 ///
 /// @tparam T The referenced scalar element type (e.g., float, double, int).
 /// @tparam N The dimensionality (e.g., 2, 3).

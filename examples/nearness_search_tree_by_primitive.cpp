@@ -2,6 +2,7 @@
 #include "trueform/closest_point.hpp"
 #include "trueform/closest_point_on_triangle.hpp"
 #include "trueform/distance.hpp"
+#include "trueform/indirect_range.hpp"
 #include "trueform/nearness_search.hpp"
 #include "trueform/normalized.hpp"
 #include "trueform/random_vector.hpp"
@@ -51,8 +52,8 @@ int main(int argc, char *argv[]) {
       },
       [&query_pt, &points = points,
        &triangles = triangles](const auto &triangle_id) {
-        auto cpt = tf::closest_point_on_triangle(triangles[triangle_id], points,
-                                                 query_pt);
+        auto cpt = tf::closest_point_on_triangle(
+            tf::make_indirect_range(triangles[triangle_id], points), query_pt);
         return tf::make_closest_point((cpt - query_pt).length2(), cpt);
       } /*, search_radius */);
 
@@ -78,8 +79,8 @@ int main(int argc, char *argv[]) {
       },
       [&query_pt, &points = points,
        &triangles = triangles](const auto &triangle_id) {
-        auto cpt = tf::closest_point_on_triangle(triangles[triangle_id], points,
-                                                 query_pt);
+        auto cpt = tf::closest_point_on_triangle(
+            tf::make_indirect_range(triangles[triangle_id], points), query_pt);
         return tf::make_closest_point((cpt - query_pt).length2(), cpt);
       },
       knn);

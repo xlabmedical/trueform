@@ -13,7 +13,7 @@ namespace tf {
 ///
 /// Represents the closest pair of primitives found between two trees, along with
 /// their closest points and the associated distance metric. This structure is returned
-/// by `tf::nearness_search(tree0, tree1)`.
+/// by @ref tf::nearness_search.
 ///
 /// Includes utility accessors for checking validity and retrieving the distance metric.
 ///
@@ -28,9 +28,12 @@ struct tree_closest_point_pair {
   using closest_point_t = tf::closest_point_pair<RealT, Dims>;
   //
   static constexpr Index no_id = -1;
+  /// @brief A pair of primitive ids
   std::pair<Index, Index> elements{no_id, no_id};
+  /// @brief A @ref tf::closest_point_pair
   closest_point_pair<RealT, Dims> points;
 
+  /// @brief Converts to bool, signaling validity
   operator bool() const { return elements.first != no_id; }
   auto metric() const -> real_t { return points.metric; }
 };

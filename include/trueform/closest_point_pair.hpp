@@ -12,14 +12,17 @@ namespace tf {
 ///
 /// Represents the closest pair of points—one from each object or tree—along with
 /// the distance metric (typically squared distance). Used in dual-tree nearest neighbor queries
-/// such as `tf::nearness_search(tree0, tree1)`.
+/// such as @ref tf::nearness_search(tree0, tree1).
 /// Use `tf::make_closest_point_pair` to create an instance.
 ///
 /// @tparam RealT The scalar coordinate type (e.g., float or double).
 /// @tparam Dims The spatial dimension (e.g., 2 or 3).
 template <typename RealT, std::size_t Dims> struct closest_point_pair {
+  /// @brief The metric between the points
   RealT metric;
+  /// @brief The first point
   vector<RealT, Dims> first;
+  /// @brief The second point
   vector<RealT, Dims> second;
 };
 

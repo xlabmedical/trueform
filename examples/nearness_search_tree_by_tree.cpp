@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
   auto dpt0 = pt0 + tf::normalized(tf::random_vector<float, 3>()) * 1.e-7f;
   auto transformation =
       tf::transformed(tf::make_transformation_from_translation(-pt1),
-                      tf::random_transformation<float, 3>(dpt0));
+                      tf::random_transformation<float>(dpt0));
 
   // apply the transformation to the aabbs and primitives.
   auto [primitive_ids, closest_point_pair] = tf::nearness_search(

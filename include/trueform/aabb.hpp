@@ -19,7 +19,9 @@ namespace tf {
 /// @tparam N The spatial dimension (e.g., 2 or 3).
 template <typename T, std::size_t N> class aabb {
 public:
+  /// @brief The minimal corner
   vector<T, N> min;
+  /// @brief The maximal corner
   vector<T, N> max;
 
   // Default constructor
