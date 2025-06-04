@@ -4,6 +4,7 @@
 #include "trueform/mapped_range.hpp"
 #include "trueform/offset_block_range.hpp"
 #include "trueform/range.hpp"
+#include "trueform/sequence_range.hpp"
 #include <algorithm>
 #include <iostream>
 #include <string>
@@ -63,4 +64,8 @@ int main() {
       std::cout << c << ", ";
     std::cout << std::endl;
   }
+
+  for(auto i:tf::make_sequence_range(2, 7))
+    std::cout << i << ", ";
+  std::cout << std::endl;
 }

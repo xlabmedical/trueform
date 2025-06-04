@@ -18,7 +18,7 @@ template <typename Partitioner, typename Index, typename RealT, std::size_t N,
           typename Range0, typename Range1>
 auto build_tree_nodes(buffer<tree_node<Index, RealT, N>> &nodes,
                       const Range0 &aabbs, Range1 &ids, Index node_id,
-                      Index offset, const tree_config &config) {
+                      Index offset, const tree_node_config &config) {
   // create the bounding box
   {
     nodes[node_id].aabb = aabbs[ids.front()];
@@ -63,7 +63,7 @@ template <typename Partitioner, typename Index, typename RealT, std::size_t N,
           typename Range>
 auto build_tree_nodes(buffer<tree_node<Index, RealT, N>> &nodes,
                       buffer<Index> &ids, const Range &aabbs,
-                      tree_config config) {
+                      tree_node_config config) {
 
   nodes.clear();
   if (!aabbs.size()) {

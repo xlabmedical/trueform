@@ -29,10 +29,10 @@ int main(int argc, char *argv[]) {
   auto pt1 = points[id1];
 
   tf::tree<int, float, 3> tree;
-  tree.build(
-      /*tf::strategy::floyd_rivest (or some other strategy),*/
-      points, [](const tf::vector<float, 3> &pt) { return tf::aabb_from(pt); },
-      tf::tree_config{4, 4});
+  tree.build(tf::strategy::floyd_rivest, points,
+             tf::config_tree(4, 4, [](const tf::vector<float, 3> &pt) {
+               return tf::aabb_from(pt);
+             }));
   std::cout << "Build point tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
 
@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
   std::cout << "Selected points with ids: " << id0 << ", " << id1
             << " to align under random rotation." << std::endl;
   std::cout << "---------------------------------" << std::endl;
-
 
   // create transform that:
   // 1. makes pt1 the origin

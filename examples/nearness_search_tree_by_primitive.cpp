@@ -25,14 +25,12 @@ int main(int argc, char *argv[]) {
   tf::tree<int, float, 3> mesh_tree;
   mesh_tree.build(
       /*tf::strategy::floyd_rivest (or some other strategy),*/
-      triangles,
-      [&points = points](const triangle_t &t) {
+      triangles, tf::config_tree(4, 4, [&points = points](const triangle_t &t) {
         return tf::aabb_union(
             tf::aabb_union(tf::make_aabb(points[t[0]], points[t[0]]),
                            points[t[1]]),
             points[t[2]]);
-      },
-      tf::tree_config{4, 4});
+      }));
   std::cout << "Build triangle tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
 
@@ -43,7 +41,8 @@ int main(int argc, char *argv[]) {
 
   auto center = mesh_tree.nodes().front().aabb.center();
   auto radius = mesh_tree.nodes().front().aabb.diagonal().length() / 2;
-  auto query_pt = center + tf::normalized(tf::random_vector<float, 3>()) * radius;
+  auto query_pt =
+      center + tf::normalized(tf::random_vector<float, 3>()) * radius;
 
   auto [primitive_id, closest_point] = tf::nearness_search(
       mesh_tree,
