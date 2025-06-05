@@ -60,8 +60,6 @@ make examples -j8
 
 `tf::tree` is written in modern C++ with an STL-inspired interface. Its behavior, from construction to queries, is fully customizable using lambdas. This allows you to easily build trees over any kind of primitives and inject custom behaviour, like transformations or filtering, directly into the query.
 
-For a comprehensive discussion of methodology, benchmarking, and implementation, refer to our [technical paper (PDF)](papers/tree.pdf).
-
 ---
 
 ### 🔨 Building the Tree
