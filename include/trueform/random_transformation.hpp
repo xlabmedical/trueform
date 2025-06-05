@@ -10,6 +10,7 @@
 #include <cmath>
 
 namespace tf {
+/// @ingroup random
 /// @brief Generates a random 3D rigid transformation matrix with optional translation.
 ///
 /// This function returns a randomly generated 3D transformation of type

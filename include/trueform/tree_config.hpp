@@ -16,6 +16,7 @@ struct tree_node_config {
 };
 
 
+/// @ingroup spatial_structures
 /// @brief Configuration object for controlling tree construction.
 ///
 /// `tree_config` defines the parameters and behavior used during tree construction,
@@ -38,6 +39,7 @@ template <typename F> struct tree_config : private F {
 };
 
 
+/// @ingroup spatial_structures
 /// @brief Create a tree configuration using a user-provided AABB construction function.
 ///
 /// Returns a `tree_config` object that defines how the tree will be built,
@@ -57,6 +59,7 @@ auto config_tree(int inner_size, int leaf_size, F &&make_aabb_f) {
 }
 
 
+/// @ingroup spatial_structures
 /// @brief Create a default tree configuration using `tf::aabb_from(...)`.
 ///
 /// Returns a `tree_config` object with the provided node sizes and a default

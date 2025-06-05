@@ -8,6 +8,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Result of a nearest-point query against a spatial primitive.
 ///
 /// Represents a candidate closest point, including both the metric (e.g., squared distance)
@@ -22,6 +23,7 @@ template <typename RealT, std::size_t Dims> struct closest_point {
 };
 
 
+/// @ingroup geometry
 /// @brief Construct a `closest_point` object from a metric and a spatial position.
 ///
 /// Convenience function to create a `closest_point<RealT, Dims>` without explicitly

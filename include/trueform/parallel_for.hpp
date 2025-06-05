@@ -15,6 +15,7 @@ auto parallel_for(Iterator first, Iterator last, Func &&f) -> void {
         f(range.begin(), range.end());
       });
 }
+/// @ingroup algorithms
 /// @brief Executes a parallel for loop over a container-like range.
 ///
 ///

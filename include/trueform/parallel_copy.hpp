@@ -10,6 +10,7 @@
 
 namespace tf {
 
+/// @ingroup algorithms
 /// @brief Performs a parallel copy from an input range to an output range.
 ///
 /// This function copies elements from `input` to `output` in parallel using

@@ -9,6 +9,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Normalizes a vector view in place.
 ///
 /// Divides the vector by its Euclidean length, with protection against division
@@ -25,6 +26,7 @@ auto normalize(tf::vector_view<T, Dims> v) -> tf::vector_view<T, Dims> {
   return v;
 }
 
+/// @ingroup geometry
 /// @brief Normalizes a vector in place by delegating to @ref
 /// normalize(tf::vector_view<T, Dims>&).
 ///

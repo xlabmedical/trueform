@@ -9,6 +9,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Represents an affine transformation matrix.
 ///
 /// A `transformation` stores a D×(D+1) matrix for applying affine transformations
@@ -98,6 +99,7 @@ private:
   std::array<std::array<T, Dims + 1>, Dims> _transform;
 };
 
+/// @ingroup geometry
 /// @brief Create an identity affine transformation.
 /// 
 /// Initializes a matrix where the top-left D×D block is the identity and
@@ -115,6 +117,7 @@ auto make_identity_transformation() {
   return out;
 }
 
+/// @ingroup geometry
 /// @brief Create a pure translation transformation.
 ///
 /// Constructs an affine transformation that applies only translation,

@@ -9,6 +9,7 @@
 
 namespace tf {
 
+/// @ingroup spatial_structures
 /// @brief A node in the spatial tree hierarchy.
 ///
 /// Each node contains an axis-aligned bounding box (AABB), data indices, and an axis indicator.

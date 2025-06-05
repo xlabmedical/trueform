@@ -10,6 +10,7 @@
 #include <utility>
 
 namespace tf {
+/// @ingroup utilities 
 /// @brief A minimal, trivially-constructible alternative to `std::vector` for POD types.
 ///
 /// `tf::buffer<T>` is a lightweight dynamic array for trivially constructible and

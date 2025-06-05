@@ -10,6 +10,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Distance metrics used for prioritized dual-tree traversal.
 ///
 /// Contains two values:
@@ -29,6 +30,7 @@ template <typename RealT> struct aabb_metrics {
   RealT min_max_d2;
 };
 
+/// @ingroup geometry
 /// @brief Compute distance metrics between two AABBs for use in dual-tree
 /// queries.
 ///

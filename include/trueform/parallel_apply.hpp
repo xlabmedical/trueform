@@ -20,6 +20,7 @@ auto parallel_apply(Iterator first, Iterator last, Func &&f) -> void {
         }
       });
 }
+/// @ingroup algorithms
 /// @brief Applies a function to each element of a range in parallel.
 ///
 /// This function applies the given functor `f` to each element of the input range `r`,

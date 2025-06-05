@@ -11,6 +11,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect.
 ///
 /// This overload of `intersects` checks for intersection between
@@ -26,6 +27,7 @@ auto intersects(const aabb<T, N> &a, const aabb<T, N> &b) -> bool {
   return true;
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect within epsilon.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -41,6 +43,7 @@ auto intersects(const aabb<T, N> &a, const aabb<T, N> &b, T epsilon) -> bool {
   return true;
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -56,6 +59,7 @@ auto intersects(const vector<T, N> &point, const aabb<T, N> &box) -> bool {
   return true;
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect within epsilon.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -67,6 +71,7 @@ auto intersects(const aabb<T, N> &box, const vector<T, N> &point) -> bool {
   return intersects(point, box);
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect within epsilon.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -83,6 +88,7 @@ auto intersects(const vector<T, N> &point, const aabb<T, N> &box, T epsilon)
   return true;
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect within epsilon.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -94,6 +100,7 @@ auto intersects(const aabb<T, N> &box, const vector<T, N> &point, T epsilon)
   return intersects(point, box, epsilon);
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -108,6 +115,7 @@ auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box) -> bool {
   return true;
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -120,6 +128,7 @@ auto intersects(const aabb<T, N> &box, const vector_view<T, N> &point) -> bool {
   return intersects(point, box);
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect within epsilon.
 ///
 /// This overload of `intersects` checks for intersection between specific types.
@@ -135,6 +144,7 @@ auto intersects(const vector_view<T, N> &point, const aabb<T, N> &box,
   return true;
 }
 
+/// @ingroup geometry
 /// @brief Check whether two geometric primitives intersect within epsilon.
 ///
 /// This overload of `intersects` checks for intersection between specific types.

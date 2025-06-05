@@ -10,6 +10,7 @@
 namespace tf {
 
 
+/// @ingroup geometry
 /// @brief Expand an AABB to include another AABB, in-place.
 ///
 /// Updates `aabb0` to include the bounds of `aabb1`. Modifies `aabb0` directly.
@@ -30,6 +31,7 @@ auto aabb_union_inplace(aabb<T, N> &aabb0, const aabb<T, N> &aabb1)
 }
 
 
+/// @ingroup geometry
 /// @brief Compute the union of two AABBs.
 ///
 /// Returns a new AABB that bounds both `aabb0` and `aabb1`.
@@ -49,6 +51,7 @@ auto aabb_union(const aabb<T, N> &aabb0, const aabb<T, N> &aabb1)
 }
 
 
+/// @ingroup geometry
 /// @brief Expand an AABB to include a point, in-place.
 ///
 /// Updates `aabb0` to include the given point `pt`.
@@ -69,6 +72,7 @@ auto aabb_union_inplace(aabb<T, N> &aabb0, const vector<T, N> &pt)
 }
 
 
+/// @ingroup geometry
 /// @brief Compute the union of an AABB and a point.
 ///
 /// Returns a new AABB that includes both the input bounding box and the given point.
@@ -87,6 +91,7 @@ auto aabb_union(const aabb<T, N> &aabb0, const vector<T, N> &pt) -> aabb<T, N> {
 }
 
 
+/// @ingroup geometry
 /// @brief Expand an AABB to include a `vector_view`, in-place.
 ///
 /// Updates `aabb0` to include the point given as a view. Useful for referencing raw or external data.
@@ -107,6 +112,7 @@ auto aabb_union_inplace(aabb<T, N> &aabb0, const vector_view<T, N> &pt)
 }
 
 
+/// @ingroup geometry
 /// @brief Compute the union of an AABB and a `vector_view`.
 ///
 /// Returns a new AABB that includes both the input bounding box and the point view.

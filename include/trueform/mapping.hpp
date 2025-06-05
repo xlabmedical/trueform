@@ -8,6 +8,7 @@
 
 namespace tf {
 
+/// @ingroup utilities 
 /// @brief A utility class for representing a remapping of elements, such as point or polygon IDs.
 ///
 /// `mapping` is used to remap a set of indices (e.g., after a filtering or compression operation).
@@ -55,6 +56,7 @@ private:
   Range1 _inv_f;
 };
 
+/// @ingroup utilities 
 /// @brief Creates a `mapping` object by inferring types from provided ranges.
 ///
 /// @param _f The mapping function range.
@@ -66,6 +68,7 @@ auto make_mapping(Range0 &&_f, Range1 &&_kept_ids) {
       static_cast<Range0 &&>(_f), static_cast<Range1 &&>(_kept_ids)};
 }
 
+/// @ingroup utilities 
 /// @brief A convenient alias for a mapping with an owning @ref tf::buffer.
 template <typename Index>
 class mapping_val : public mapping<tf::buffer<Index>, tf::buffer<Index>> {};

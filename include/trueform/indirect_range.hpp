@@ -15,6 +15,7 @@ namespace tf {
 template <typename Iterator, std::size_t N>
 class indirect_range;
 
+/// @ingroup ranges
 /// @brief A view that indirectly accesses elements of a data range using an index range.
 ///
 /// This range uses an iterator over indices to dereference into another data range,
@@ -57,6 +58,7 @@ template <typename Iterator, std::size_t N>
 struct static_size<indirect_range<Iterator, N>>
     : std::integral_constant<std::size_t, N> {};
 
+/// @ingroup ranges
 /// @brief Creates an `indirect_range` that views `data` using indices from `ids`.
 ///
 /// @tparam Range0 A range of integral indices.

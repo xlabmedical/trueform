@@ -9,6 +9,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Axis-aligned bounding box in N-dimensional space.
 ///
 /// Represents a rectangular region defined by its component-wise `min` and
@@ -56,6 +57,7 @@ public:
   constexpr auto size() -> std::size_t { return N; }
 };
 
+/// @ingroup geometry
 /// @brief Construct an AABB from `min` and `max` corners.
 ///
 /// A convenience function equivalent to directly calling the `aabb<T, N>`

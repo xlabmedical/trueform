@@ -10,6 +10,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Construct an AABB from a single point.
 ///
 /// The resulting AABB has identical `min` and `max` bounds equal to the input
@@ -24,6 +25,7 @@ auto aabb_from(const vector<T, N> &pt) -> aabb<T, N> {
   return aabb<T, N>{pt, pt};
 }
 
+/// @ingroup geometry
 /// @brief Construct an AABB from a single point (view version).
 ///
 /// This overload accepts a `vector_view` and produces an AABB with identical

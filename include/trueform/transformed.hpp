@@ -9,6 +9,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Compose two affine transformations.
 ///
 /// Given two affine transformations, this returns a new transformation
@@ -46,6 +47,7 @@ auto transformed(const transformation<T, Dims> &_this,
   return out_array;
 }
 
+/// @ingroup geometry
 /// @brief Apply a transformation to an axis-aligned bounding box (AABB).
 ///
 /// Computes a conservative transformed bounding box by applying the given

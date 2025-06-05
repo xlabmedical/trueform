@@ -8,6 +8,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Result of a nearest-point query between two primitives or trees.
 ///
 /// Represents the closest pair of points—one from each object or tree—along with
@@ -27,6 +28,7 @@ template <typename RealT, std::size_t Dims> struct closest_point_pair {
 };
 
 
+/// @ingroup geometry
 /// @brief Construct a `closest_point_pair` from a distance and two spatial points.
 ///
 /// Convenience function to create a `closest_point_pair<RealT, Dims>` instance without

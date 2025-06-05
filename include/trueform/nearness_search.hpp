@@ -50,6 +50,7 @@ auto nearness_search(strategy::top_k_sorted_t,
   return result.point;
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query against a single tree structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
@@ -71,6 +72,7 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
                          closest_point_f);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query against a single tree structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
@@ -192,6 +194,7 @@ auto nearness_search(strategy::top_k_sorted_t,
 }
 
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -214,6 +217,7 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree0,
                          closest_points_f);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -236,6 +240,7 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
                          closest_points_f);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -258,6 +263,7 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
                          closest_points_f);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -383,6 +389,7 @@ auto nearness_search(strategy::top_k_sorted_t,
   return result.point;
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query against a single tree structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
@@ -406,6 +413,7 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
                          closest_point_f, radius);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query against a single tree structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
@@ -534,6 +542,7 @@ auto nearness_search(strategy::top_k_sorted_t,
   return result.points;
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -558,6 +567,7 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree0,
                          closest_points_f, radius);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -582,6 +592,7 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
                          closest_points_f, radius);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -606,6 +617,7 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
                          closest_points_f, radius);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the closest pair of primitives between them,
@@ -731,6 +743,7 @@ auto nearness_search(strategy::top_k_sorted_t,
       closest_point_f, knn);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a knn spatial query against a single tree structure.
 ///
 /// Traverses the tree to find the k nearest primitives to an implicit query point,
@@ -754,6 +767,7 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
                          closest_point_f, knn);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a knn spatial query against a single tree structure.
 ///
 /// Traverses the tree to find the k nearest primitives to an implicit query point,
@@ -859,6 +873,7 @@ auto nearness_search(strategy::top_k_sorted_t,
       tree0.delta_tree(), tree1, aabb_metrics_f, closest_points_f, knn);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the k nearest pairs of primitives between them,
@@ -883,6 +898,7 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree0,
                          closest_points_f, knn);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the k nearest pairs of primitives between them,
@@ -907,6 +923,7 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
                          closest_points_f, knn);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the k nearest pairs of primitives between them,
@@ -931,6 +948,7 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
                          closest_points_f, knn);
 }
 
+/// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
 /// Traverses both trees in tandem to find the k nearest pairs of primitives between them,

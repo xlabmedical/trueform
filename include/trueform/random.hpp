@@ -17,6 +17,7 @@ auto distribution_sample(Distribution &distribution) {
 }
 } // namespace implementation
 
+/// @ingroup random
 /// @brief Generate a random value in a specified range.
 ///
 /// Produces a random value of type `T` uniformly distributed in the interval [`from`, `to`].
@@ -35,6 +36,7 @@ template <typename T> auto random(T from, T to) -> T {
   }
 }
 
+/// @ingroup random
 /// @brief Generate a random value in the default range [`0`, `1`].
 ///
 /// Equivalent to `tf::random(T(0), T(1))`. Useful for floating-point types.

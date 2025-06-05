@@ -10,6 +10,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Fixed-size N-dimensional vector with element-wise arithmetic and
 /// comparisons.
 ///
@@ -203,6 +204,7 @@ private:
   std::array<T, N> data;
 };
 
+/// @ingroup geometry
 /// @brief Construct a vector from a `std::array`.
 ///
 /// Creates a @ref tf::vector<T, N> by copying values from the given array.
@@ -216,6 +218,7 @@ auto make_vector(std::array<T, N> arr) -> vector<T, N> {
   return vector<T, N>(arr);
 }
 
+/// @ingroup geometry
 /// @brief Construct a vector from a raw pointer.
 ///
 /// Creates a @ref tf::vector<T, N> by copying `N` elements from the given

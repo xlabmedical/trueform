@@ -12,6 +12,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Computes the squared Euclidean distance between two vectors.
 /// @tparam T The scalar type.
 /// @tparam N The dimensionality.
@@ -28,6 +29,7 @@ auto distance2(const vector<T, N> &a, const vector<T, N> &b) -> T {
   return sum;
 }
 
+/// @ingroup geometry
 /// @brief Computes the Euclidean distance between two vectors.
 /// @tparam T The scalar type.
 /// @tparam N The dimensionality.
@@ -39,6 +41,7 @@ auto distance(const vector<T, N> &a, const vector<T, N> &b) -> T {
   return std::sqrt(distance2(a, b));
 }
 
+/// @ingroup geometry
 /// @brief Computes the squared Euclidean distance between two vector views.
 /// @tparam T The scalar type.
 /// @tparam N The dimensionality.
@@ -55,6 +58,7 @@ auto distance2(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
   return sum;
 }
 
+/// @ingroup geometry
 /// @brief Computes the Euclidean distance between two vector views.
 /// @tparam T The scalar type.
 /// @tparam N The dimensionality.
@@ -66,6 +70,7 @@ auto distance(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
   return std::sqrt(distance2(a, b));
 }
 
+/// @ingroup geometry
 /// @brief Computes the squared distance between two AABBs.
 /// The result is 0 if they overlap.
 /// @tparam T The scalar type.
@@ -88,6 +93,7 @@ auto distance2(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
   return sum;
 }
 
+/// @ingroup geometry
 /// @brief Computes the distance between two AABBs.
 /// @tparam T The scalar type.
 /// @tparam N The dimensionality.
@@ -99,6 +105,7 @@ auto distance(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
   return std::sqrt(distance2(a, b));
 }
 
+/// @ingroup geometry
 /// @brief Computes the squared distance from a point to an AABB.
 /// @tparam T The scalar type.
 /// @tparam N The dimensionality.
@@ -121,24 +128,28 @@ auto distance2(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
   return dist2;
 }
 
+/// @ingroup geometry
 /// @brief Computes the squared distance from a point to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance2(const vector<T, N> &_point, const aabb<T, N> &_bbox) {
   return distance2(_bbox, _point);
 }
 
+/// @ingroup geometry
 /// @brief Computes the distance from a point to an AABB.
 template <typename T, std::size_t N>
 auto distance(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
   return std::sqrt(distance2(_bbox, _point));
 }
 
+/// @ingroup geometry
 /// @brief Computes the distance from a point to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance(const vector<T, N> &_point, const aabb<T, N> &_bbox) {
   return std::sqrt(distance2(_bbox, _point));
 }
 
+/// @ingroup geometry
 /// @brief Computes the squared distance from a vector view to an AABB.
 template <typename T, std::size_t N>
 auto distance2(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
@@ -156,18 +167,21 @@ auto distance2(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
   return dist2;
 }
 
+/// @ingroup geometry
 /// @brief Computes the squared distance from a vector view to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance2(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {
   return distance2(_bbox, _point);
 }
 
+/// @ingroup geometry
 /// @brief Computes the distance from a vector view to an AABB.
 template <typename T, std::size_t N>
 auto distance(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
   return std::sqrt(distance2(_bbox, _point));
 }
 
+/// @ingroup geometry
 /// @brief Computes the distance from a vector view to an AABB (reverse argument order).
 template <typename T, std::size_t N>
 auto distance(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {

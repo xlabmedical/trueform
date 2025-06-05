@@ -10,6 +10,7 @@
 
 namespace tf {
 
+/// @ingroup random
 /// @brief Generates a random vector of dimension `N` with values in the range [`from`, `to`].
 ///
 /// Each component of the resulting vector is independently sampled using `tf::random(from, to)`.
@@ -28,6 +29,7 @@ auto random_vector(T from, T to) -> tf::vector<T, N> {
       {tf::random(from, to), tf::random(from, to), tf::random(from, to)}};
 }
 
+/// @ingroup random
 /// @brief Generates a random vector of dimension `N` with values in the range [0, 1).
 ///
 /// This is a convenience overload that calls `tf::random_vector<N>(T(0), T(1))`.

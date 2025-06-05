@@ -11,6 +11,7 @@
 
 namespace tf {
 
+/// @ingroup ranges
 /// @brief A lightweight view over a fixed-size range of elements.
 ///
 /// `tf::range<Iterator, N>` represents a random-access sequence of `N` elements
@@ -86,6 +87,7 @@ struct tuple_element<I, tf::range<Iterator, tf::dynamic_size>>;
 
 namespace tf {
 
+/// @ingroup ranges
 /// @brief A lightweight view over a dynamically-sized range of elements.
 ///
 /// This specialization allows runtime-sized ranges, storing both `begin()`
@@ -146,6 +148,7 @@ private:
   Iterator _end = {};
 };
 
+/// @ingroup ranges
 /// @brief Create a dynamically-sized range from a beginning iterator and size.
 /// @param it The beginning iterator.
 /// @param size The number of elements in the range.
@@ -155,6 +158,7 @@ auto make_range(Iterator it, std::size_t size)
     -> range<Iterator, tf::dynamic_size> {
   return range<Iterator, tf::dynamic_size>(it, it + size);
 }
+/// @ingroup ranges
 /// @brief Create a fixed-size range from a beginning iterator.
 /// @tparam N The number of elements (static).
 /// @param it The beginning iterator.
@@ -163,6 +167,7 @@ template <std::size_t N, typename Iterator>
 auto make_range(Iterator it) -> range<Iterator, N> {
   return range<Iterator, N>(it);
 }
+/// @ingroup ranges
 /// @brief Create a dynamically-sized range from a pair of iterators.
 /// @param it The beginning iterator.
 /// @param end The past-the-end iterator.
@@ -172,6 +177,7 @@ auto make_range(Iterator it, Iterator end)
     -> range<Iterator, tf::dynamic_size> {
   return range<Iterator, tf::dynamic_size>(it, end);
 }
+/// @ingroup ranges
 /// @brief Create a fixed-size or dynamic range from a pair of iterators, based
 /// on the value of `N`. See @ref tf::dynamic_size
 /// @tparam N The number of elements (static).
@@ -182,6 +188,7 @@ template <std::size_t N, typename Iterator>
 auto make_range(Iterator it, Iterator end) -> range<Iterator, N> {
   return range<Iterator, N>(it, end);
 }
+/// @ingroup ranges
 /// @brief Create a range from a container reference.
 ///
 /// If @ref tf::static_size "tf::static_size<Container>" is specialized,
@@ -202,6 +209,7 @@ auto make_range(Container &c)
   return range<decltype(std::begin(c)), tf::static_size_v<Container>>(
       std::begin(c), std::end(c));
 }
+/// @ingroup ranges
 /// @brief Create a range from a const container reference.
 ///
 /// If @ref tf::static_size "tf::static_size<Container>" is specialized,

@@ -7,6 +7,7 @@
 #include "./normalize.hpp"
 
 namespace tf {
+/// @ingroup geometry
 /// @brief Return a normalized copy of a vector view.
 ///
 /// Creates a copy of the input @ref tf::vector_view, normalizes it using @ref normalize(),
@@ -22,6 +23,7 @@ auto normalized(const tf::vector_view<T, Dims> &v) -> tf::vector<T, Dims> {
   return normalize(out);
 }
 
+/// @ingroup geometry
 /// @brief Return a normalized copy of a vector.
 ///
 /// Creates a copy of the input @ref tf::vector, normalizes it using @ref normalize(),

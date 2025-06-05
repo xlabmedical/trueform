@@ -10,6 +10,7 @@
 
 namespace tf {
 
+/// @ingroup ranges
 /// @brief Creates a view over a range where elements are grouped into consecutive blocks.
 ///
 /// This is useful when interpreting flat buffers as structured collections,
@@ -34,6 +35,7 @@ auto make_blocked_range(Range &&r, std::size_t block_size) {
   return tf::make_range(std::move(begin), std::move(end));
 }
 
+/// @ingroup ranges
 /// @brief Creates a view over a range where elements are grouped into consecutive blocks, with compile-time block size.
 ///
 /// This overload provides a static block size via the template parameter `BlockSize`,

@@ -11,7 +11,7 @@
 
 namespace tf {
 
-
+/// @ingroup spatial_structures
 /// @brief A general-purpose spatial acceleration structure.
 ///
 /// `tf::tree` is a balanced bounding volume hierarchy (BVH) optimized for fast and flexible

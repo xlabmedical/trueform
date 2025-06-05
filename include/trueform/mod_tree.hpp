@@ -13,6 +13,7 @@
 
 namespace tf {
 /**
+ * @ingroup spatial_structures
  * @brief A dynamic spatial tree that combines a persistent main tree with a transient delta tree.
  * 
  * This structure supports efficient incremental updates by separating static data (stored in

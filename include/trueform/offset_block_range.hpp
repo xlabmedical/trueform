@@ -17,6 +17,7 @@ template <typename Range> struct offset_block_policy {
 };
 } // namespace implementation
 
+/// @ingroup ranges
 /// @brief Creates a range view over a sequence of blocks defined by offsets.
 ///
 /// This utility allows you to iterate over subranges ("blocks") of a data range.

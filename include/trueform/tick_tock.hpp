@@ -17,6 +17,7 @@ namespace implementation {
 inline std::chrono::steady_clock::time_point tick_start;
 } // namespace implementation
 
+/// @ingroup utilities 
 /// @brief Start a timing measurement.
 ///
 /// Captures the current time using `std::chrono::steady_clock`. Typically used in conjunction with @ref tock().
@@ -24,6 +25,7 @@ inline auto tick() -> void {
   implementation::tick_start = std::chrono::steady_clock::now();
 }
 
+/// @ingroup utilities 
 /// @brief End a timing measurement and return the elapsed time in milliseconds.
 ///
 /// Measures the duration since the last call to @ref tick().
@@ -36,6 +38,7 @@ inline auto tock() -> float {
       .count();
 }
 
+/// @ingroup utilities 
 /// @brief End a timing measurement and print the result with a custom message.
 ///
 /// Measures the duration since the last call to @ref tick() and prints it to `std::cout`

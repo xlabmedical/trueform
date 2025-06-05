@@ -8,6 +8,7 @@
 #include "./range.hpp"
 namespace tf {
 
+/// @ingroup ranges
 /// @brief Creates a view over a half-open sequence of integral values [start, end).
 ///
 /// This function returns a lightweight, non-owning range of incrementing values,
@@ -28,6 +29,7 @@ auto make_sequence_range(T start, T end) {
   return tf::make_range(std::move(begin_it), std::move(end_it));
 }
 
+/// @ingroup ranges
 /// @brief Creates a view over a half-open sequence of integral values [0, end).
 ///
 /// This overload starts from zero and ends at the given value.

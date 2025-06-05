@@ -9,6 +9,7 @@
 
 namespace tf {
 
+/// @ingroup geometry
 /// @brief Computes the squared maximal distance between two corners of two AABBs.
 ///
 /// This function returns the maximum squared Euclidean distance between the
@@ -32,6 +33,7 @@ auto minimal_maximal_distance2(const aabb<T, N> &a,
   return std::max((a.min - b.min).length2(), (a.max - b.max).length2());
 }
 
+/// @ingroup geometry
 /// @brief Computes the maximal distance between two corners of two AABBs.
 ///
 /// This function returns the square root of the result of

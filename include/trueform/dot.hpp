@@ -9,6 +9,7 @@
 #include "./vector_view.hpp"
 
 namespace tf {
+/// @ingroup geometry
 /// @brief Compute the dot product of two N-dimensional vectors.
 ///
 /// Returns the standard inner product (a · b) between two vectors
@@ -28,6 +29,7 @@ auto dot(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
   }
   return sum;
 }
+/// @ingroup geometry
 /// @brief Compute the dot product of two N-dimensional vectors.
 ///
 /// Returns the standard inner product (a · b) between two vectors
@@ -43,6 +45,7 @@ auto dot(const vector<T, N> &a, const vector<T, N> &b) -> T {
   return dot(tf::make_vector_view<N>(a.begin()),
              tf::make_vector_view<N>(b.begin()));
 }
+/// @ingroup geometry
 /// @brief Compute the dot product of two N-dimensional vectors.
 ///
 /// Returns the standard inner product (a · b) between two vectors
@@ -57,6 +60,7 @@ template <typename T, std::size_t N>
 auto dot(const vector_view<T, N> &a, const vector<T, N> &b) -> T {
   return dot(a, tf::make_vector_view<N>(b.begin()));
 }
+/// @ingroup geometry
 /// @brief Compute the dot product of two N-dimensional vectors.
 ///
 /// Returns the standard inner product (a · b) between two vectors

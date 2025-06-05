@@ -3,6 +3,7 @@
 #include "tbb/parallel_invoke.h"
 
 namespace tf {
+/// @ingroup algorithms
 /// @brief Recursively partitions a range into a given number of parts and applies a user function to each part.
 ///
 /// This utility enables balanced, recursive partitioning of a range into `parts` disjoint subranges,

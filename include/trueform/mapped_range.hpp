@@ -10,6 +10,7 @@
 #include "./static_size.hpp"
 
 namespace tf {
+/// @ingroup ranges
 /// @brief Creates a mapped view over an input range by applying a transformation function.
 ///
 /// This function constructs a non-owning, lazy view where each element is the result of
