@@ -1,7 +1,9 @@
 #include "./util/read_mesh.hpp"
+#include "trueform/blocked_range.hpp"
 #include "trueform/closest_point_on_triangle.hpp"
-#include "trueform/indirect_range.hpp"
 #include "trueform/intersects.hpp"
+#include "trueform/point_range.hpp"
+#include "trueform/polygon_range.hpp"
 #include "trueform/random.hpp"
 #include "trueform/search.hpp"
 #include "trueform/tree.hpp"
@@ -15,20 +17,20 @@ int main(int argc, char *argv[]) {
   }
 
   std::cout << "Reading file: " << argv[1] << std::endl;
-  auto [points, triangles] = tf::examples::read_mesh(argv[1]);
+  auto [raw_points, raw_triangle_faces] = tf::examples::read_mesh(argv[1]);
+  // create a point range from std::vector<float>
+  auto points = tf::make_point_range<3>(raw_points);
+  // create a polygon range from std::vector<int> and points range
+  auto triangles = tf::make_polygon_range(
+      tf::make_blocked_range<3>(raw_triangle_faces), points);
+
   std::cout << "  number of triangles: " << triangles.size() << std::endl;
   std::cout << "  number of points   : " << points.size() << std::endl;
 
-  using triangle_t = std::array<int, 3>;
   tf::tree<int, float, 3> mesh_tree;
   mesh_tree.build(
       /*tf::strategy::floyd_rivest (or some other strategy),*/
-      triangles, tf::config_tree(4, 4, [&points = points](const triangle_t &t) {
-        return tf::aabb_union(
-            tf::aabb_union(tf::make_aabb(points[t[0]], points[t[0]]),
-                           points[t[1]]),
-            points[t[2]]);
-      }));
+      triangles, tf::config_tree(4, 4));
   std::cout << "---------------------------------" << std::endl;
   std::cout << "Build triangle tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
@@ -40,8 +42,7 @@ int main(int argc, char *argv[]) {
   // pick random triangle
   auto id = tf::random<int>(0, triangles.size() - 1);
   const auto &triangle = triangles[id];
-  auto center =
-      (points[triangle[0]] + points[triangle[1]] + points[triangle[2]]) / 3;
+  auto center = (triangle[0] + triangle[1] + triangle[2]) / 3;
 
   // find all triangles within epsilon of center
 
@@ -52,12 +53,10 @@ int main(int argc, char *argv[]) {
         return tf::intersects(center, aabb,
                               std::numeric_limits<float>::epsilon());
       },
-      [&center, &points = points, &triangles = triangles,
+      [&center, &triangles = triangles,
        &ids_in_tolerance](const auto &triangle_id) {
         if ((center -
-             tf::closest_point_on_triangle(
-                 tf::make_indirect_range(triangles[triangle_id], points),
-                 center))
+             tf::closest_point_on_triangle(triangles[triangle_id], center))
                 .length2() < std::numeric_limits<float>::epsilon())
           ids_in_tolerance.push_back(triangle_id);
         // return true (inside condition) if you want to stop the search at

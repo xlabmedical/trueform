@@ -1,6 +1,9 @@
 #include "./util/read_mesh.hpp"
 #include "tbb/concurrent_vector.h"
+#include "trueform/blocked_range.hpp"
 #include "trueform/intersects.hpp"
+#include "trueform/point_range.hpp"
+#include "trueform/polygon_range.hpp"
 #include "trueform/random.hpp"
 #include "trueform/random_transformation.hpp"
 #include "trueform/search.hpp"
@@ -17,7 +20,12 @@ int main(int argc, char *argv[]) {
   }
 
   std::cout << "Reading file: " << argv[1] << std::endl;
-  auto [points, triangles] = tf::examples::read_mesh(argv[1]);
+  auto [raw_points, raw_triangle_faces] = tf::examples::read_mesh(argv[1]);
+  // create a point range from std::vector<float>
+  auto points = tf::make_point_range<3>(raw_points);
+  // create a polygon range from std::vector<int> and points range
+  auto triangles = tf::make_polygon_range(
+      tf::make_blocked_range<3>(raw_triangle_faces), points);
   std::cout << "  number of triangles: " << triangles.size() << std::endl;
   std::cout << "  number of points   : " << points.size() << std::endl;
   std::cout << "---------------------------------" << std::endl;
@@ -37,10 +45,7 @@ int main(int argc, char *argv[]) {
             << " to align under random rotation." << std::endl;
 
   tf::tree<int, float, 3> tree;
-  tree.build(tf::strategy::floyd_rivest, points,
-             tf::config_tree(4, 4, [](const tf::vector<float, 3> &pt) {
-               return tf::aabb_from(pt);
-             }));
+  tree.build(tf::strategy::floyd_rivest, points, tf::config_tree(4, 4));
   std::cout << "---------------------------------" << std::endl;
   std::cout << "Build point tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;

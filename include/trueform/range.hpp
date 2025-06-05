@@ -48,8 +48,7 @@ public:
 private:
   Iterator _begin = {};
 };
-/// @brief Specialization of @ref tf::static_size for @ref tf::range
-/// with static size.
+/// @brief Specialization of @ref tf::static_size for @ref tf::range.
 ///
 /// This trait exposes the compile-time size `N` for `tf::range<Iterator, N>`
 /// so that size-aware algorithms and views can propagate it automatically.
@@ -144,8 +143,8 @@ public:
   auto operator[](size_type i) const -> reference { return *(_begin + i); }
 
 private:
-  Iterator _begin = {};
-  Iterator _end = {};
+  Iterator _begin;
+  Iterator _end;
 };
 
 /// @ingroup ranges

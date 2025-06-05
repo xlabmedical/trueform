@@ -21,6 +21,8 @@ public:
       data[i] = other.data[i];
     return *this;
   }
+  vector_view_base(const vector_view_base &other) = default;
+  vector_view_base(vector_view_base &&other) = default;
 
 protected:
   T *data;
@@ -29,6 +31,8 @@ protected:
 template <typename T, std::size_t N> class vector_view_base<T, N, false> {
 public:
   vector_view_base(T *ptr) : data{ptr} {}
+  vector_view_base(const vector_view_base &other) = default;
+  vector_view_base(vector_view_base &&other) = default;
   auto operator=(const vector_view_base &other) -> vector_view_base & = delete;
   auto operator=(vector_view_base &&other) -> vector_view_base & = delete;
 
@@ -36,7 +40,6 @@ protected:
   T *data;
 };
 } // namespace implementation
-
 
 /// @ingroup geometry
 /// @brief Lightweight non-owning view of a fixed-size N-dimensional vector.
@@ -65,7 +68,7 @@ private:
   using base_t = implementation::vector_view_base<T, N>;
 
 public:
-  using base_t::base_t;
+  vector_view(T *ptr) : base_t{ptr} {}
 
   template <typename U,
             typename = std::enable_if_t<std::is_assignable_v<T &, const U &>>>
@@ -77,8 +80,7 @@ public:
 
   template <typename U,
             typename = std::enable_if_t<std::is_assignable_v<T &, const U &>>>
-  auto operator=(const vector_view<U, N> &other)
-      -> vector_view & {
+  auto operator=(const vector_view<U, N> &other) -> vector_view & {
     for (std::size_t i = 0; i < N; ++i)
       base_t::data[i] = other[i];
     return *this;
@@ -91,6 +93,10 @@ public:
     for (std::size_t i = 0; i < N; ++i)
       out[i] = base_t::data[i];
     return out;
+  }
+
+  operator vector_view<const T, N>() const {
+    return tf::vector_view<const T, N>{base_t::data};
   }
 
   template <typename U, typename = typename std::enable_if_t<
@@ -120,27 +126,33 @@ public:
 
   auto length() const -> T { return std::sqrt(length2()); }
 
-  // Compound assignment: +=
-  auto operator+=(const vector_view &other) -> vector_view & {
+  // += with vector_view<U, N>
+  template <typename U>
+  auto operator+=(const vector_view<U, N> &other) -> vector_view & {
     for (std::size_t i = 0; i < N; ++i)
       base_t::data[i] += other[i];
     return *this;
   }
 
-  auto operator+=(const vector<T, N> &other) -> vector_view & {
+  // += with vector<U, N>
+  template <typename U>
+  auto operator+=(const vector<U, N> &other) -> vector_view & {
     for (std::size_t i = 0; i < N; ++i)
       base_t::data[i] += other[i];
     return *this;
   }
 
-  // Compound assignment: -=
-  auto operator-=(const vector_view &other) -> vector_view & {
+  // -= with vector_view<U, N>
+  template <typename U>
+  auto operator-=(const vector_view<U, N> &other) -> vector_view & {
     for (std::size_t i = 0; i < N; ++i)
       base_t::data[i] -= other[i];
     return *this;
   }
 
-  auto operator-=(const vector<T, N> &other) -> vector_view & {
+  // -= with vector<U, N>
+  template <typename U>
+  auto operator-=(const vector<U, N> &other) -> vector_view & {
     for (std::size_t i = 0; i < N; ++i)
       base_t::data[i] -= other[i];
     return *this;
@@ -160,28 +172,67 @@ public:
     return *this;
   }
 
-  // Friends using compound forms
-
-  friend auto operator+(vector_view lhs, const vector_view &rhs)
-      -> vector<T, N> {
-    return lhs.as<T>() += rhs;
+  // Binary arithmetic: vector_view + vector_view
+  template <typename U>
+  friend auto operator+(vector_view lhs, const vector_view<U, N> &rhs)
+      -> vector<std::common_type_t<std::remove_cv_t<T>, std::remove_cv_t<U>>,
+                N> {
+    return lhs.template as<std::common_type_t<std::remove_cv_t<T>,
+                                              std::remove_cv_t<U>>>() += rhs;
   }
 
-  friend auto operator-(vector_view lhs, const vector_view &rhs)
-      -> vector<T, N> {
-    return lhs.as<T>() -= rhs;
+  template <typename U>
+  friend auto operator-(vector_view lhs, const vector_view<U, N> &rhs)
+      -> vector<std::common_type_t<std::remove_cv_t<T>, std::remove_cv_t<U>>,
+                N> {
+    return lhs.template as<std::common_type_t<std::remove_cv_t<T>,
+                                              std::remove_cv_t<U>>>() -= rhs;
   }
 
-  friend auto operator*(vector_view lhs, T scalar) -> vector<T, N> {
-    return lhs.as<T>() *= scalar;
+  template <typename U>
+  friend auto operator+(vector_view lhs, const vector<U, N> &rhs)
+      -> vector<std::common_type_t<std::remove_cv_t<T>, std::remove_cv_t<U>>,
+                N> {
+    return lhs.template as<std::common_type_t<std::remove_cv_t<T>,
+                                              std::remove_cv_t<U>>>() += rhs;
   }
 
-  friend auto operator*(T scalar, vector_view rhs) -> vector<T, N> {
-    return rhs.as<T>() *= scalar;
+  template <typename U>
+  friend auto operator-(vector_view lhs, const vector<U, N> &rhs)
+      -> vector<std::common_type_t<std::remove_cv_t<T>, std::remove_cv_t<U>>,
+                N> {
+    return lhs.template as<std::common_type_t<std::remove_cv_t<T>,
+                                              std::remove_cv_t<U>>>() -= rhs;
   }
 
-  friend auto operator/(vector_view lhs, T scalar) -> vector<T, N> {
-    return lhs.as<T>() /= scalar;
+  // Binary arithmetic: vector_view * scalar
+  template <typename Scalar,
+            typename = std::enable_if_t<std::is_arithmetic_v<Scalar>>>
+  friend auto operator*(vector_view lhs, Scalar scalar) -> vector<
+      std::common_type_t<std::remove_cv_t<T>, std::remove_cv_t<Scalar>>, N> {
+    return lhs.template as<std::common_type_t<std::remove_cv_t<T>,
+                                              std::remove_cv_t<Scalar>>>() *=
+           scalar;
+  }
+
+  // Binary arithmetic: scalar * vector_view
+  template <typename Scalar,
+            typename = std::enable_if_t<std::is_arithmetic_v<Scalar>>>
+  friend auto operator*(Scalar scalar, vector_view rhs) -> vector<
+      std::common_type_t<std::remove_cv_t<T>, std::remove_cv_t<Scalar>>, N> {
+    return rhs.template as<std::common_type_t<std::remove_cv_t<T>,
+                                              std::remove_cv_t<Scalar>>>() *=
+           scalar;
+  }
+
+  // Binary arithmetic: vector_view / scalar
+  template <typename Scalar,
+            typename = std::enable_if_t<std::is_arithmetic_v<Scalar>>>
+  friend auto operator/(vector_view lhs, Scalar scalar) -> vector<
+      std::common_type_t<std::remove_cv_t<T>, std::remove_cv_t<Scalar>>, N> {
+    return lhs.template as<std::common_type_t<std::remove_cv_t<T>,
+                                              std::remove_cv_t<Scalar>>>() /=
+           scalar;
   }
 
   // Unary minus
@@ -189,20 +240,49 @@ public:
     return -v.as<T>();
   }
 
-  // Equality
-  friend auto operator==(const vector_view &a, const vector_view &b) -> bool {
+  // vector_view vs vector_view
+  template <typename U>
+  friend auto operator==(const vector_view &a, const vector_view<U, N> &b)
+      -> bool {
     for (std::size_t i = 0; i < N; ++i)
       if (a[i] != b[i])
         return false;
     return true;
   }
 
-  friend auto operator!=(const vector_view &a, const vector_view &b) -> bool {
+  template <typename U>
+  friend auto operator!=(const vector_view &a, const vector_view<U, N> &b)
+      -> bool {
     return !(a == b);
   }
 
-  friend auto operator<(const vector_view &a, const vector_view &b) -> bool {
-    for (int i = 0; i < N; i++) {
+  // vector_view vs vector
+  template <typename U>
+  friend auto operator==(const vector_view &a, const vector<U, N> &b) -> bool {
+    return a == vector_view<U, N>(b.data());
+  }
+
+  template <typename U>
+  friend auto operator!=(const vector_view &a, const vector<U, N> &b) -> bool {
+    return !(a == b);
+  }
+
+  // vector vs vector_view (symmetric)
+  template <typename U>
+  friend auto operator==(const vector<U, N> &a, const vector_view &b) -> bool {
+    return vector_view<U, N>(a.data()) == b;
+  }
+
+  template <typename U>
+  friend auto operator!=(const vector<U, N> &a, const vector_view &b) -> bool {
+    return !(a == b);
+  }
+
+  // vector_view vs vector_view
+  template <typename U>
+  friend auto operator<(const vector_view &a, const vector_view<U, N> &b)
+      -> bool {
+    for (std::size_t i = 0; i < N; ++i) {
       if (a[i] < b[i])
         return true;
       if (a[i] > b[i])
@@ -211,8 +291,10 @@ public:
     return false;
   }
 
-  friend auto operator>(const vector_view &a, const vector_view &b) -> bool {
-    for (int i = 0; i < N; i++) {
+  template <typename U>
+  friend auto operator>(const vector_view &a, const vector_view<U, N> &b)
+      -> bool {
+    for (std::size_t i = 0; i < N; ++i) {
       if (a[i] > b[i])
         return true;
       if (a[i] < b[i])
@@ -221,15 +303,60 @@ public:
     return false;
   }
 
-  friend auto operator<=(const vector_view &a, const vector_view &b) -> bool {
+  template <typename U>
+  friend auto operator<=(const vector_view &a, const vector_view<U, N> &b)
+      -> bool {
     return !(a > b);
   }
 
-  friend auto operator>=(const vector_view &a, const vector_view &b) -> bool {
+  template <typename U>
+  friend auto operator>=(const vector_view &a, const vector_view<U, N> &b)
+      -> bool {
+    return !(a < b);
+  }
+
+  // vector_view vs vector
+  template <typename U>
+  friend auto operator<(const vector_view &a, const vector<U, N> &b) -> bool {
+    return a < vector_view<U, N>(b.data());
+  }
+
+  template <typename U>
+  friend auto operator>(const vector_view &a, const vector<U, N> &b) -> bool {
+    return a > vector_view<U, N>(b.data());
+  }
+
+  template <typename U>
+  friend auto operator<=(const vector_view &a, const vector<U, N> &b) -> bool {
+    return !(a > b);
+  }
+
+  template <typename U>
+  friend auto operator>=(const vector_view &a, const vector<U, N> &b) -> bool {
+    return !(a < b);
+  }
+
+  // vector vs vector_view
+  template <typename U>
+  friend auto operator<(const vector<U, N> &a, const vector_view &b) -> bool {
+    return vector_view<U, N>(a.data()) < b;
+  }
+
+  template <typename U>
+  friend auto operator>(const vector<U, N> &a, const vector_view &b) -> bool {
+    return vector_view<U, N>(a.data()) > b;
+  }
+
+  template <typename U>
+  friend auto operator<=(const vector<U, N> &a, const vector_view &b) -> bool {
+    return !(a > b);
+  }
+
+  template <typename U>
+  friend auto operator>=(const vector<U, N> &a, const vector_view &b) -> bool {
     return !(a < b);
   }
 };
-
 
 /// @ingroup geometry
 /// @brief Construct a constant vector view from a raw pointer.

@@ -1,4 +1,7 @@
 #include "./util/read_mesh.hpp"
+#include "trueform/blocked_range.hpp"
+#include "trueform/point_range.hpp"
+#include "trueform/polygon_range.hpp"
 #include "trueform/tree.hpp"
 #include "trueform/tree_config.hpp"
 #include <iostream>
@@ -11,29 +14,32 @@ int main(int argc, char *argv[]) {
   }
 
   std::cout << "Reading file: " << argv[1] << std::endl;
-  auto [points, triangles] = tf::examples::read_mesh(argv[1]);
+  auto [raw_points, raw_triangle_faces] = tf::examples::read_mesh(argv[1]);
+  // create a point range from std::vector<float>
+  auto points = tf::make_point_range<3>(raw_points);
+  // create a polygon range from std::vector<int> and points range
+  auto triangles = tf::make_polygon_range(
+      tf::make_blocked_range<3>(raw_triangle_faces), points);
   std::cout << "  number of triangles: " << triangles.size() << std::endl;
   std::cout << "  number of points   : " << points.size() << std::endl;
 
-  using triangle_t = std::array<int, 3>;
   tf::tree<int, float, 3> mesh_tree;
   mesh_tree.build(
       /*tf::strategy::floyd_rivest (or some other strategy),*/
-      triangles, tf::config_tree(4, 4, [&points = points](const triangle_t &t) {
-        return tf::aabb_union(
-            tf::aabb_union(tf::make_aabb(points[t[0]], points[t[0]]),
-                           points[t[1]]),
-            points[t[2]]);
-      }));
+      triangles, tf::config_tree(4, 4));
   std::cout << "---------------------------------" << std::endl;
   std::cout << "Build triangle tree." << std::endl;
+
+  // alternatively, you can specify how to compute the aabb
+  // inside the tf::config_tree
+  // tf::config_tree(4, 4, [](const auto &obj) {
+  //  return tf::aabb_from(obj);
+  //})
 
   tf::tree<int, float, 3> point_tree;
   point_tree.build(
       /*tf::strategy::floyd_rivest (or some other strategy),*/
-      points, tf::config_tree(4, 4, [](const tf::vector<float, 3> &pt) {
-        return tf::aabb_from(pt);
-      }));
+      points, tf::config_tree(4, 4));
   std::cout << "---------------------------------" << std::endl;
   std::cout << "Build point tree." << std::endl;
 

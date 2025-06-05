@@ -1,10 +1,12 @@
 #include "./util/read_mesh.hpp"
+#include "trueform/blocked_range.hpp"
 #include "trueform/closest_point.hpp"
 #include "trueform/closest_point_on_triangle.hpp"
 #include "trueform/distance.hpp"
-#include "trueform/indirect_range.hpp"
 #include "trueform/nearness_search.hpp"
 #include "trueform/normalized.hpp"
+#include "trueform/point_range.hpp"
+#include "trueform/polygon_range.hpp"
 #include "trueform/random_vector.hpp"
 #include "trueform/tree.hpp"
 #include <iostream>
@@ -17,21 +19,20 @@ int main(int argc, char *argv[]) {
   }
 
   std::cout << "Reading file: " << argv[1] << std::endl;
-  auto [points, triangles] = tf::examples::read_mesh(argv[1]);
+  auto [raw_points, raw_triangle_faces] = tf::examples::read_mesh(argv[1]);
+  // create a point range from std::vector<float>
+  auto points = tf::make_point_range<3>(raw_points);
+  // create a polygon range from std::vector<int> and points range
+  auto triangles = tf::make_polygon_range(
+      tf::make_blocked_range<3>(raw_triangle_faces), points);
   std::cout << "  number of triangles: " << triangles.size() << std::endl;
   std::cout << "  number of points   : " << points.size() << std::endl;
   std::cout << "---------------------------------" << std::endl;
 
-  using triangle_t = std::array<int, 3>;
   tf::tree<int, float, 3> mesh_tree;
   mesh_tree.build(
       /*tf::strategy::floyd_rivest (or some other strategy),*/
-      triangles, tf::config_tree(4, 4, [&points = points](const triangle_t &t) {
-        return tf::aabb_union(
-            tf::aabb_union(tf::make_aabb(points[t[0]], points[t[0]]),
-                           points[t[1]]),
-            points[t[2]]);
-      }));
+      triangles, tf::config_tree(4, 4));
   std::cout << "Build triangle tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
 
@@ -50,10 +51,9 @@ int main(int argc, char *argv[]) {
       [query_pt](const tf::aabb<float, 3> &aabb) {
         return tf::distance2(aabb, query_pt);
       },
-      [&query_pt, &points = points,
-       &triangles = triangles](const auto &triangle_id) {
-        auto cpt = tf::closest_point_on_triangle(
-            tf::make_indirect_range(triangles[triangle_id], points), query_pt);
+      [&query_pt, &triangles = triangles](const auto &triangle_id) {
+        auto cpt =
+            tf::closest_point_on_triangle(triangles[triangle_id], query_pt);
         return tf::make_closest_point((cpt - query_pt).length2(), cpt);
       } /*, search_radius */);
 
@@ -77,10 +77,9 @@ int main(int argc, char *argv[]) {
       [query_pt](const tf::aabb<float, 3> &aabb) {
         return tf::distance2(aabb, query_pt);
       },
-      [&query_pt, &points = points,
-       &triangles = triangles](const auto &triangle_id) {
-        auto cpt = tf::closest_point_on_triangle(
-            tf::make_indirect_range(triangles[triangle_id], points), query_pt);
+      [&query_pt, &triangles = triangles](const auto &triangle_id) {
+        auto cpt =
+            tf::closest_point_on_triangle(triangles[triangle_id], query_pt);
         return tf::make_closest_point((cpt - query_pt).length2(), cpt);
       },
       knn);

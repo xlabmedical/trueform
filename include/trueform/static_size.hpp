@@ -44,7 +44,7 @@ struct static_size : std::integral_constant<std::size_t, tf::dynamic_size> {};
 /// @tparam T The type whose static size is being queried.
 /// @see @ref tf::static_size
 template <typename T>
-static constexpr std::size_t static_size_v = static_size<T>::value;
+static constexpr std::size_t static_size_v = static_size<std::decay_t<T>>::value;
 
 /// @ingroup utilities 
 /// @brief Specialization of @ref tf::static_size for `std::array`.

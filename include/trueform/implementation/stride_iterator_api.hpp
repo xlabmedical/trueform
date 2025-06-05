@@ -38,6 +38,9 @@ public:
 
 protected:
   auto as_derived() -> Derived & { return static_cast<Derived &>(*this); }
+  auto as_derived() const -> const Derived & {
+    return static_cast<const Derived &>(*this);
+  }
 };
 
 template <typename Derived, typename Handle>
