@@ -5,38 +5,24 @@
  */
 #pragma once
 #include "./normalize.hpp"
+#include "./value_type.hpp"
+#include "./vector.hpp"
 
 namespace tf {
 /// @ingroup geometry
 /// @brief Return a normalized copy of a vector view.
 ///
-/// Creates a copy of the input @ref tf::vector_view, normalizes it using @ref normalize(),
-/// and returns the result. The original input remains unchanged.
+/// Creates a copy of the input @ref tf::vector_view, normalizes it using @ref
+/// normalize(), and returns the result. The original input remains unchanged.
 ///
 /// @tparam T The scalar type (e.g., float or double).
 /// @tparam Dims The dimensionality of the vector.
 /// @param v The input vector view to normalize.
 /// @return A normalized vector of type @ref tf::vector<T, Dims>.
-template <typename T, std::size_t Dims>
-auto normalized(const tf::vector_view<T, Dims> &v) -> tf::vector<T, Dims> {
-  auto out = v;
+template <std::size_t N, typename T>
+auto normalized(const vector_like<N, T> &v)
+    -> tf::vector<tf::value_type<T>, N> {
+  tf::vector<tf::value_type<T>, N> out = v;
   return normalize(out);
 }
-
-/// @ingroup geometry
-/// @brief Return a normalized copy of a vector.
-///
-/// Creates a copy of the input @ref tf::vector, normalizes it using @ref normalize(),
-/// and returns the result. The original input remains unchanged.
-///
-/// @tparam T The scalar type (e.g., float or double).
-/// @tparam Dims The dimensionality of the vector.
-/// @param v The input vector to normalize.
-/// @return A normalized vector of type @ref tf::vector<T, Dims>.
-template <typename T, std::size_t Dims>
-auto normalized(const tf::vector<T, Dims> &v) -> tf::vector<T, Dims> {
-  auto out = v;
-  return normalize(out);
-}
-
 } // namespace tf

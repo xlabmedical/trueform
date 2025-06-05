@@ -4,8 +4,8 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
+#include "./value_type.hpp"
 #include "./vector.hpp"
-#include "./vector_view.hpp"
 
 namespace tf {
 
@@ -37,31 +37,16 @@ template <typename RealT, std::size_t Dims> struct closest_point_pair {
 ///
 /// @tparam RealT The scalar coordinate type.
 /// @tparam Dims The spatial dimension.
+/// @tparam T0 The vector policy
+/// @tparam T1 The vector policy
 /// @param metric The distance metric (typically squared distance).
 /// @param first The closest point from the first object or tree.
 /// @param second The closest point from the second object or tree.
 /// @return A `closest_point_pair<RealT, Dims>` instance.
-template <typename RealT, std::size_t Dims>
-auto make_closest_point_pair(RealT metric, vector<RealT, Dims> first,
-                             vector<RealT, Dims> second) {
-  return closest_point_pair<RealT, Dims>{metric, first, second};
-}
-
-template <typename RealT, std::size_t Dims>
-auto make_closest_point_pair(RealT metric, vector<RealT, Dims> first,
-                             vector_view<RealT, Dims> second) {
-  return closest_point_pair<RealT, Dims>{metric, first, second};
-}
-
-template <typename RealT, std::size_t Dims>
-auto make_closest_point_pair(RealT metric, vector_view<RealT, Dims> first,
-                             vector<RealT, Dims> second) {
-  return closest_point_pair<RealT, Dims>{metric, first, second};
-}
-
-template <typename RealT, std::size_t Dims>
-auto make_closest_point_pair(RealT metric, vector_view<RealT, Dims> first,
-                             vector_view<RealT, Dims> second) {
-  return closest_point_pair<RealT, Dims>{metric, first, second};
+template <typename RealT, std::size_t Dims, typename T0, typename T1>
+auto make_closest_point_pair(RealT metric, vector_like<Dims, T0> first,
+                             vector_like<Dims, T1> second) {
+  return closest_point_pair<tf::common_value<RealT, T0, T1>, Dims>{
+      metric, first, second};
 }
 } // namespace tf

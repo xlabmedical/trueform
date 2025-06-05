@@ -5,10 +5,10 @@
  */
 #pragma once
 #include "./aabb.hpp"
-#include "./vector_view.hpp"
+#include "./value_type.hpp"
+#include "./vector_like.hpp"
 
 namespace tf {
-
 
 /// @ingroup geometry
 /// @brief Expand an AABB to include another AABB, in-place.
@@ -30,7 +30,6 @@ auto aabb_union_inplace(aabb<T, N> &aabb0, const aabb<T, N> &aabb1)
   return aabb0;
 }
 
-
 /// @ingroup geometry
 /// @brief Compute the union of two AABBs.
 ///
@@ -50,85 +49,44 @@ auto aabb_union(const aabb<T, N> &aabb0, const aabb<T, N> &aabb1)
   return out;
 }
 
-
 /// @ingroup geometry
 /// @brief Expand an AABB to include a point, in-place.
 ///
 /// Updates `aabb0` to include the given point `pt`.
 ///
 /// @tparam T The scalar coordinate type.
+/// @tparam T1 The vector policy
 /// @tparam N The spatial dimension.
 /// @param aabb0 The AABB to be expanded.
 /// @param pt The point to include.
 /// @return A reference to `aabb0`.
-template <typename T, std::size_t N>
-auto aabb_union_inplace(aabb<T, N> &aabb0, const vector<T, N> &pt)
+template <typename T, std::size_t N, typename T1>
+auto aabb_union_inplace(aabb<T, N> &aabb0, const vector_like<N, T1> &pt)
     -> aabb<T, N> & {
   for (int i = 0; i < int(N); i++) {
-    aabb0.min[i] = std::min(aabb0.min[i], pt[i]);
-    aabb0.max[i] = std::max(aabb0.max[i], pt[i]);
+    aabb0.min[i] = std::min(aabb0.min[i], T(pt[i]));
+    aabb0.max[i] = std::max(aabb0.max[i], T(pt[i]));
   }
   return aabb0;
 }
-
 
 /// @ingroup geometry
 /// @brief Compute the union of an AABB and a point.
 ///
-/// Returns a new AABB that includes both the input bounding box and the given point.
-/// The original AABB is not modified.
+/// Returns a new AABB that includes both the input bounding box and the given
+/// point. The original AABB is not modified.
 ///
 /// @tparam T The scalar coordinate type.
 /// @tparam N The spatial dimension.
+/// @tparam T1 The vector policy
 /// @param aabb0 The bounding box.
 /// @param pt The point to include.
 /// @return An `aabb<T, N>` containing the original box and the point.
-template <typename T, std::size_t N>
-auto aabb_union(const aabb<T, N> &aabb0, const vector<T, N> &pt) -> aabb<T, N> {
-  aabb<T, N> out = aabb0;
+template <typename T, std::size_t N, typename T1>
+auto aabb_union(const aabb<T, N> &aabb0, const vector_like<N, T> &pt)
+    -> aabb<tf::common_value<T, T1>, N> {
+  aabb<tf::common_value<T, T1>, N> out = aabb0;
   aabb_union_inplace(out, pt);
   return out;
 }
-
-
-/// @ingroup geometry
-/// @brief Expand an AABB to include a `vector_view`, in-place.
-///
-/// Updates `aabb0` to include the point given as a view. Useful for referencing raw or external data.
-///
-/// @tparam T The scalar coordinate type.
-/// @tparam N The spatial dimension.
-/// @param aabb0 The AABB to be expanded.
-/// @param pt The point view to include.
-/// @return A reference to `aabb0`.
-template <typename T, std::size_t N>
-auto aabb_union_inplace(aabb<T, N> &aabb0, const vector_view<T, N> &pt)
-    -> aabb<T, N> & {
-  for (int i = 0; i < int(N); i++) {
-    aabb0.min[i] = std::min(aabb0.min[i], pt[i]);
-    aabb0.max[i] = std::max(aabb0.max[i], pt[i]);
-  }
-  return aabb0;
-}
-
-
-/// @ingroup geometry
-/// @brief Compute the union of an AABB and a `vector_view`.
-///
-/// Returns a new AABB that includes both the input bounding box and the point view.
-/// The original AABB is not modified.
-///
-/// @tparam T The scalar coordinate type.
-/// @tparam N The spatial dimension.
-/// @param aabb0 The bounding box.
-/// @param pt The point view to include.
-/// @return An `aabb<T, N>` containing the original box and the point.
-template <typename T, std::size_t N>
-auto aabb_union(const aabb<T, N> &aabb0, const vector_view<T, N> &pt)
-    -> aabb<T, N> {
-  aabb<T, N> out = aabb0;
-  aabb_union_inplace(out, pt);
-  return out;
-}
-
 } // namespace tf

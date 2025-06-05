@@ -6,24 +6,26 @@
 #pragma once
 
 #include "./aabb.hpp"
-#include "./vector.hpp"
-#include "./vector_view.hpp"
+#include "./value_type.hpp"
+#include "./vector_like.hpp"
 #include <cmath>
 
 namespace tf {
 
 /// @ingroup geometry
 /// @brief Computes the squared Euclidean distance between two vectors.
-/// @tparam T The scalar type.
 /// @tparam N The dimensionality.
+/// @tparam T0 The vector policy
+/// @tparam T1 The vector policy
 /// @param a First vector.
 /// @param b Second vector.
 /// @return Squared distance between a and b.
-template <typename T, std::size_t N>
-auto distance2(const vector<T, N> &a, const vector<T, N> &b) -> T {
-  T sum = T{};
+template <std::size_t N, typename T0, typename T1>
+auto distance2(const vector_like<N, T0> &a, const vector_like<N, T1> &b)
+    -> tf::common_value<T0, T1> {
+  tf::common_value<T0, T1> sum{};
   for (std::size_t i = 0; i < N; ++i) {
-    T d = a[i] - b[i];
+    tf::common_value<T0, T1> d = a[i] - b[i];
     sum += d * d;
   }
   return sum;
@@ -31,45 +33,17 @@ auto distance2(const vector<T, N> &a, const vector<T, N> &b) -> T {
 
 /// @ingroup geometry
 /// @brief Computes the Euclidean distance between two vectors.
-/// @tparam T The scalar type.
 /// @tparam N The dimensionality.
+/// @tparam T0 The vector policy
+/// @tparam T1 The vector policy
 /// @param a First vector.
 /// @param b Second vector.
 /// @return Distance between a and b.
-template <typename T, std::size_t N>
-auto distance(const vector<T, N> &a, const vector<T, N> &b) -> T {
+template <std::size_t N, typename T0, typename T1>
+auto distance(const vector_like<N, T0> &a, const vector_like<N, T1> &b)
+    -> tf::common_value<T0, T1> {
   return std::sqrt(distance2(a, b));
 }
-
-/// @ingroup geometry
-/// @brief Computes the squared Euclidean distance between two vector views.
-/// @tparam T The scalar type.
-/// @tparam N The dimensionality.
-/// @param a First vector view.
-/// @param b Second vector view.
-/// @return Squared distance between a and b.
-template <typename T, std::size_t N>
-auto distance2(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
-  T sum = T{};
-  for (std::size_t i = 0; i < N; ++i) {
-    T d = a[i] - b[i];
-    sum += d * d;
-  }
-  return sum;
-}
-
-/// @ingroup geometry
-/// @brief Computes the Euclidean distance between two vector views.
-/// @tparam T The scalar type.
-/// @tparam N The dimensionality.
-/// @param a First vector view.
-/// @param b Second vector view.
-/// @return Distance between a and b.
-template <typename T, std::size_t N>
-auto distance(const vector_view<T, N> &a, const vector_view<T, N> &b) -> T {
-  return std::sqrt(distance2(a, b));
-}
-
 /// @ingroup geometry
 /// @brief Computes the squared distance between two AABBs.
 /// The result is 0 if they overlap.
@@ -107,14 +81,15 @@ auto distance(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
 
 /// @ingroup geometry
 /// @brief Computes the squared distance from a point to an AABB.
-/// @tparam T The scalar type.
 /// @tparam N The dimensionality.
+/// @tparam T The aabb value type
+/// @tparam T1 The vector policy
 /// @param _bbox The AABB.
 /// @param _point The point.
 /// @return Squared distance from point to AABB.
-template <typename T, std::size_t N>
-auto distance2(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
-  decltype(_bbox.min[0] - _bbox.min[0]) dist2{};
+template <typename T, std::size_t N, typename T1>
+auto distance2(const aabb<T, N> &_bbox, const vector_like<N, T1> &_point) {
+  tf::common_value<T, T1> dist2{};
   const auto &min = _bbox.min;
   const auto &max = _bbox.max;
   for (int i = 0; i < int(N); ++i) {
@@ -129,62 +104,25 @@ auto distance2(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
 }
 
 /// @ingroup geometry
-/// @brief Computes the squared distance from a point to an AABB (reverse argument order).
-template <typename T, std::size_t N>
-auto distance2(const vector<T, N> &_point, const aabb<T, N> &_bbox) {
+/// @brief Computes the squared distance from a point to an AABB (reverse
+/// argument order).
+template <std::size_t N, typename T0, typename T1>
+auto distance2(const vector_like<N, T0> &_point, const aabb<T1, N> &_bbox) {
   return distance2(_bbox, _point);
 }
 
 /// @ingroup geometry
 /// @brief Computes the distance from a point to an AABB.
-template <typename T, std::size_t N>
-auto distance(const aabb<T, N> &_bbox, const vector<T, N> &_point) {
+template <typename T, std::size_t N, typename T1>
+auto distance(const aabb<T, N> &_bbox, const vector_like<N, T1> &_point) {
   return std::sqrt(distance2(_bbox, _point));
 }
 
 /// @ingroup geometry
-/// @brief Computes the distance from a point to an AABB (reverse argument order).
-template <typename T, std::size_t N>
-auto distance(const vector<T, N> &_point, const aabb<T, N> &_bbox) {
-  return std::sqrt(distance2(_bbox, _point));
-}
-
-/// @ingroup geometry
-/// @brief Computes the squared distance from a vector view to an AABB.
-template <typename T, std::size_t N>
-auto distance2(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
-  decltype(_bbox.min[0] - _bbox.min[0]) dist2{};
-  const auto &min = _bbox.min;
-  const auto &max = _bbox.max;
-  for (int i = 0; i < int(N); ++i) {
-    auto outside_low =
-        std::max(min[i] - _point[i], decltype(min[i] - _point[i]){0});
-    auto outside_high =
-        std::max(_point[i] - max[i], decltype(_point[i] - max[i]){0});
-    outside_high *= outside_low == 0;
-    dist2 += outside_low * outside_low + outside_high * outside_high;
-  }
-  return dist2;
-}
-
-/// @ingroup geometry
-/// @brief Computes the squared distance from a vector view to an AABB (reverse argument order).
-template <typename T, std::size_t N>
-auto distance2(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {
-  return distance2(_bbox, _point);
-}
-
-/// @ingroup geometry
-/// @brief Computes the distance from a vector view to an AABB.
-template <typename T, std::size_t N>
-auto distance(const aabb<T, N> &_bbox, const vector_view<T, N> &_point) {
-  return std::sqrt(distance2(_bbox, _point));
-}
-
-/// @ingroup geometry
-/// @brief Computes the distance from a vector view to an AABB (reverse argument order).
-template <typename T, std::size_t N>
-auto distance(const vector_view<T, N> &_point, const aabb<T, N> &_bbox) {
+/// @brief Computes the distance from a point to an AABB (reverse argument
+/// order).
+template <std::size_t N, typename T0, typename T1>
+auto distance(const vector_like<N, T0> &_point, const aabb<T1, N> &_bbox) {
   return std::sqrt(distance2(_bbox, _point));
 }
 } // namespace tf

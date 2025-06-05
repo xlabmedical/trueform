@@ -59,13 +59,13 @@ int main() {
 
   // size of offsets is one more than the number of blocks
   std::vector<int> offsets{{0, 2, 5, 6}};
-  for(auto r:tf::make_offset_block_range(offsets, data)) {
-    for(auto c:r)
+  for (auto r : tf::make_offset_block_range(offsets, data)) {
+    for (auto c : r)
       std::cout << c << ", ";
     std::cout << std::endl;
   }
 
-  for(auto i:tf::make_sequence_range(2, 7))
+  for (auto i : tf::make_sequence_range(2, 7))
     std::cout << i << ", ";
   std::cout << std::endl;
 }

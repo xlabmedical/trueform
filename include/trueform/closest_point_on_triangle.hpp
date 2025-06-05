@@ -5,8 +5,9 @@
  */
 #pragma once
 #include "./dot.hpp"
+#include "./value_type.hpp"
 #include "./vector.hpp"
-#include "./vector_view.hpp"
+#include "./vector_like.hpp"
 
 namespace tf {
 
@@ -15,14 +16,14 @@ namespace tf {
 ///
 /// @tparam Range A range type representing the triangle's vertices (typically 3
 /// points).
-/// @tparam T The scalar type (e.g., float or double).
+/// @tparam T The vector policy
 /// @param triangle A range of 3 points representing the triangle vertices.
 /// @param point A 3D point provided as a `tf::vector_view<T, 3>`.
 /// @return The closest point on the triangle to `point`, as `tf::vector<T, 3>`.
 template <typename Range, typename T>
 auto closest_point_on_triangle(const Range &triangle,
-                               const tf::vector_view<T, 3> &point)
-    -> tf::vector<std::remove_cv_t<T>, 3> {
+                               const tf::vector_like<3, T> &point)
+    -> tf::vector<tf::common_value<T, decltype(triangle[0])>, 3> {
   auto ab = triangle[1] - triangle[0];
   auto ac = triangle[2] - triangle[0];
   auto ap = point - triangle[0];
@@ -69,20 +70,5 @@ auto closest_point_on_triangle(const Range &triangle,
   auto v = vb * denom;
   auto w = vc * denom;
   return triangle[0] + ab * v + ac * w;
-}
-/// @ingroup geometry
-/// @brief Computes the closest point on a triangle to a given point.
-///
-/// @tparam Range A range type representing the triangle's vertices (typically 3
-/// points).
-/// @tparam T The scalar type (e.g., float or double).
-/// @param triangle A range of 3 points representing the triangle vertices.
-/// @param point A 3D point provided as a `tf::vector_view<T, 3>`.
-/// @return The closest point on the triangle to `point`, as `tf::vector<T, 3>`.
-template <typename Range, typename T>
-auto closest_point_on_triangle(const Range &triangle,
-                               const tf::vector<T, 3> &point) {
-  return closest_point_on_triangle(triangle,
-                                   tf::make_vector_view<3>(point.begin()));
 }
 } // namespace tf

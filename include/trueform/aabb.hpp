@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "./value_type.hpp"
 #include "./vector.hpp"
 
 namespace tf {
@@ -63,14 +64,16 @@ public:
 /// A convenience function equivalent to directly calling the `aabb<T, N>`
 /// constructor.
 ///
-/// @tparam T The scalar coordinate type.
 /// @tparam N The spatial dimension.
+/// @tparam T0 The vector policy
+/// @tparam T1 The vector policy
 /// @param min The lower corner of the bounding box.
 /// @param max The upper corner of the bounding box.
 /// @return An `aabb<T, N>` instance.
-template <typename T, std::size_t N>
-auto make_aabb(const vector<T, N> &min, const vector<T, N> &max) -> aabb<T, N> {
-  return aabb<T, N>(min, max);
+template <std::size_t N, typename T0, typename T1>
+auto make_aabb(const vector_like<N, T0> &min, const vector_like<N, T1> &max)
+    -> aabb<tf::common_value<T0, T1>, N> {
+  return aabb<tf::common_value<T0, T1>, N>(min, max);
 }
 
 } // namespace tf

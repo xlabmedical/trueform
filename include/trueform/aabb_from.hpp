@@ -8,8 +8,8 @@
 #include "./aabb_union.hpp"
 #include "./polygon.hpp"
 #include "./segment.hpp"
-#include "./vector.hpp"
-#include "./vector_view.hpp"
+#include "./value_type.hpp"
+#include "./vector_like.hpp"
 
 namespace tf {
 
@@ -19,28 +19,13 @@ namespace tf {
 /// The resulting AABB has identical `min` and `max` bounds equal to the input
 /// point.
 ///
-/// @tparam T The scalar type (e.g., float or double).
+/// @tparam T The vector policy
 /// @tparam N The number of dimensions (e.g., 2 or 3).
 /// @param pt The input point.
 /// @return An axis-aligned bounding box with zero extent at the point.
-template <typename T, std::size_t N>
-auto aabb_from(const vector<T, N> &pt) -> aabb<T, N> {
-  return aabb<T, N>{pt, pt};
-}
-
-/// @ingroup geometry
-/// @brief Construct an AABB from a single point (view version).
-///
-/// This overload accepts a `vector_view` and produces an AABB with identical
-/// `min` and `max` bounds equal to the input view.
-///
-/// @tparam T The scalar type (e.g., float or double).
-/// @tparam N The number of dimensions.
-/// @param pt The input point view.
-/// @return An axis-aligned bounding box with zero extent at the point.
-template <typename T, std::size_t N>
-auto aabb_from(const vector_view<T, N> &pt) -> aabb<T, N> {
-  return aabb<T, N>{pt, pt};
+template <std::size_t N, typename T>
+auto aabb_from(const vector_like<N, T> &pt) -> aabb<tf::value_type<T>, N> {
+  return aabb<tf::value_type<T>, N>{pt, pt};
 }
 
 /// @ingroup geometry
