@@ -4,7 +4,7 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
-#include "./closest_point_pair.hpp"
+#include "./metric_point_pair.hpp"
 #include <utility>
 
 namespace tf {
@@ -25,13 +25,13 @@ struct tree_closest_point_pair {
   using index_t = Index;
   using real_t = RealT;
   using element_t = std::pair<Index, Index>;
-  using closest_point_t = tf::closest_point_pair<RealT, Dims>;
+  using closest_point_t = tf::metric_point_pair<RealT, Dims>;
   //
   static constexpr Index no_id = -1;
   /// @brief A pair of primitive ids
   std::pair<Index, Index> elements{no_id, no_id};
   /// @brief A @ref tf::closest_point_pair
-  closest_point_pair<RealT, Dims> points;
+  metric_point_pair<RealT, Dims> points;
 
   /// @brief Converts to bool, signaling validity
   operator bool() const { return elements.first != no_id; }

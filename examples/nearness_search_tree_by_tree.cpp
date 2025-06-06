@@ -1,7 +1,7 @@
 #include "./util/read_mesh.hpp"
 #include "trueform/aabb_metrics.hpp"
 #include "trueform/blocked_range.hpp"
-#include "trueform/closest_point_pair.hpp"
+#include "trueform/metric_point_pair.hpp"
 #include "trueform/nearness_search.hpp"
 #include "trueform/normalized.hpp"
 #include "trueform/point_range.hpp"
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
       [&points = points, &transformation](auto id0, auto id1) {
         auto tpt = transformation.transform_point(points[id1]);
         auto d2 = (points[id0] - tpt).length2();
-        return tf::make_closest_point_pair(d2, points[id0], tpt);
+        return tf::make_metric_point_pair(d2, points[id0], tpt);
       } /*, search_radius */);
 
   auto [primitive_id0, primitive_id1] = primitive_ids;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
       [&points = points, &transformation](auto id0, auto id1) {
         auto tpt = transformation.transform_point(points[id1]);
         auto d2 = (points[id0] - tpt).length2();
-        return tf::make_closest_point_pair(d2, points[id0], tpt);
+        return tf::make_metric_point_pair(d2, points[id0], tpt);
       },
       knn);
 

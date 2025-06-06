@@ -15,7 +15,7 @@ public:
   tree_closest_point() = default;
   tree_closest_point(RealT metric) { point.point.metric = metric; }
 
-  auto update(Index c_element, const tf::closest_point<RealT, Dims> &c_point)
+  auto update(Index c_element, const tf::metric_point<RealT, Dims> &c_point)
       -> void {
     if (c_point.metric < point.point.metric) {
       point.point = c_point;

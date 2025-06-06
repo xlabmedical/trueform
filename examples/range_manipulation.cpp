@@ -10,7 +10,12 @@
 #include <string>
 #include <vector>
 
+#include "trueform/unit_vector.hpp"
 int main() {
+  
+  tf::vector<float, 3> v0{{1, 1, 1}};
+  tf::unit_vector<float, 3> v1(v0);
+
   std::array<int, 3> static_ids{2, 3, 4};
   std::vector<int> ids{{2, 3, 4}};
   std::string data = "abcdef";

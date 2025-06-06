@@ -19,7 +19,7 @@ namespace tf {
 ///
 /// @tparam RealT The scalar coordinate type (e.g., float or double).
 /// @tparam Dims The spatial dimension (e.g., 2 or 3).
-template <typename RealT, std::size_t Dims> struct closest_point_pair {
+template <typename RealT, std::size_t Dims> struct metric_point_pair {
   /// @brief The metric between the points
   RealT metric;
   /// @brief The first point
@@ -44,9 +44,9 @@ template <typename RealT, std::size_t Dims> struct closest_point_pair {
 /// @param second The closest point from the second object or tree.
 /// @return A `closest_point_pair<RealT, Dims>` instance.
 template <typename RealT, std::size_t Dims, typename T0, typename T1>
-auto make_closest_point_pair(RealT metric, vector_like<Dims, T0> first,
+auto make_metric_point_pair(RealT metric, vector_like<Dims, T0> first,
                              vector_like<Dims, T1> second) {
-  return closest_point_pair<tf::common_value<RealT, T0, T1>, Dims>{
+  return metric_point_pair<tf::common_value<RealT, T0, T1>, Dims>{
       metric, first, second};
 }
 } // namespace tf
