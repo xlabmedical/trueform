@@ -46,7 +46,7 @@ auto contains_point(const tf::inject_plane_t<RealT, Dims, Policy> &poly,
   auto d = tf::dot(poly.plane().normal, input_pt) + poly.plane().d;
   if (std::abs(d) > std::numeric_limits<decltype(d)>::epsilon())
     return false;
-  return contains_point(poly, input_pt - d * poly.normal(),
+  return contains_coplanar_point(poly, input_pt - d * poly.normal(),
                         tf::make_simple_projector(poly.normal()),
                         std::numeric_limits<decltype(d)>::epsilon());
 }
@@ -67,7 +67,7 @@ auto contains_point(const tf::inject_normal_t<RealT, Dims, Policy> &poly,
   auto d = tf::dot(plane.normal, input_pt) + plane.d;
   if (std::abs(d) > std::numeric_limits<decltype(d)>::epsilon())
     return false;
-  return contains_point(poly, input_pt - d * poly.normal(),
+  return contains_coplanar_point(poly, input_pt - d * poly.normal(),
                         tf::make_simple_projector(poly.normal()),
                         std::numeric_limits<decltype(d)>::epsilon());
 }
@@ -88,7 +88,7 @@ auto contains_point(const tf::polygon<V, Policy> &poly,
   auto d = tf::dot(plane.normal, input_pt) + plane.d;
   if (std::abs(d) > std::numeric_limits<decltype(d)>::epsilon())
     return false;
-  return contains_point(poly, input_pt - d * plane.normal,
+  return contains_coplanar_point(poly, input_pt - d * plane.normal,
                         tf::make_simple_projector(plane.normal),
                         std::numeric_limits<decltype(d)>::epsilon());
 }
