@@ -1,7 +1,7 @@
 #include "./util/read_mesh.hpp"
-#include "tbb/concurrent_vector.h"
 #include "trueform/blocked_range.hpp"
 #include "trueform/intersects.hpp"
+#include "trueform/local_vector.hpp"
 #include "trueform/point_range.hpp"
 #include "trueform/polygon_range.hpp"
 #include "trueform/random.hpp"
@@ -58,10 +58,7 @@ int main(int argc, char *argv[]) {
       tf::transformed(tf::make_transformation_from_translation(-pt1),
                       tf::random_transformation<float>(pt0));
 
-  // you could have a buffer per thread using
-  // tbb::this_task_arena::current_thread_index()
-  // to index into them for more efficiency
-  tbb::concurrent_vector<std::pair<int, int>> ids;
+  tf::local_vector<std::pair<int, int>> local_ids;
   // we may use the same tree, as we will simply
   // apply the transformation to the aabbs and primitives.
   tf::search(
@@ -70,10 +67,11 @@ int main(int argc, char *argv[]) {
         return tf::intersects(aabb0, tf::transformed(aabb1, transformation),
                               std::numeric_limits<float>::epsilon());
       },
-      [&points = points, &transformation, &ids](auto id0, auto id1) {
+      [&points = points, &transformation, &local_ids](auto id0, auto id1) {
         if ((points[id0] - transformation.transform_point(points[id1]))
                 .length2() < std::numeric_limits<float>::epsilon())
-          ids.emplace_back(id0, id1);
+          local_ids.emplace_back(id0, id1);
+
         // return true (inside condition) if you want to stop the search at
         // first "collision"
         return false;
@@ -81,6 +79,7 @@ int main(int argc, char *argv[]) {
          // variable and abort on first collision
       [] { return false; });
 
+  auto ids = local_ids.to_vector();
   std::cout << "Found " << ids.size()
             << " point pairs within epsilon of eachother" << std::endl;
   for (auto id : ids)

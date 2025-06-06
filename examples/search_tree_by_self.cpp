@@ -1,7 +1,7 @@
 #include "./util/read_mesh.hpp"
-#include "tbb/concurrent_vector.h"
 #include "trueform/blocked_range.hpp"
 #include "trueform/intersects.hpp"
+#include "trueform/local_vector.hpp"
 #include "trueform/point_range.hpp"
 #include "trueform/polygon_range.hpp"
 #include "trueform/random.hpp"
@@ -57,20 +57,18 @@ int main(int argc, char *argv[]) {
   std::cout << "Build point tree." << std::endl;
   std::cout << "---------------------------------" << std::endl;
 
-  // you could have a buffer per thread using
-  // tbb::this_task_arena::current_thread_index()
-  // to index into them for more efficiency
-  tbb::concurrent_vector<std::pair<int, int>> ids;
+  tf::local_vector<std::pair<int, int>> local_ids;
   tf::search_self(
       tree,
       [&](const auto &aabb0, const auto &aabb1) {
         return tf::intersects(aabb0, aabb1, epsilon);
       },
-      [&duplicated_points = duplicated_points, &ids,
+      [&duplicated_points = duplicated_points, &local_ids,
        epsilon2 = epsilon * epsilon](auto id0, auto id1) {
         if ((duplicated_points[id0] - duplicated_points[id1]).length2() <
             epsilon2)
-          ids.emplace_back(id0, id1);
+          local_ids.emplace_back(id0, id1);
+
         // do not stop the local search. Return true if you want to stop on
         // first collision
         return false;
@@ -78,8 +76,10 @@ int main(int argc, char *argv[]) {
          // variable and abort on first collision
       [] { return false; });
 
+  auto ids = local_ids.to_vector();
   std::cout << "Found " << ids.size()
             << " point pairs within epsilon of eachother" << std::endl;
   for (auto id : ids)
     std::cout << "  " << id.first << ", " << id.second << std::endl;
+  auto ids2_total = local_ids.to_vector();
 }
