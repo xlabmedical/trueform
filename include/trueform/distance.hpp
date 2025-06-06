@@ -6,6 +6,8 @@
 #pragma once
 
 #include "./aabb.hpp"
+#include "./dot.hpp"
+#include "./plane.hpp"
 #include "./value_type.hpp"
 #include "./vector_like.hpp"
 #include <cmath>
@@ -124,5 +126,38 @@ auto distance(const aabb<T, N> &_bbox, const vector_like<N, T1> &_point) {
 template <std::size_t N, typename T0, typename T1>
 auto distance(const vector_like<N, T0> &_point, const aabb<T1, N> &_bbox) {
   return std::sqrt(distance2(_bbox, _point));
+}
+
+/// @ingroup geometry
+/// @brief Computes the distance from a point to an AABB (reverse argument
+/// order).
+template <typename T, std::size_t Dims, typename T1>
+auto distance(const plane<T, Dims> &p, const vector_like<Dims, T1> &pt) {
+  return tf::dot(p.normal, pt) + p.d;
+}
+
+/// @ingroup geometry
+/// @brief Computes the distance from a point to an AABB (reverse argument
+/// order).
+template <std::size_t Dims, typename T, typename T1>
+auto distance(const vector_like<Dims, T> &pt, const plane<T1, Dims> &p) {
+  return distance(p, pt);
+}
+
+/// @ingroup geometry
+/// @brief Computes the distance from a point to an AABB (reverse argument
+/// order).
+template <typename T, std::size_t Dims, typename T1>
+auto distance2(const plane<T, Dims> &p, const vector_like<Dims, T1> &pt) {
+  auto d = distance(p, pt);
+  return d * d;
+}
+
+/// @ingroup geometry
+/// @brief Computes the distance from a point to an AABB (reverse argument
+/// order).
+template <std::size_t Dims, typename T, typename T1>
+auto distance2(const vector_like<Dims, T> &pt, const plane<T1, Dims> &p) {
+  return distance2(p, pt);
 }
 } // namespace tf
