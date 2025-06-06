@@ -6,7 +6,6 @@
 #pragma once
 
 #include "./static_size.hpp"
-#include <array>
 #include <iterator>
 
 namespace tf {
@@ -20,7 +19,6 @@ namespace tf {
 ///
 /// @tparam Iterator The iterator type.
 /// @tparam N The number of elements in the range.
-template <typename Iterator, std::size_t N> class range;
 template <typename Iterator, std::size_t N> class range {
 public:
   using value_type = typename std::iterator_traits<Iterator>::value_type;
