@@ -59,6 +59,22 @@ private:
   unit_vector<T, Dims> _normal;
 };
 
+namespace implementation {
+
+template <typename RealT, std::size_t Dims, typename Base>
+auto has_injected_normal(const tf::inject_normal_t<RealT, Dims, Base> *)
+    -> std::true_type;
+
+auto has_injected_normal(const void *) -> std::false_type;
+} // namespace implementation
+
+template <typename T>
+inline constexpr bool has_injected_normal =
+    decltype(implementation::has_injected_normal(
+        static_cast<const std::decay_t<T> *>(nullptr)))::value;
+
+
+
 /**
  * @ingroup injectors
  * @brief Constructs an `inject_normal_t` by injecting a normal into a base
@@ -76,8 +92,14 @@ private:
  */
 template <typename T, std::size_t Dims, typename Base>
 auto inject_normal(const unit_vector<T, Dims> &normal, Base &&base) {
-  return inject_normal_t<T, Dims, std::decay_t<Base>>{
-      normal, static_cast<Base &&>(base)};
+  if constexpr (has_injected_normal<Base>)
+    if constexpr (std::is_rvalue_reference_v<Base &&>)
+      return static_cast<Base>(base);
+    else
+      return static_cast<Base &&>(base);
+  else
+    return inject_normal_t<T, Dims, std::decay_t<Base>>{
+        normal, static_cast<Base &&>(base)};
 }
 
 } // namespace tf

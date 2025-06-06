@@ -30,7 +30,7 @@ namespace tf {
 /// normal.
 template <typename T0, typename T1, typename T2>
 auto normal(const vector_like<3, T0> &pt0, const vector_like<3, T1> &pt1,
-            const vector_like<3, T1> &pt2) {
+            const vector_like<3, T2> &pt2) {
   return tf::make_unit_vector(tf::cross(pt2 - pt0, pt0 - pt1));
 }
 } // namespace tf

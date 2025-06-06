@@ -6,6 +6,8 @@
 #pragma once
 
 #include "./indirect_range.hpp"
+#include "./inject_normal.hpp"
+#include "./inject_plane.hpp"
 #include "./static_size.hpp"
 namespace tf {
 /**
@@ -180,6 +182,47 @@ auto make_polygon(Range0 &&ids, Range1 &&points) {
 template <typename Range> auto make_polygon(Range &&points) {
   return tf::polygon<tf::static_size_v<Range>, std::decay_t<Range>>(
       static_cast<Range &&>(points));
+}
+
+template <std::size_t V, typename Policy>
+auto inject_plane(const polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_plane<Policy>) {
+    return poly;
+  } else if constexpr (has_injected_normal<Policy>) {
+    return tf::make_polygon(
+        tf::inject_plane(tf::make_plane(poly.normal(), poly[0]),
+                         static_cast<const Policy &>(poly)));
+  } else {
+    return tf::make_polygon(
+        tf::inject_plane(tf::make_plane(poly[0], poly[1], poly[2]),
+                         static_cast<const Policy &>(poly)));
+  }
+}
+
+template <std::size_t V, typename Policy>
+auto inject_plane(polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_plane<Policy>) {
+    return poly;
+  } else if constexpr (has_injected_normal<Policy>) {
+    return tf::make_polygon(
+        tf::inject_plane(tf::make_plane(poly.normal(), poly[0]),
+                         static_cast<const Policy &>(poly)));
+  } else {
+    return tf::make_polygon(
+        tf::inject_plane(tf::make_plane(poly[0], poly[1], poly[2]),
+                         static_cast<const Policy &>(poly)));
+  }
+}
+
+template <std::size_t V, typename Policy>
+auto inject_normal(const polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_plane<Policy> || has_injected_normal<Policy>) {
+    return poly;
+  } else {
+    return tf::make_polygon(
+        tf::inject_normal(tf::normal(poly[0], poly[1], poly[2]),
+                          static_cast<const Policy &>(poly)));
+  }
 }
 
 } // namespace tf
