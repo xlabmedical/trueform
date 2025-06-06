@@ -94,7 +94,6 @@ auto closest_point_parametric(const tf::segment<Policy0> &segment,
 template <typename RealT, std::size_t Dims>
 auto closest_point_parametric(const tf::ray<RealT, Dims> &ray0,
                               const tf::ray<RealT, Dims> &ray1) {
-
   auto [non_parallel, t0, t1] = tf::implementation::line_line_check(ray0, ray1);
 
   if (non_parallel) {
