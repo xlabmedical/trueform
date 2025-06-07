@@ -6,7 +6,10 @@
 #pragma once
 
 #include "./aabb.hpp"
+#include "./closest_point_parametric.hpp"
+#include "./line.hpp"
 #include "./polygon.hpp"
+#include "./ray.hpp"
 #include "./ray_cast.hpp"
 #include "./segment.hpp"
 #include "./vector_like.hpp"
@@ -128,11 +131,335 @@ auto intersects(const vector_like<N, T0> &v0, const vector_like<N, T1> &v1,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t N, typename T0, typename T1>
-auto intersects(const vector_like<N, T0> &v0, const vector_like<N, T1> &v1)
-    -> bool {
-  return v0 == v1;
+auto intersects(const tf::vector_like<N, T0> &v0,
+                const tf::vector_like<N, T1> &v1) -> bool {
+  return (v0 - v1).length2() <
+         std::numeric_limits<tf::common_value<T0, T1>>::epsilon();
 }
 
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims, typename T1>
+auto intersects(const tf::line<RealT, Dims> &l,
+                const tf::vector_like<Dims, T1> &v1) {
+  auto t = tf::closest_point_parametric(l, v1);
+  auto pt = l.origin + t * l.direction;
+  auto d2 = (pt - v1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t Dims, typename T1, typename RealT>
+auto intersects(const tf::vector_like<Dims, T1> &v0,
+                const tf::line<RealT, Dims> &l) {
+  return intersects(l, v0);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims, typename T1>
+auto intersects(const tf::ray<RealT, Dims> &r,
+                const tf::vector_like<Dims, T1> &v1) {
+  auto t = tf::closest_point_parametric(r, v1);
+  auto pt = r.origin + t * r.direction;
+  auto d2 = (pt - v1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t Dims, typename T1, typename RealT>
+auto intersects(const tf::vector_like<Dims, T1> &v0,
+                const tf::ray<RealT, Dims> &r) {
+  return intersects(r, v0);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename T0, std::size_t Dims, typename T1>
+auto intersects(const tf::segment<T0> &s, const tf::vector_like<Dims, T1> &v1) {
+  auto t = tf::closest_point_parametric(s, v1);
+  auto l = tf::make_line_between_points(s[0], s[1]);
+  auto pt = l.origin + t * l.direction;
+  auto d2 = (pt - v1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t Dims, typename T0, typename T1>
+auto intersects(const tf::vector_like<Dims, T0> &v0, const tf::segment<T1> &s) {
+  return intersects(s, v0);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims>
+auto intersects(const tf::line<RealT, Dims> &l0,
+                const tf::line<RealT, Dims> &l1) {
+  auto [t0, t1] = tf::closest_point_parametric(l0, l1);
+  auto pt0 = l0.origin + t0 * l0.direction;
+  auto pt1 = l1.origin + t1 * l1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims>
+auto intersects(const tf::ray<RealT, Dims> &r0,
+                const tf::ray<RealT, Dims> &r1) {
+  auto [t0, t1] = tf::closest_point_parametric(r0, r1);
+  auto pt0 = r0.origin + t0 * r0.direction;
+  auto pt1 = r1.origin + t1 * r1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims>
+auto intersects(const tf::line<RealT, Dims> &l0,
+                const tf::ray<RealT, Dims> &r1) {
+  auto [t0, t1] = tf::closest_point_parametric(l0, r1);
+  auto pt0 = l0.origin + t0 * l0.direction;
+  auto pt1 = r1.origin + t1 * r1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point_pair between the objects.
+template <typename RealT, std::size_t Dims>
+auto closest_metric_point_pair(const tf::ray<RealT, Dims> &r0,
+                               const tf::line<RealT, Dims> &l1) {
+  return intersects(l1, r0);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims, typename T>
+auto closest_metric_point_pair(const tf::ray<RealT, Dims> &r0,
+                               const tf::segment<T> &s1) {
+  auto l1 = tf::make_line_between_points(s1[0], s1[1]);
+  auto [t0, t1] = tf::closest_point_parametric(r0, l1);
+  auto pt0 = r0.origin + t0 * r0.direction;
+  auto pt1 = l1.origin + t1 * l1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims, typename T>
+auto intersects(const tf::line<RealT, Dims> &l0, const tf::segment<T> &s1) {
+  auto l1 = tf::make_line_between_points(s1[0], s1[1]);
+  auto [t0, t1] = tf::closest_point_parametric(l0, l1);
+  auto pt0 = l0.origin + t0 * l0.direction;
+  auto pt1 = l1.origin + t1 * l1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename T, std::size_t Dims, typename RealT>
+auto intersects(const tf::segment<T> &s0, const tf::line<RealT, Dims> &l1) {
+  auto l0 = tf::make_line_between_points(s0[0], s0[1]);
+  auto [t0, t1] = tf::closest_point_parametric(l0, l1);
+  auto pt0 = l0.origin + t0 * l0.direction;
+  auto pt1 = l1.origin + t1 * l1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename T, std::size_t Dims, typename RealT>
+auto intersects(const tf::segment<T> &s0, const tf::ray<RealT, Dims> &r1) {
+  auto l0 = tf::make_line_between_points(s0[0], s0[1]);
+  auto [t0, t1] = tf::closest_point_parametric(l0, r1);
+  auto pt0 = l0.origin + t0 * l0.direction;
+  auto pt1 = r1.origin + t1 * r1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename T0, typename T1>
+auto intersects(const tf::segment<T0> &s0, const tf::segment<T1> &s1) {
+  auto l0 = tf::make_line_between_points(s0[0], s0[1]);
+  auto l1 = tf::make_line_between_points(s1[0], s1[1]);
+  auto [t0, t1] = tf::closest_point_parametric(l0, l1);
+  auto pt0 = l0.origin + t0 * l0.direction;
+  auto pt1 = l1.origin + t1 * l1.direction;
+  auto d2 = (pt0 - pt1).length2();
+  return d2 < std::numeric_limits<decltype(d2)>::epsilon();
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t V0, typename Policy0, std::size_t Dims, typename Policy1>
+auto intersects(const tf::polygon<V0, Policy0> &poly_in,
+                const tf::vector_like<Dims, Policy1> &pt) -> bool {
+  const auto &poly = tf::inject_plane(poly_in);
+  auto d = tf::dot(poly.plane().normal, pt) + poly.plane().d;
+  auto c_pt = pt - d * poly.plane().normal;
+  return std::abs(d) < std::numeric_limits<decltype(d)>::epsilon() &&
+         tf::contains_coplanar_point(poly, c_pt);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t Dims, typename Policy0, std::size_t V, typename Policy1>
+auto intersects(const tf::vector_like<Dims, Policy0> &pt,
+                const tf::polygon<V, Policy1> &poly) -> bool {
+  return intersects(poly, pt);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t V, typename Policy0, typename RealT, std::size_t Dims>
+auto intersects(const tf::polygon<V, Policy0> &poly_in,
+                const tf::ray<RealT, Dims> &ray) -> bool {
+  const auto &poly = tf::inject_plane(poly_in);
+  return tf::ray_cast(ray, poly);
+  ;
+}
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims, std::size_t V, typename Policy0>
+auto intersects(const tf::ray<RealT, Dims> &ray,
+                const tf::polygon<V, Policy0> &poly) {
+  return intersects(poly, ray);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t V, typename Policy0, typename RealT, std::size_t Dims>
+auto intersects(const tf::polygon<V, Policy0> &poly_in,
+                const tf::line<RealT, Dims> &line) -> bool {
+  const auto &poly = tf::inject_plane(poly_in);
+  return tf::ray_cast(tf::make_ray(line.origin, line.direction), poly,
+                      tf::make_ray_config(-std::numeric_limits<RealT>::max(),
+                                          std::numeric_limits<RealT>::max()));
+  ;
+}
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <typename RealT, std::size_t Dims, std::size_t V, typename Policy0>
+auto intersects(const tf::line<RealT, Dims> &line,
+                const tf::polygon<V, Policy0> &poly) {
+  return intersects(poly, line);
+}
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t V, typename Policy0, typename Policy1>
 auto intersects(const tf::polygon<V, Policy0> &poly_in,
                 const tf::segment<Policy1> &seg1) -> bool {
@@ -141,11 +468,47 @@ auto intersects(const tf::polygon<V, Policy0> &poly_in,
   using RealT = tf::common_value<decltype(poly[0][0]), decltype(seg1[0][0])>;
   return tf::ray_cast(ray, poly, tf::make_ray_config(RealT(0), RealT(1)));
 }
-
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
 template <typename Policy, std::size_t V, typename Policy0>
 auto intersects(const tf::segment<Policy> &seg,
                 const tf::polygon<V, Policy0> &poly) {
   return intersects(poly, seg);
+}
+
+/// @ingroup geometry
+/// @brief Check whether two geometric primitives intersect.
+///
+/// This overload of `intersects` checks for intersection between specific
+/// types.
+///
+/// @return `true` if the primitives intersect; otherwise `false`.
+template <std::size_t V0, typename Policy0, std::size_t V1, typename Policy1>
+auto intersects(const tf::polygon<V0, Policy0> &poly_in0,
+                const tf::polygon<V1, Policy1> &poly_in1) -> bool {
+  const auto &poly0 = tf::inject_plane(poly_in0);
+
+  std::size_t size = poly0.size();
+  std::size_t prev = size - 1;
+  for (std::size_t i = 0; i < size; prev = i++) {
+    if (intersects(poly0, tf::make_segment_between_points(poly_in1[prev],
+                                                          poly_in1[i])))
+      return true;
+  }
+  const auto &poly1 = tf::inject_plane(poly_in1);
+
+  size = poly1.size();
+  prev = size - 1;
+  for (std::size_t i = 0; i < size; prev = i++) {
+    if (intersects(poly1,
+                   tf::make_segment_between_points(poly0[prev], poly0[i])))
+      return true;
+  }
 }
 
 } // namespace tf

@@ -260,7 +260,7 @@ auto closest_metric_point_pair(const tf::polygon<V, Policy0> &poly_in,
   std::size_t size = poly.size();
   std::size_t prev = size - 1;
   for (std::size_t i = 0; i < size; prev = i++) {
-    auto seg = tf::make_segment(poly[prev], poly[i]);
+    auto seg = tf::make_segment_between_points(poly[prev], poly[i]);
     auto tmp = tf::closest_metric_point_pair(seg, line);
     if (tmp.metric < best.metric)
       best = tmp;
@@ -293,7 +293,7 @@ auto closest_metric_point_pair(const tf::polygon<V, Policy0> &poly_in,
   std::size_t size = poly.size();
   std::size_t prev = size - 1;
   for (std::size_t i = 0; i < size; prev = i++) {
-    auto seg = tf::make_segment(poly[prev], poly[i]);
+    auto seg = tf::make_segment_between_points(poly[prev], poly[i]);
     auto tmp = tf::closest_metric_point_pair(seg, ray);
     if (tmp.metric < best.metric)
       best = tmp;
@@ -328,7 +328,7 @@ auto closest_metric_point_pair(const tf::polygon<V, Policy0> &poly_in,
   std::size_t size = poly.size();
   std::size_t prev = size - 1;
   for (std::size_t i = 0; i < size; prev = i++) {
-    auto seg = tf::make_segment(poly[prev], poly[i]);
+    auto seg = tf::make_segment_between_points(poly[prev], poly[i]);
     auto tmp = tf::closest_metric_point_pair(seg, seg1);
     if (tmp.metric < best.metric)
       best = tmp;
@@ -356,12 +356,12 @@ auto closest_metric_point_pair(const tf::polygon<V0, Policy0> &poly_in0,
 
   std::size_t size = poly0.size();
   std::size_t prev = size - 1;
-  auto best =
-      closest_metric_point_pair(poly0, tf::make_segment(poly1[prev], poly1[0]));
+  auto best = closest_metric_point_pair(
+      poly0, tf::make_segment_between_points(poly1[prev], poly1[0]));
 
   for (std::size_t i = 1; i < size; prev = i++) {
     auto tmp = closest_metric_point_pair(
-        poly0, tf::make_segment(poly1[prev], poly1[i]));
+        poly0, tf::make_segment_between_points(poly1[prev], poly1[i]));
     if (tmp.metric < best.metric)
       best = tmp;
     if (best.metric < std::numeric_limits<decltype(best.metric)>::epsilon())
