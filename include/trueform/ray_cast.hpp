@@ -6,11 +6,15 @@
 #pragma once
 #include "./contains_coplanar_point.hpp"
 #include "./dot.hpp"
+#include "./implementation/tree_ray_cast.hpp"
+#include "./implementation/tree_ray_info.hpp"
 #include "./plane.hpp"
 #include "./polygon.hpp"
 #include "./ray.hpp"
 #include "./ray_cast_info.hpp"
 #include "./ray_config.hpp"
+#include "./tree.hpp"
+#include "./tree_ray_info.hpp"
 #include <limits>
 
 namespace tf {
@@ -70,7 +74,8 @@ auto ray_cast(const ray<RealT, Dims> &ray, const tf::plane<RealT, Dims> &plane,
 /// @return A `ray_cast_info<RealT>` containing the intersection `status` and
 /// parameter `t`.
 template <typename RealT, std::size_t Dims, std::size_t V, typename Policy>
-auto ray_cast(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in,
+auto ray_cast(const ray<RealT, Dims> &ray,
+              const tf::polygon<V, Policy> &poly_in,
               const tf::ray_config<RealT> &config = tf::ray_config<RealT>{}) {
   const auto &poly = tf::inject_plane(poly_in);
   auto result = ray_cast(ray, poly.plane(), config);
@@ -82,6 +87,17 @@ auto ray_cast(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in
             std::numeric_limits<RealT>::epsilon()));
   }
   return result;
+}
+
+template <typename RealT, std::size_t Dims, typename Index, typename F>
+auto ray_cast(const ray<RealT, Dims> &ray,
+              const tf::tree<Index, RealT, Dims> &tree, const F &ray_cast_f,
+              const tf::ray_config<RealT> &config = {}) {
+  tf::implementation::tree_ray_info<
+      Index, tf::tree_ray_info<Index, tf::ray_cast_info<RealT>>>
+      result{config.min_t, config.max_t};
+  tf::implementation::tree_ray_cast(tree, ray, result, ray_cast_f);
+  return result.info();
 }
 
 } // namespace tf

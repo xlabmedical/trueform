@@ -276,7 +276,7 @@ auto intersects(const tf::line<RealT, Dims> &l0,
 /// @ingroup geometry
 /// @brief Computes the closest @ref tf::metric_point_pair between the objects.
 template <typename RealT, std::size_t Dims>
-auto closest_metric_point_pair(const tf::ray<RealT, Dims> &r0,
+auto intersects(const tf::ray<RealT, Dims> &r0,
                                const tf::line<RealT, Dims> &l1) {
   return intersects(l1, r0);
 }
@@ -289,7 +289,7 @@ auto closest_metric_point_pair(const tf::ray<RealT, Dims> &r0,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <typename RealT, std::size_t Dims, typename T>
-auto closest_metric_point_pair(const tf::ray<RealT, Dims> &r0,
+auto intersects(const tf::ray<RealT, Dims> &r0,
                                const tf::segment<T> &s1) {
   auto l1 = tf::make_line_between_points(s1[0], s1[1]);
   auto [t0, t1] = tf::closest_point_parametric(r0, l1);
@@ -509,6 +509,7 @@ auto intersects(const tf::polygon<V0, Policy0> &poly_in0,
                    tf::make_segment_between_points(poly0[prev], poly0[i])))
       return true;
   }
+  return false;
 }
 
 } // namespace tf

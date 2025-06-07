@@ -22,8 +22,9 @@ namespace tf {
 /// coordinates.
 /// @tparam Dims The dimensionality of the space (e.g., 2 for 2D, 3 for 3D).
 template <typename RealT, std::size_t Dims> struct ray_hit_info {
+  using real_t = RealT;
   /// Status of the ray cast (e.g., intersection, none, parallel, error).
-  tf::intersect_status status;
+  tf::intersect_status status = tf::intersect_status::none;
 
   /// Parametric distance `t` along the ray direction at which the intersection
   /// occurs. Meaningful only if `status == intersect_status::intersection`.

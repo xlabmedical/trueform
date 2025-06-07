@@ -100,25 +100,15 @@ public:
 template <std::size_t I, std::size_t V, typename Policy,
           typename = std::enable_if_t<V != tf::dynamic_size, void>>
 auto get(const tf::polygon<V, Policy> &t) -> decltype(auto) {
-  return t.template get<I>();
+  using std::get;
+  return get<I>(static_cast<const Policy &>(t));
 }
 
 template <std::size_t I, std::size_t V, typename Policy,
           typename = std::enable_if_t<V != tf::dynamic_size, void>>
 auto get(tf::polygon<V, Policy> &t) -> decltype(auto) {
-  return t.template get<I>();
-}
-
-template <std::size_t I, std::size_t V, typename Policy,
-          typename = std::enable_if_t<V != tf::dynamic_size, void>>
-auto get(tf::polygon<V, Policy> &&t) -> decltype(auto) {
-  return std::move(t).template get<I>();
-}
-
-template <std::size_t I, std::size_t V, typename Policy,
-          typename = std::enable_if_t<V != tf::dynamic_size, void>>
-auto get(const tf::polygon<V, Policy> &&t) -> decltype(auto) {
-  return static_cast<const tf::polygon<V, Policy> &&>(t).template get<I>();
+  using std::get;
+  return get<I>(static_cast<Policy &>(t));
 }
 
 template <std::size_t V, typename Policy>
@@ -162,6 +152,14 @@ auto make_polygon(Range0 &&ids, Range1 &&points) {
                               static_cast<Range1 &&>(points)));
 }
 
+template <std::size_t V, typename Range0, typename Range1>
+auto make_polygon(Range0 &&ids, Range1 &&points) {
+  auto policy = tf::make_indirect_range(static_cast<Range0 &&>(ids),
+                                        static_cast<Range1 &&>(points));
+  return tf::polygon<V, decltype(policy)>(tf::make_indirect_range(
+      static_cast<Range0 &&>(ids), static_cast<Range1 &&>(points)));
+}
+
 /// @ingroup geometry
 /// @brief Constructs a polygon directly from a point range.
 ///
@@ -184,16 +182,20 @@ template <typename Range> auto make_polygon(Range &&points) {
       static_cast<Range &&>(points));
 }
 
+template <std::size_t V, typename Range> auto make_polygon(Range &&points) {
+  return tf::polygon<V, std::decay_t<Range>>(static_cast<Range &&>(points));
+}
+
 template <std::size_t V, typename Policy>
 auto inject_plane(const polygon<V, Policy> &poly) -> decltype(auto) {
   if constexpr (has_injected_plane<Policy>) {
     return poly;
   } else if constexpr (has_injected_normal<Policy>) {
-    return tf::make_polygon(
+    return tf::make_polygon<V>(
         tf::inject_plane(tf::make_plane(poly.normal(), poly[0]),
                          static_cast<const Policy &>(poly)));
   } else {
-    return tf::make_polygon(
+    return tf::make_polygon<V>(
         tf::inject_plane(tf::make_plane(poly[0], poly[1], poly[2]),
                          static_cast<const Policy &>(poly)));
   }
@@ -204,11 +206,11 @@ auto inject_plane(polygon<V, Policy> &poly) -> decltype(auto) {
   if constexpr (has_injected_plane<Policy>) {
     return poly;
   } else if constexpr (has_injected_normal<Policy>) {
-    return tf::make_polygon(
+    return tf::make_polygon<V>(
         tf::inject_plane(tf::make_plane(poly.normal(), poly[0]),
                          static_cast<const Policy &>(poly)));
   } else {
-    return tf::make_polygon(
+    return tf::make_polygon<V>(
         tf::inject_plane(tf::make_plane(poly[0], poly[1], poly[2]),
                          static_cast<const Policy &>(poly)));
   }
@@ -219,7 +221,18 @@ auto inject_normal(const polygon<V, Policy> &poly) -> decltype(auto) {
   if constexpr (has_injected_plane<Policy> || has_injected_normal<Policy>) {
     return poly;
   } else {
-    return tf::make_polygon(
+    return tf::make_polygon<V>(
+        tf::inject_normal(tf::normal(poly[0], poly[1], poly[2]),
+                          static_cast<const Policy &>(poly)));
+  }
+}
+
+template <std::size_t V, typename Policy>
+auto inject_normal(polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_plane<Policy> || has_injected_normal<Policy>) {
+    return poly;
+  } else {
+    return tf::make_polygon<V>(
         tf::inject_normal(tf::normal(poly[0], poly[1], poly[2]),
                           static_cast<const Policy &>(poly)));
   }

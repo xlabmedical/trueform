@@ -71,4 +71,15 @@ auto ray_hit(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in,
   return out;
 }
 
+template <typename RealT, std::size_t Dims, typename Index, typename F>
+auto ray_hit(const ray<RealT, Dims> &ray,
+             const tf::tree<Index, RealT, Dims> &tree, const F &ray_hit_f,
+             const tf::ray_config<RealT> &config = {}) {
+  tf::implementation::tree_ray_info<
+      Index, tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>>
+      result{config.min_t, config.max_t};
+  tf::implementation::tree_ray_cast(tree, ray, result, ray_hit_f);
+  return result.info();
+}
+
 } // namespace tf
