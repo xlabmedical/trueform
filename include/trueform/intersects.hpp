@@ -6,6 +6,9 @@
 #pragma once
 
 #include "./aabb.hpp"
+#include "./polygon.hpp"
+#include "./ray_cast.hpp"
+#include "./segment.hpp"
 #include "./vector_like.hpp"
 
 namespace tf {
@@ -128,6 +131,21 @@ template <std::size_t N, typename T0, typename T1>
 auto intersects(const vector_like<N, T0> &v0, const vector_like<N, T1> &v1)
     -> bool {
   return v0 == v1;
+}
+
+template <std::size_t V, typename Policy0, typename Policy1>
+auto intersects(const tf::polygon<V, Policy0> &poly_in,
+                const tf::segment<Policy1> &seg1) -> bool {
+  const auto &poly = tf::inject_plane(poly_in);
+  auto ray = tf::make_ray_between_points(seg1[0], seg1[1]);
+  using RealT = tf::common_value<decltype(poly[0][0]), decltype(seg1[0][0])>;
+  return tf::ray_cast(ray, poly, tf::make_ray_config(RealT(0), RealT(1)));
+}
+
+template <typename Policy, std::size_t V, typename Policy0>
+auto intersects(const tf::segment<Policy> &seg,
+                const tf::polygon<V, Policy0> &poly) {
+  return intersects(poly, seg);
 }
 
 } // namespace tf

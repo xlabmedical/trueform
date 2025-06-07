@@ -70,8 +70,9 @@ auto ray_cast(const ray<RealT, Dims> &ray, const tf::plane<RealT, Dims> &plane,
 /// @return A `ray_cast_info<RealT>` containing the intersection `status` and
 /// parameter `t`.
 template <typename RealT, std::size_t Dims, std::size_t V, typename Policy>
-auto ray_cast(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly,
+auto ray_cast(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in,
               const tf::ray_config<RealT> &config = tf::ray_config<RealT>{}) {
+  const auto &poly = tf::inject_plane(poly_in);
   auto result = ray_cast(ray, poly.plane(), config);
   if (result) {
     auto pt = ray.origin + result.t * ray.direction;

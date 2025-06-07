@@ -55,8 +55,9 @@ auto ray_hit(const ray<RealT, Dims> &ray, const tf::plane<RealT, Dims> &plane,
 /// @return A `ray_hit_info` struct containing status, parameter `t`, and hit
 /// point (if any).
 template <typename RealT, std::size_t Dims, std::size_t V, typename Policy>
-auto ray_hit(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly,
+auto ray_hit(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in,
              const tf::ray_config<RealT> &config = tf::ray_config<RealT>{}) {
+  const auto &poly = tf::inject_plane(poly_in);
   auto result = ray_cast(ray, poly.plane(), config);
   tf::ray_hit_info<RealT, Dims> out;
   out.status = result.status;

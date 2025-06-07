@@ -75,7 +75,7 @@ auto closest_point_parametric(const tf::line<RealType, Dims> &line,
                               const tf::vector_like<Dims, T> &point) {
   auto dist_vec = point - line.origin;
   auto t = tf::dot(dist_vec, line.direction) / line.direction.length2();
-  return std::max(decltype(t)(0), t);
+  return t;
 }
 
 /// @ingroup geometry

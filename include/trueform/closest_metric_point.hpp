@@ -181,4 +181,5 @@ auto closest_metric_point(const tf::segment<T0> &s0,
   return tf::make_metric_point((pt0 - pt1).length2(), pt0);
 }
 
+
 } // namespace tf
