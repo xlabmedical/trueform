@@ -4,6 +4,7 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
+#include "./closest_metric_point_pair.hpp"
 #include "./closest_point_parametric.hpp"
 #include "./metric_point.hpp"
 
@@ -181,5 +182,102 @@ auto closest_metric_point(const tf::segment<T0> &s0,
   return tf::make_metric_point((pt0 - pt1).length2(), pt0);
 }
 
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <typename Policy0, std::size_t Dims, typename Policy1>
+auto closest_metric_point(const tf::polygon<3, Policy0> &poly,
+                          const tf::vector_like<Dims, Policy1> &pt) {
+  auto res = tf::closest_metric_point_pair(poly, pt);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t Dims, typename Policy1, typename Policy0>
+auto closest_metric_point(const tf::vector_like<Dims, Policy1> &pt,
+                          const tf::polygon<3, Policy0> &poly) {
+  auto res = tf::closest_metric_point_pair(pt, poly);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t V, typename Policy0, std::size_t Dims, typename Policy1>
+auto closest_metric_point(const tf::polygon<V, Policy0> &poly_in,
+                          const tf::vector_like<Dims, Policy1> &pt) {
+  auto res = tf::closest_metric_point_pair(poly_in, pt);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t Dims, typename Policy1, std::size_t V, typename Policy0>
+auto closest_metric_point(const tf::vector_like<Dims, Policy1> &pt,
+                          const tf::polygon<V, Policy0> &poly) {
+  auto res = tf::closest_metric_point_pair(pt, poly);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t V, typename Policy0, typename RealT, std::size_t Dims>
+auto closest_metric_point(const tf::polygon<V, Policy0> &poly_in,
+                          const tf::line<RealT, Dims> &line) {
+  auto res = tf::closest_metric_point_pair(poly_in, line);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <typename RealT, std::size_t Dims, std::size_t V, typename Policy0>
+auto closest_metric_point(const tf::line<RealT, Dims> &line,
+                          const tf::polygon<V, Policy0> &poly) {
+  auto res = tf::closest_metric_point_pair(line, poly);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t V, typename Policy0, typename RealT, std::size_t Dims>
+auto closest_metric_point(const tf::polygon<V, Policy0> &poly_in,
+                          const tf::ray<RealT, Dims> &ray) {
+  auto res = tf::closest_metric_point_pair(poly_in, ray);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <typename RealT, std::size_t Dims, std::size_t V, typename Policy0>
+auto closest_metric_point(const tf::ray<RealT, Dims> &ray,
+                          const tf::polygon<V, Policy0> &poly) {
+  auto res = tf::closest_metric_point_pair(ray, poly);
+  return tf::make_metric_point(res.metric, res.first);
+}
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t V, typename Policy0, typename Policy1>
+auto closest_metric_point(const tf::polygon<V, Policy0> &poly_in,
+                          const tf::segment<Policy1> &seg1) {
+  auto res = tf::closest_metric_point_pair(poly_in, seg1);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <typename Policy, std::size_t V, typename Policy0>
+auto closest_metric_point(const tf::segment<Policy> &seg,
+                          const tf::polygon<V, Policy0> &poly) {
+  auto res = tf::closest_metric_point_pair(seg, poly);
+  return tf::make_metric_point(res.metric, res.first);
+}
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t V0, typename Policy0, std::size_t V1, typename Policy1>
+auto closest_metric_point(const tf::polygon<V0, Policy0> &poly_in0,
+                          const tf::polygon<V1, Policy1> &poly_in1) {
+  auto res = tf::closest_metric_point_pair(poly_in0, poly_in1);
+  return tf::make_metric_point(res.metric, res.first);
+}
 
 } // namespace tf
