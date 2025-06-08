@@ -11,12 +11,32 @@ foreach(src ${example_sources})
   target_link_libraries(${name} PRIVATE tf::trueform)
   target_compile_options(${name} PRIVATE -Wall -Wextra -Wpedantic)
 
+
+  if(ENABLE_ASAN)
+    target_compile_options(${name} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    target_link_options(${name} PRIVATE -fsanitize=address)
+  endif()
+
   add_custom_target(${alias_target} DEPENDS ${name})
   list(APPEND EXAMPLE_TARGETS ${alias_target})
   list(APPEND EXAMPLE_EXECUTABLES ${name})
 endforeach()
 
-# Group target to build all executables: 'make examples'
+# Optionally try to find VTK and store result for subdir
+find_package(VTK QUIET)
+set(TRUEFORM_HAS_VTK ${VTK_FOUND})
+if(VTK_FOUND)
+  message(STATUS "VTK found (version ${VTK_VERSION}), adding VTK examples.")
+  add_subdirectory(vtk)
+else()
+  message(STATUS "VTK not found — skipping VTK examples.")
+endif()
+
+# Combine subdirectory results (populated via PARENT_SCOPE)
+list(APPEND EXAMPLE_EXECUTABLES ${VTK_EXAMPLE_EXECUTABLES})
+list(APPEND EXAMPLE_TARGETS ${VTK_EXAMPLE_TARGETS})
+
+# Group target to build all
 add_custom_target(examples DEPENDS ${EXAMPLE_EXECUTABLES})
 
 # Copy compile_commands.json only after 'make examples'

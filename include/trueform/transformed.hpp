@@ -5,6 +5,7 @@
  */
 #pragma once
 #include "./aabb.hpp"
+#include "./polygon.hpp"
 #include "./ray.hpp"
 #include "./transformation.hpp"
 
@@ -97,4 +98,20 @@ auto transformed(const ray<T, Dims> &_this,
                    transform.transform_vector(_this.direction)};
   return out;
 }
+
+/// @ingroup geometry
+/// @brief Apply a transformation to a polygon
+template <std::size_t V, typename T, std::size_t Dims, typename U>
+auto transformed(const polygon<V, T> &_this,
+                 const transformation<U, Dims> &transform) {
+  using real_t = tf::common_value<decltype(_this[0][0]), U>;
+  std::array<tf::vector<real_t, Dims>, V> out;
+  for (std::size_t i = 0; i < V; ++i)
+    out[i] = transform.transform_point(_this[i]);
+  return tf::make_polygon(out);
+}
+
+template <typename T, std::size_t Dims, typename U>
+auto transformed(const polygon<tf::dynamic_size, T> &_this,
+                 const transformation<U, Dims> &transform) = delete;
 } // namespace tf
