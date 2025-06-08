@@ -18,8 +18,8 @@ auto ray_aabb_check(const tf::ray<RealT, Dims> &ray,
                             const tf::aabb<RealT, Dims> &bounding_box,
                             RealT &t_min, RealT &t_max, RealT min_t,
                             RealT max_t) {
-  auto &&min = bounding_box.min();
-  auto &&max = bounding_box.max();
+  auto &&min = bounding_box.min;
+  auto &&max = bounding_box.max;
   for (std::size_t i = 0; i < Dims; ++i) {
     auto min_i = min[i];
     auto max_i = max[i];

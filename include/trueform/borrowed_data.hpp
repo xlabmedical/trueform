@@ -18,13 +18,13 @@ template <typename T, std::size_t Dims> struct borrowed_data {
 
   auto operator=(const borrowed_data &other) -> borrowed_data & {
     for (std::size_t i = 0; i < Dims; ++i)
-      _data[i] = other[i];
+      _data[i] = other._data[i];
     return *this;
   }
 
   auto operator=(borrowed_data &&other) -> borrowed_data & {
     for (std::size_t i = 0; i < Dims; ++i)
-      _data[i] = other[i];
+      _data[i] = other._data[i];
     return *this;
   }
 

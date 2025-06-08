@@ -71,6 +71,41 @@ auto ray_hit(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in,
   return out;
 }
 
+/// @brief Performs a ray cast against a spatial tree and returns intersection
+/// information.
+///
+/// This function traverses a spatial acceleration structure (such as a BVH or
+/// custom tree) to find the closest intersected primitive along the given ray.
+/// It uses a user-provided intersection function `ray_cast_f` to test
+/// ray-primitive intersections at the leaves.
+///
+/// The search is bounded by the optional ray interval defined in `config`,
+/// which allows pruning of far-away intersections or early-out behavior. The
+/// result contains both the intersected element index and additional
+/// intersection details (e.g., hit distance, position).
+///
+/// @tparam RealT Floating-point type (e.g., `float`, `double`) used for ray and
+/// bounding box coordinates.
+/// @tparam Dims Dimensionality of the ray and tree (typically 2 or 3).
+/// @tparam Index Index type used to identify primitives (e.g., `std::size_t`,
+/// `int32_t`).
+/// @tparam F Callable type used for ray-primitive intersection testing. Must
+/// return a
+///         `tf::ray_hit_info<RealT, Dims>`  if a hit occurs.
+///
+/// @param ray The ray to cast into the tree.
+/// @param tree The spatial tree containing the primitives to test.
+/// @param ray_cast_f A callable that performs ray-primitive intersection tests
+/// at the leaf level.
+///                   Called as `ray_cast_f(ray, index)` and must return a valid
+///                   hit result or a sentinel.
+/// @param config Optional configuration for the ray cast, including `min_t` and
+/// `max_t` bounds on the ray interval.
+///
+/// @return A `tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>` containing
+/// the index of the hit element
+///         and the associated hit data. If no hit occurs, the result evaluates
+///         to `false`.
 template <typename RealT, std::size_t Dims, typename Index, typename F>
 auto ray_hit(const ray<RealT, Dims> &ray,
              const tf::tree<Index, RealT, Dims> &tree, const F &ray_hit_f,
@@ -79,6 +114,53 @@ auto ray_hit(const ray<RealT, Dims> &ray,
       Index, tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>>
       result{config.min_t, config.max_t};
   tf::implementation::tree_ray_cast(tree, ray, result, ray_hit_f);
+  return result.info();
+}
+
+/// @brief Performs a ray cast against a spatial tree and returns intersection
+/// information.
+///
+/// This function traverses a spatial acceleration structure (such as a BVH or
+/// custom tree) to find the closest intersected primitive along the given ray.
+/// It uses a user-provided intersection function `ray_cast_f` to test
+/// ray-primitive intersections at the leaves.
+///
+/// The search is bounded by the optional ray interval defined in `config`,
+/// which allows pruning of far-away intersections or early-out behavior. The
+/// result contains both the intersected element index and additional
+/// intersection details (e.g., hit distance, position).
+///
+/// @tparam RealT Floating-point type (e.g., `float`, `double`) used for ray and
+/// bounding box coordinates.
+/// @tparam Dims Dimensionality of the ray and tree (typically 2 or 3).
+/// @tparam Index Index type used to identify primitives (e.g., `std::size_t`,
+/// `int32_t`).
+/// @tparam F Callable type used for ray-primitive intersection testing. Must
+/// return a
+///         `tf::ray_hit_info<RealT, Dims>`  if a hit occurs.
+///
+/// @param ray The ray to cast into the tree.
+/// @param tree The spatial tree containing the primitives to test.
+/// @param ray_cast_f A callable that performs ray-primitive intersection tests
+/// at the leaf level.
+///                   Called as `ray_cast_f(ray, index)` and must return a valid
+///                   hit result or a sentinel.
+/// @param config Optional configuration for the ray cast, including `min_t` and
+/// `max_t` bounds on the ray interval.
+///
+/// @return A `tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>` containing
+/// the index of the hit element
+///         and the associated hit data. If no hit occurs, the result evaluates
+///         to `false`.
+template <typename RealT, std::size_t Dims, typename Index, typename F>
+auto ray_hit(const ray<RealT, Dims> &ray,
+             const tf::mod_tree<Index, RealT, Dims> &tree, const F &ray_cast_f,
+             tf::ray_config<RealT> config = {}) {
+  tf::implementation::tree_ray_info<
+      Index, tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>>
+      result{config.min_t, config.max_t};
+  tf::implementation::tree_ray_cast(tree.main_tree(), ray, result, ray_cast_f);
+  tf::implementation::tree_ray_cast(tree.delta_tree(), ray, result, ray_cast_f);
   return result.info();
 }
 

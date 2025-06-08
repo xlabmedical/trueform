@@ -5,6 +5,7 @@
  */
 #pragma once
 #include "./aabb.hpp"
+#include "./ray.hpp"
 #include "./transformation.hpp"
 
 namespace tf {
@@ -77,6 +78,23 @@ auto transformed(const aabb<T, Dims> &_this,
       out.max[i] += vals[1 - mode];
     }
   }
+  return out;
+}
+
+/// @ingroup geometry
+/// @brief Apply a transformation to a ray
+///
+/// @tparam T Scalar type of the input AABB.
+/// @tparam Dims Dimensionality of the AABB and transformation.
+/// @tparam U Scalar type of the transformation matrix.
+/// @param _this The input ray to be transformed.
+/// @param transform The affine transformation to apply.
+/// @return A new ray in the transformed space
+template <typename T, std::size_t Dims, typename U>
+auto transformed(const ray<T, Dims> &_this,
+                 const transformation<U, Dims> &transform) {
+  ray<T, Dims> out{transform.transform_point(_this.origin),
+                   transform.transform_vector(_this.direction)};
   return out;
 }
 } // namespace tf

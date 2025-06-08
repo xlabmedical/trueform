@@ -31,7 +31,6 @@ auto tree_ray_cast(const tf::tree<Index, RealT, Dims> &tree,
   stack.push_back(0);
   //
   std::array<std::int8_t, Dims> dir_sign;
-  Index inv_dir_size = ray_inv_dir.size();
   for (std::size_t i = 0; i < Dims; ++i) {
     // set the direction sign
     dir_sign[i] = ray.direction[i] < 0;
@@ -64,7 +63,7 @@ auto tree_ray_cast(const tf::tree<Index, RealT, Dims> &tree,
           std::copy(nexts.begin(), nexts.end(), std::back_inserter(stack));
         }
       } else {
-        for (const auto &id : tf::make_range(ids.begin(), data[0]), data[1])
+        for (const auto &id : tf::make_range(ids.begin() + data[0], data[1]))
           max_t = result.update(id, intersect_f(ray, id));
       }
     }

@@ -27,6 +27,8 @@ struct tree_ray_info {
 
   /// @brief Type alias for the associated hit information.
   using info_t = InfoT;
+  /// @brief Type alias for the associated real type.
+  using real_t = typename InfoT::real_t;
 
   /// @brief Sentinel value indicating no intersection occurred.
   static constexpr Index no_id = -1;
@@ -35,7 +37,7 @@ struct tree_ray_info {
   Index element{no_id};
 
   /// @brief Additional information about the intersection.
-  info_t info;
+  info_t info{};
 
   /// @brief Returns `true` if a valid hit was recorded (i.e., `element != no_id`).
   operator bool() const { return element != no_id; }

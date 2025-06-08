@@ -24,6 +24,12 @@ namespace tf {
 /// @tparam T The scalar type (e.g. float, double).
 /// @tparam N The number of dimensions (e.g. 2, 3, 4).
 template <typename T, std::size_t N> struct unit_vector : tf::vector<T, N> {
+
+  unit_vector() {
+    for (std::size_t i = 0; i < N; ++i)
+      (*this)[i] = 0;
+    (*this)[0] = 1;
+  }
   /// @brief Constructs a unit vector by normalizing the input.
   ///
   /// This constructor calls `tf::normalized(v)` internally. It ensures the

@@ -14,6 +14,20 @@
 namespace tf {
 
 /// @ingroup geometry
+/// @brief Construct an AABB from an aabb
+///
+/// The resulting AABB has identical `min` and `max` bounds equal to the input.
+///
+/// @tparam T The vector policy
+/// @tparam N The number of dimensions (e.g., 2 or 3).
+/// @param pt The input point.
+/// @return An axis-aligned bounding box
+template <typename RealT, std::size_t N>
+auto aabb_from(const aabb<RealT, N> &box) -> aabb<RealT, N> {
+  return box;
+}
+
+/// @ingroup geometry
 /// @brief Construct an AABB from a single point.
 ///
 /// The resulting AABB has identical `min` and `max` bounds equal to the input
