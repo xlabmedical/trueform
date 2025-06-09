@@ -26,7 +26,7 @@ namespace tf {
 template <typename T, std::size_t N> struct unit_vector : tf::vector<T, N> {
 
   unit_vector() {
-    for (std::size_t i = 0; i < N; ++i)
+    for (std::size_t i = 1; i < N; ++i)
       (*this)[i] = 0;
     (*this)[0] = 1;
   }
@@ -48,6 +48,10 @@ template <typename T, std::size_t N> struct unit_vector : tf::vector<T, N> {
   /// @param v A vector that is already normalized.
   unit_vector(tf::unsafe_t, const tf::vector<T, N> &v) : tf::vector<T, N>{v} {}
 
+  friend auto operator-(const unit_vector &a) -> unit_vector {
+    return unit_vector(tf::unsafe, -static_cast<const tf::vector<T, N> &>(a));
+  }
+
   /// @brief Returns the squared length (always 1).
   /// @return The value `1`.
   constexpr auto length2() const -> T { return 1; }
@@ -55,6 +59,16 @@ template <typename T, std::size_t N> struct unit_vector : tf::vector<T, N> {
   /// @brief Returns the length (always 1).
   /// @return The value `1`.
   constexpr auto length() const -> T { return 1; }
+
+  // forbid asignment operator from base
+  template <typename U>
+  friend auto operator+=(unit_vector &a, const U &b) -> unit_vector & = delete;
+  template <typename U>
+  friend auto operator-=(unit_vector &a, const U &b) -> unit_vector & = delete;
+  template <typename U>
+  friend auto operator*=(unit_vector &a, const U &b) -> unit_vector & = delete;
+  template <typename U>
+  friend auto operator/=(unit_vector &a, const U &b) -> unit_vector & = delete;
 };
 
 /// @ingroup geometry
