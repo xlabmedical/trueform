@@ -5,8 +5,12 @@
  */
 #pragma once
 #include "./aabb.hpp"
+#include "./indirect_range.hpp"
+#include "./inject_ids.hpp"
+#include "./line.hpp"
 #include "./polygon.hpp"
 #include "./ray.hpp"
+#include "./segment.hpp"
 #include "./transformation.hpp"
 
 namespace tf {
@@ -100,18 +104,63 @@ auto transformed(const ray<T, Dims> &_this,
 }
 
 /// @ingroup geometry
-/// @brief Apply a transformation to a polygon
-template <std::size_t V, typename T, std::size_t Dims, typename U>
-auto transformed(const polygon<V, T> &_this,
+/// @brief Apply a transformation to a line
+template <typename T, std::size_t Dims, typename U>
+auto transformed(const line<T, Dims> &_this,
                  const transformation<U, Dims> &transform) {
+  ray<T, Dims> out{transform.transform_point(_this.origin),
+                   transform.transform_vector(_this.direction)};
+  return out;
+}
+
+template <typename Range, std::size_t Dims, typename U>
+auto transformed(const Range &_this, const transformation<U, Dims> &transform) {
+  constexpr std::size_t V = tf::static_size_v<Range>;
+  static_assert(V != tf::dynamic_size);
   using real_t = tf::common_value<decltype(_this[0][0]), U>;
   std::array<tf::vector<real_t, Dims>, V> out;
   for (std::size_t i = 0; i < V; ++i)
     out[i] = transform.transform_point(_this[i]);
-  return tf::make_polygon(out);
+  return out;
+}
+
+template <typename Iterator, std::size_t V, std::size_t Dims, typename U>
+auto transformed(const tf::indirect_range<Iterator, V> &_this,
+                 const transformation<U, Dims> &transform) {
+  static_assert(V != tf::dynamic_size);
+  using real_t = tf::common_value<decltype(_this[0][0]), U>;
+  std::array<tf::vector<real_t, Dims>, V> out;
+  for (std::size_t i = 0; i < V; ++i)
+    out[i] = transform.transform_point(_this[i]);
+  return tf::inject_ids(_this.ids(), out);
+}
+
+template <typename Range, typename Base, std::size_t Dims, typename U>
+auto transformed(const tf::inject_ids_t<Range, Base> &_this,
+                 const transformation<U, Dims> &transform) {
+  return tf::inject_ids(
+      _this.ids(), transformed(static_cast<const Base &>(_this), transform));
+}
+
+/// @ingroup geometry
+/// @brief Apply a transformation to a polygon
+template <std::size_t V, typename T, std::size_t Dims, typename U>
+auto transformed(const polygon<V, T> &_this,
+                 const transformation<U, Dims> &transform) {
+  return tf::make_polygon<V>(
+      transformed(static_cast<const T &>(_this), transform));
 }
 
 template <typename T, std::size_t Dims, typename U>
 auto transformed(const polygon<tf::dynamic_size, T> &_this,
                  const transformation<U, Dims> &transform) = delete;
+
+/// @ingroup geometry
+/// @brief Apply a transformation to a segment
+template <typename Policy, std::size_t Dims, typename U>
+auto transformed(const segment<Policy> &_this,
+                 const transformation<U, Dims> &transform) {
+  return tf::make_segment(
+      transformed(static_cast<const Policy &>(_this), transform));
+}
 } // namespace tf

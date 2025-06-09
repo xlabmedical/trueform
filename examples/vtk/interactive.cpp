@@ -25,6 +25,8 @@
 #include <set>
 #include <string>
 
+template <class> struct print_t;
+
 class ray_caster {
 public:
   auto push_back(vtkActor *actor, vtkPolyData *poly) -> void {
@@ -72,11 +74,9 @@ public:
                                             get_points(polys[id]));
     auto tr0 = transform(id);
     const auto &tree0 = trees[id];
-    std::atomic_bool found{false};
     for (std::size_t i = 0; i < polys.size(); ++i) {
       if (i == id)
         continue;
-      found = false;
       auto polygons1 = tf::make_polygon_range(get_triangle_faces(polys[i]),
                                               get_points(polys[i]));
       const auto &tree1 = trees[i];
@@ -93,12 +93,10 @@ public:
                     tf::transformed(tree1.primitive_aabbs()[i1], tr1)) &&
                 tf::intersects(tf::transformed(polygons0[i0], tr0),
                                tf::transformed(polygons1[i1], tr1))) {
-              found = true;
               return true;
             }
             return false;
-          },
-          [&] { return found.load(); });
+          });
       if (collision)
         colliding.insert(actors[i]);
       else

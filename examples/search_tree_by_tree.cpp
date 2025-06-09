@@ -71,13 +71,10 @@ int main(int argc, char *argv[]) {
         if ((points[id0] - transformation.transform_point(points[id1]))
                 .length2() < std::numeric_limits<float>::epsilon())
           local_ids.emplace_back(id0, id1);
-
         // return true (inside condition) if you want to stop the search at
         // first "collision"
-        return false;
-      }, // never abort the search. You could track only an atomic found
-         // variable and abort on first collision
-      [] { return false; });
+        /*return true;*/
+      });
 
   auto ids = local_ids.to_vector();
   std::cout << "Found " << ids.size()

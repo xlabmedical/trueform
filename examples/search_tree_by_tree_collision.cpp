@@ -9,7 +9,6 @@
 #include "trueform/transformation.hpp"
 #include "trueform/transformed.hpp"
 #include "trueform/tree.hpp"
-#include <atomic>
 #include <iostream>
 #include <string>
 
@@ -58,7 +57,6 @@ int main(int argc, char *argv[]) {
       tf::transformed(tf::make_transformation_from_translation(-pt1),
                       tf::random_transformation<float>(pt0));
 
-  std::atomic<bool> are_colliding{false};
   // we may use the same tree, as we will simply
   // apply the transformation to the aabbs and primitives.
   bool collision_test = tf::search(
@@ -67,15 +65,13 @@ int main(int argc, char *argv[]) {
         return tf::intersects(aabb0, tf::transformed(aabb1, transformation),
                               std::numeric_limits<float>::epsilon());
       },
-      [&points = points, &transformation, &are_colliding](auto id0, auto id1) {
+      [&points = points, &transformation](auto id0, auto id1) {
         if ((points[id0] - transformation.transform_point(points[id1]))
                 .length2() < std::numeric_limits<float>::epsilon()) {
-          are_colliding.store(true);
           return true;
         }
         return false;
-      },
-      [&are_colliding] { return are_colliding.load(); });
+      });
 
   std::cout << "Are clouds colliding: " << (collision_test ? "yes" : "no")
             << std::endl;

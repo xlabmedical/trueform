@@ -111,6 +111,13 @@ auto get(tf::polygon<V, Policy> &t) -> decltype(auto) {
   return get<I>(static_cast<Policy &>(t));
 }
 
+template <std::size_t I, std::size_t V, typename Policy,
+          typename = std::enable_if_t<V != tf::dynamic_size, void>>
+auto get(tf::polygon<V, Policy> &&t) -> decltype(auto) {
+  using std::get;
+  return get<I>(static_cast<Policy &&>(t));
+}
+
 template <std::size_t V, typename Policy>
 struct static_size<tf::polygon<V, Policy>>
     : std::integral_constant<std::size_t, V> {};
@@ -250,7 +257,7 @@ struct tuple_size<tf::polygon<tf::dynamic_size, Policy>>;
 template <std::size_t I, std::size_t V, typename Policy>
 struct tuple_element<I, tf::polygon<V, Policy>> {
   using type = typename std::iterator_traits<
-      decltype(declval<tf::polygon<V, Policy>>().begin())>::reference;
+      decltype(declval<tf::polygon<V, Policy>>().begin())>::value_type;
 };
 
 template <std::size_t I, typename Policy>

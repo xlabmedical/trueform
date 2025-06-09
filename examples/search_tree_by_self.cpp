@@ -71,10 +71,8 @@ int main(int argc, char *argv[]) {
 
         // do not stop the local search. Return true if you want to stop on
         // first collision
-        return false;
-      }, // never abort the search. You could track only an atomic found
-         // variable and abort on first collision
-      [] { return false; });
+        /*return true;*/
+      });
 
   auto ids = local_ids.to_vector();
   std::cout << "Found " << ids.size()
