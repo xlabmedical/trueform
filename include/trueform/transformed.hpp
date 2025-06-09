@@ -7,6 +7,8 @@
 #include "./aabb.hpp"
 #include "./indirect_range.hpp"
 #include "./inject_ids.hpp"
+#include "./inject_normal.hpp"
+#include "./inject_plane.hpp"
 #include "./line.hpp"
 #include "./polygon.hpp"
 #include "./ray.hpp"
@@ -147,8 +149,14 @@ auto transformed(const tf::inject_ids_t<Range, Base> &_this,
 template <std::size_t V, typename T, std::size_t Dims, typename U>
 auto transformed(const polygon<V, T> &_this,
                  const transformation<U, Dims> &transform) {
-  return tf::make_polygon<V>(
+  auto out = tf::make_polygon<V>(
       transformed(static_cast<const T &>(_this), transform));
+  if constexpr (has_injected_plane<T>) {
+    return tf::inject_plane(out);
+  } else if constexpr (has_injected_normal<T>)
+    return tf::inject_normal(out);
+  else
+    return out;
 }
 
 template <typename T, std::size_t Dims, typename U>

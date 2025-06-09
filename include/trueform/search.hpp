@@ -20,10 +20,13 @@ auto search(const tf::tree<Index, RealT, N> &tree0,
             int paralelism_depth = 6) -> bool {
   return tf::implementation::tree_dual_search(
       tree0.nodes(), tree0.ids(), tree1.nodes(), tree1.ids(), check_aabbs,
-      [primitive_apply](const auto &r0, const auto &r1) {
+      [primitive_apply, &tree0, &tree1, &check_aabbs](const auto &r0,
+                                                      const auto &r1) {
         for (const auto &id0 : r0)
           for (const auto &id1 : r1)
-            if (primitive_apply(id0, id1))
+            if (check_aabbs(tree0.primitive_aabbs()[id0],
+                            tree1.primitive_aabbs()[id1]) &&
+                primitive_apply(id0, id1))
               return true;
         return false;
       },
@@ -123,13 +126,16 @@ template <typename Index, typename RealT, std::size_t N, typename F0,
 auto search(const tf::tree<Index, RealT, N> &tree, const F0 &check_aabb,
             const F1 &primitive_apply) -> bool {
   return tf::implementation::tree_search(
-      tree.nodes(), tree.ids(), check_aabb, [primitive_apply](const auto &r) {
+      tree.nodes(), tree.ids(), check_aabb,
+      [primitive_apply, &tree, &check_aabb](const auto &r) {
         for (const auto &id : r)
-          if constexpr (std::is_same_v<decltype(primitive_apply(id)), void>) {
-            primitive_apply(id);
-          } else {
-            if (primitive_apply(id))
-              return true;
+          if (check_aabb(tree.primitive_aabbs()[id])) {
+            if constexpr (std::is_same_v<decltype(primitive_apply(id)), void>) {
+              primitive_apply(id);
+            } else {
+              if (primitive_apply(id))
+                return true;
+            }
           }
         return false;
       });

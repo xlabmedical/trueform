@@ -6,6 +6,7 @@
 #pragma once
 #include "./contains_coplanar_point.hpp"
 #include "./dot.hpp"
+#include "./implementation/line_line_check.hpp"
 #include "./implementation/tree_ray_cast.hpp"
 #include "./implementation/tree_ray_info.hpp"
 #include "./mod_tree.hpp"
@@ -14,6 +15,7 @@
 #include "./ray.hpp"
 #include "./ray_cast_info.hpp"
 #include "./ray_config.hpp"
+#include "./segment.hpp"
 #include "./tree.hpp"
 #include "./tree_ray_info.hpp"
 #include <limits>
@@ -88,6 +90,23 @@ auto ray_cast(const ray<RealT, Dims> &ray,
             std::numeric_limits<RealT>::epsilon()));
   }
   return result;
+}
+
+template <typename RealT, std::size_t Dims, typename Policy>
+auto ray_cast(const ray<RealT, Dims> &ray, const tf::segment<Policy> &seg,
+              const tf::ray_config<RealT> &config = tf::ray_config<RealT>{}) {
+  auto ray1 = tf::make_ray_between_points(seg[0], seg[1]);
+  auto [non_parallel, t0, t1] = tf::implementation::line_line_check(ray, ray1);
+  intersect_status status = intersect_status::none;
+  if (non_parallel && t0 >= config.min_t && t0 <= config.max_t && t1 >= 0 &&
+      t1 <= 1) {
+    auto pt0 = ray.origin + t0 * ray.direction;
+    auto pt1 = ray1.origin + t1 * ray1.direction;
+    auto d2 = (pt0 - pt1).length2();
+    status = static_cast<intersect_status>(
+        d2 < std::numeric_limits<decltype(d2)>::epsilon());
+  }
+  return tf::make_ray_cast_info(status, t0);
 }
 
 /// @brief Performs a ray cast against a spatial tree and returns intersection

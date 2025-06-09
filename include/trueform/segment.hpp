@@ -6,6 +6,7 @@
 #pragma once
 
 #include "./indirect_range.hpp"
+#include "./inject_ids.hpp"
 #include "./static_size.hpp"
 #include "./value_type.hpp"
 #include "./vector.hpp"
@@ -168,6 +169,27 @@ auto make_segment_between_points(const tf::vector_like<Dims, T> &pt0,
   using pt_t = tf::vector_like<Dims, T>;
   return tf::segment<std::array<pt_t, 2>>(
       std::array<pt_t, 2>{pt_t{pt0}, pt_t{pt1}});
+}
+
+template <typename Policy, typename Range>
+auto inject_ids(const segment<Policy> &seg, Range &&ids) -> decltype(auto) {
+  if constexpr (has_injected_ids<Policy>) {
+    return seg;
+  } else {
+    return tf::make_segment( //
+        tf::inject_ids(static_cast<Range &&>(ids),
+                       static_cast<const Policy &>(seg)));
+  }
+}
+
+template <typename Policy, typename Range>
+auto inject_ids(segment<Policy> &seg, Range &&ids) -> decltype(auto) {
+  if constexpr (has_injected_ids<Policy>) {
+    return seg;
+  } else {
+    return tf::make_segment( //
+        tf::inject_ids(static_cast<Range &&>(ids), static_cast<Policy &>(seg)));
+  }
 }
 
 } // namespace tf

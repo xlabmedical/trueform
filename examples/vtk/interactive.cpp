@@ -1,7 +1,6 @@
 #include "./util/common.hpp"
 #include "./util/data_bridge.hpp"
 #include "trueform/intersects.hpp"
-#include "trueform/normal.hpp"
 #include "trueform/plane.hpp"
 #include "trueform/polygon_range.hpp"
 #include "trueform/ray_config.hpp"
@@ -20,7 +19,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTextActor.h"
-#include "vtkTextPropertyCollection.h"
+#include "vtkTextProperty.h"
 #include "vtkXRenderWindowInteractor.h"
 #include <set>
 #include <string>
@@ -88,14 +87,8 @@ public:
                                   tf::transformed(aabb1, tr1));
           },
           [&](auto i0, auto i1) {
-            if (tf::intersects(
-                    tf::transformed(tree0.primitive_aabbs()[i0], tr0),
-                    tf::transformed(tree1.primitive_aabbs()[i1], tr1)) &&
-                tf::intersects(tf::transformed(polygons0[i0], tr0),
-                               tf::transformed(polygons1[i1], tr1))) {
-              return true;
-            }
-            return false;
+            return tf::intersects(tf::transformed(polygons0[i0], tr0),
+                                  tf::transformed(polygons1[i1], tr1));
           });
       if (collision)
         colliding.insert(actors[i]);

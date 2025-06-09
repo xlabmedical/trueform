@@ -71,6 +71,25 @@ auto ray_hit(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in,
   return out;
 }
 
+template <typename RealT, std::size_t Dims, typename Policy>
+auto ray_hit(const ray<RealT, Dims> &ray, const tf::segment<Policy> &seg,
+             const tf::ray_config<RealT> &config = tf::ray_config<RealT>{}) {
+  auto ray1 = tf::make_ray_between_points(seg[0], seg[1]);
+  auto [non_parallel, t0, t1] = tf::implementation::line_line_check(ray, ray1);
+  intersect_status status = intersect_status::none;
+  tf::vector<tf::common_value<decltype(t0), decltype(t1)>, Dims> pt;
+  if (non_parallel && t0 >= config.min_t && t0 <= config.max_t && t1 >= 0 &&
+      t1 <= 1) {
+    auto pt0 = ray.origin + t0 * ray.direction;
+    auto pt1 = ray1.origin + t1 * ray1.direction;
+    auto d2 = (pt0 - pt1).length2();
+    status = static_cast<intersect_status>(
+        d2 < std::numeric_limits<decltype(d2)>::epsilon());
+    pt = (pt0 + pt1) / 2;
+  }
+  return tf::make_ray_hit_info(status, t0, pt);
+}
+
 /// @brief Performs a ray cast against a spatial tree and returns intersection
 /// information.
 ///
@@ -102,8 +121,8 @@ auto ray_hit(const ray<RealT, Dims> &ray, const tf::polygon<V, Policy> &poly_in,
 /// @param config Optional configuration for the ray cast, including `min_t` and
 /// `max_t` bounds on the ray interval.
 ///
-/// @return A `tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>` containing
-/// the index of the hit element
+/// @return A `tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>`
+/// containing the index of the hit element
 ///         and the associated hit data. If no hit occurs, the result evaluates
 ///         to `false`.
 template <typename RealT, std::size_t Dims, typename Index, typename F>
@@ -148,8 +167,8 @@ auto ray_hit(const ray<RealT, Dims> &ray,
 /// @param config Optional configuration for the ray cast, including `min_t` and
 /// `max_t` bounds on the ray interval.
 ///
-/// @return A `tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>` containing
-/// the index of the hit element
+/// @return A `tf::tree_ray_info<Index, tf::ray_hit_info<RealT, Dims>>`
+/// containing the index of the hit element
 ///         and the associated hit data. If no hit occurs, the result evaluates
 ///         to `false`.
 template <typename RealT, std::size_t Dims, typename Index, typename F>

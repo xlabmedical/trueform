@@ -93,9 +93,6 @@ namespace tf {
  * @param r The input range, where the first element represents the tag.
  * @return A `tf::tagged_range` over the tail of the input, with `.tag()`
  * access.
- *
- * @note The caller must ensure that `begin() - 1` is valid and refers to the
- * tag.
  */
 template <typename Range> auto make_tagged_range(Range &&r) {
   if constexpr (tf::static_size_v<Range> != tf::dynamic_size)

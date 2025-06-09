@@ -25,7 +25,7 @@ auto line_line_check(const Line0 &line0, const Line1 &line1) {
   using real_t = tf::common_value<decltype(numer), decltype(denom)>;
   real_t t0;
   real_t t1;
-  bool non_parallel = true;
+  bool non_parallel = false;
 
   if (!(std::abs(denom) * decltype(denom)(1 << 10) <= std::abs(numer))) {
     t0 = numer / denom;
