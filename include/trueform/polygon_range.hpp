@@ -5,34 +5,32 @@
  */
 #pragma once
 
-#include "./block_indirect_range.hpp"
 #include "./mapped_range.hpp"
 #include "./polygon.hpp"
 namespace tf {
 namespace implementation {
-struct polygon_range_policy {
-  template <typename Range> auto operator()(Range &&r) const {
-    return tf::make_polygon(r);
+template <typename Range0> struct polygon_range_policy {
+  Range0 points;
+  template <typename Range> auto operator()(Range &&ids) const {
+    return tf::make_polygon(ids, points);
   }
 };
 } // namespace implementation
 
 template <typename Range0, typename Range1>
-struct polygon_range : decltype(tf::make_mapped_range(
-                           tf::make_block_indirect_range(
-                               std::declval<Range0>(), std::declval<Range1>()),
-                           implementation::polygon_range_policy{})) {
+struct polygon_range
+    : decltype(tf::make_mapped_range(
+          std::declval<Range0>(),
+          std::declval<implementation::polygon_range_policy<Range1>>())) {
 private:
   using base_t = decltype(tf::make_mapped_range(
-      tf::make_block_indirect_range(std::declval<Range0>(),
-                                    std::declval<Range1>()),
-      implementation::polygon_range_policy{}));
+      std::declval<Range0>(),
+      std::declval<implementation::polygon_range_policy<Range1>>()));
 
 public:
   polygon_range(const Range0 &faces, const Range1 &points)
-      : base_t{
-            tf::make_mapped_range(tf::make_block_indirect_range(faces, points),
-                                  implementation::polygon_range_policy{})} {}
+      : base_t{tf::make_mapped_range(
+            faces, implementation::polygon_range_policy<Range1>{points})} {}
 
   auto faces() const {
     return tf::make_range(base_t::begin().base_iter().base_iter(),
@@ -83,7 +81,5 @@ auto make_polygon_range(Range0 &&faces, Range1 &&points) {
   auto r0 = tf::make_range(faces);
   auto r1 = tf::make_range(points);
   return polygon_range<decltype(r0), decltype(r1)>{r0, r1};
-  /*return tf::make_mapped_range(tf::make_block_indirect_range(faces, points),*/
-  /*implementation::polygon_range_policy{});*/
 }
 } // namespace tf
