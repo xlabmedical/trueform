@@ -5,8 +5,8 @@
  */
 
 #pragma once
+#include "./implementation/inject_plane.hpp"
 #include "./plane.hpp"
-#include <utility>
 
 namespace tf {
 /**
@@ -26,49 +26,12 @@ namespace tf {
  * @tparam Base The type being augmented.
  */
 template <typename T, std::size_t Dims, typename Base>
-struct inject_plane_t : Base {
-  /**
-   * @brief Constructs an instance by copying the plane and the base.
-   *
-   * @param _plane The plane to inject.
-   * @param base   The base object to extend.
-   */
-  inject_plane_t(const tf::plane<T, Dims> &_plane, const Base &base)
-      : Base{base}, _plane{_plane} {}
-
-  /**
-   * @brief Constructs an instance by moving the plane and the base.
-   *
-   * @param _plane The plane to inject (moved).
-   * @param base   The base object to extend (moved).
-   */
-  inject_plane_t(tf::plane<T, Dims> &&_plane, Base &&base)
-      : Base{std::move(base)}, _plane{std::move(_plane)} {}
-
-  /**
-   * @brief Returns a const reference to the injected plane.
-   */
-  auto plane() const -> const tf::plane<T, Dims> & { return _plane; }
-
-  /**
-   * @brief Returns a mutable reference to the injected plane.
-   */
-  auto plane() -> tf::plane<T, Dims> & { return _plane; }
-
-  /**
-   * @brief Returns a const reference to the normal vector of the injected
-   * plane.
-   */
-  auto normal() const -> const unit_vector<T, Dims> & { return _plane.normal; }
-
-  /**
-   * @brief Returns a mutable reference to the normal vector of the injected
-   * plane.
-   */
-  auto normal() -> unit_vector<T, Dims> & { return _plane.normal; }
-
+struct inject_plane_t : tf::implementation::inject_plane_t<T, Dims, Base> {
 private:
-  tf::plane<T, Dims> _plane;
+  using base_t = tf::implementation::inject_plane_t<T, Dims, Base>;
+
+public:
+  using base_t::base_t;
 };
 
 namespace implementation {

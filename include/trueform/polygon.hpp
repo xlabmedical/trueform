@@ -214,9 +214,8 @@ auto inject_plane(polygon<V, Policy> &poly) -> decltype(auto) {
   if constexpr (has_injected_plane<Policy>) {
     return poly;
   } else if constexpr (has_injected_normal<Policy>) {
-    return tf::make_polygon<V>(
-        tf::inject_plane(tf::make_plane(poly.normal(), poly[0]),
-                         static_cast<const Policy &>(poly)));
+    return tf::make_polygon<V>(tf::inject_plane(
+        -tf::dot(poly.normal(), poly[0]), static_cast<const Policy &>(poly)));
   } else {
     return tf::make_polygon<V>(
         tf::inject_plane(tf::make_plane(poly[0], poly[1], poly[2]),
@@ -246,8 +245,30 @@ auto inject_normal(polygon<V, Policy> &poly) -> decltype(auto) {
   }
 }
 
-template <std::size_t V, typename Policy, typename Range>
-auto inject_ids(const polygon<V, Policy> &poly, Range &&ids) -> decltype(auto) {
+template <std::size_t Dims, typename T, std::size_t V, typename Policy>
+auto inject_normal(const tf::unit_vector_like<Dims, T> &normal,
+                   const polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_plane<Policy> || has_injected_normal<Policy>) {
+    return poly;
+  } else {
+    return tf::make_polygon<V>(
+        tf::inject_normal(normal, static_cast<const Policy &>(poly)));
+  }
+}
+
+template <std::size_t Dims, typename T, std::size_t V, typename Policy>
+auto inject_normal(tf::unit_vector_like<Dims, T> &normal,
+                   const polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_plane<Policy> || has_injected_normal<Policy>) {
+    return poly;
+  } else {
+    return tf::make_polygon<V>(
+        tf::inject_normal(normal, static_cast<const Policy &>(poly)));
+  }
+}
+
+template <typename Range, std::size_t V, typename Policy>
+auto inject_ids(Range &&ids, const polygon<V, Policy> &poly) -> decltype(auto) {
   if constexpr (has_injected_ids<Policy>) {
     return poly;
   } else {
@@ -257,14 +278,14 @@ auto inject_ids(const polygon<V, Policy> &poly, Range &&ids) -> decltype(auto) {
   }
 }
 
-template <std::size_t V, typename Policy, typename Range>
-auto inject_ids(polygon<V, Policy> &poly, Range &&ids) -> decltype(auto) {
+template <typename Range, std::size_t V, typename Policy>
+auto inject_ids(Range &&ids, polygon<V, Policy> &poly) -> decltype(auto) {
   if constexpr (has_injected_ids<Policy>) {
     return poly;
   } else {
     return tf::make_polygon<V>( //
         tf::inject_ids(static_cast<Range &&>(ids),
-                       static_cast<Policy &>(poly)));
+                       static_cast<const Policy &>(poly)));
   }
 }
 

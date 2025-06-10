@@ -5,9 +5,10 @@
  */
 #pragma once
 #include "./normalized.hpp"
+#include "./owned_data.hpp"
+#include "./unit_vector_like.hpp"
 #include "./unsafe.hpp"
 #include "./value_type.hpp"
-#include "./vector.hpp"
 
 namespace tf {
 
@@ -23,52 +24,38 @@ namespace tf {
 ///
 /// @tparam T The scalar type (e.g. float, double).
 /// @tparam N The number of dimensions (e.g. 2, 3, 4).
-template <typename T, std::size_t N> struct unit_vector : tf::vector<T, N> {
+template <typename T, std::size_t N>
+struct unit_vector : tf::unit_vector_like<N, tf::owned_data<T, N>> {
 
   unit_vector() {
     for (std::size_t i = 1; i < N; ++i)
       (*this)[i] = 0;
     (*this)[0] = 1;
   }
-  /// @brief Constructs a unit vector by normalizing the input.
-  ///
-  /// This constructor calls `tf::normalized(v)` internally. It ensures the
-  /// resulting vector has unit length.
-  ///
-  /// @param v A vector that will be normalized.
-  explicit unit_vector(const tf::vector<T, N> &v)
-      : tf::vector<T, N>{tf::normalized(v)} {}
 
-  /// @brief Constructs a unit vector assuming the input is already normalized.
-  ///
-  /// This constructor skips normalization and wraps the vector directly. It is
-  /// the caller’s responsibility to ensure the input has length 1. Use this
-  /// when you are sure of the input and want to avoid redundant computation.
-  ///
-  /// @param v A vector that is already normalized.
-  unit_vector(tf::unsafe_t, const tf::vector<T, N> &v) : tf::vector<T, N>{v} {}
-
-  friend auto operator-(const unit_vector &a) -> unit_vector {
-    return unit_vector(tf::unsafe, -static_cast<const tf::vector<T, N> &>(a));
+  template <typename U>
+  unit_vector(tf::unsafe_t, const tf::vector_like<N, U> &v) {
+    for (std::size_t i = 0; i < N; ++i)
+      (*this)[i] = v[i];
   }
 
-  /// @brief Returns the squared length (always 1).
-  /// @return The value `1`.
-  constexpr auto length2() const -> T { return 1; }
+  template <typename U> unit_vector(const tf::unit_vector_like<N, U> &v) {
+    for (std::size_t i = 0; i < N; ++i)
+      (*this)[i] = v[i];
+  }
 
-  /// @brief Returns the length (always 1).
-  /// @return The value `1`.
-  constexpr auto length() const -> T { return 1; }
-
-  // forbid asignment operator from base
+  template <typename U> explicit unit_vector(const tf::vector_like<N, U> &v) {
+    auto normed = tf::normalized(v);
+    for (std::size_t i = 0; i < N; ++i) {
+      (*this)[i] = normed[i];
+    }
+  }
   template <typename U>
-  friend auto operator+=(unit_vector &a, const U &b) -> unit_vector & = delete;
-  template <typename U>
-  friend auto operator-=(unit_vector &a, const U &b) -> unit_vector & = delete;
-  template <typename U>
-  friend auto operator*=(unit_vector &a, const U &b) -> unit_vector & = delete;
-  template <typename U>
-  friend auto operator/=(unit_vector &a, const U &b) -> unit_vector & = delete;
+  auto operator=(const tf::unit_vector_like<N, U> &v) -> unit_vector & {
+    for (std::size_t i = 0; i < N; ++i)
+      (*this)[i] = v[i];
+    return *this;
+  }
 };
 
 /// @ingroup geometry
@@ -83,6 +70,11 @@ template <typename T, std::size_t N> struct unit_vector : tf::vector<T, N> {
 /// @return A `unit_vector` instance with length 1.
 template <std::size_t Dims, typename T>
 auto make_unit_vector(const tf::vector_like<Dims, T> &v) {
+  return unit_vector<tf::value_type<T>, Dims>{v};
+}
+
+template <std::size_t Dims, typename T>
+auto make_unit_vector(const tf::unit_vector_like<Dims, T> &v) {
   return unit_vector<tf::value_type<T>, Dims>{v};
 }
 

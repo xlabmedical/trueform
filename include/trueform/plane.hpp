@@ -6,8 +6,7 @@
 #pragma once
 #include "./dot.hpp"
 #include "./normal.hpp"
-#include "./unit_vector.hpp"
-#include "./value_type.hpp"
+#include "./unit_vector_like.hpp"
 
 namespace tf {
 
@@ -39,9 +38,10 @@ template <typename T, std::size_t Dims> struct plane {
 /// @param normal A unit-length normal vector.
 /// @param d Signed offset from the origin.
 /// @return A `plane<T, N>` representing the given plane.
-template <typename T, std::size_t N>
-auto make_plane(const unit_vector<T, N> &normal, T d) {
-  return plane<T, N>{normal, d};
+template <std::size_t N, typename T>
+auto make_plane(const unit_vector_like<N, T> &normal,
+                typename T::value_type d) {
+  return plane<typename T::value_type, N>{normal, d};
 }
 
 /// @ingroup geometry
@@ -56,11 +56,11 @@ auto make_plane(const unit_vector<T, N> &normal, T d) {
 /// @param normal A unit-length normal vector.
 /// @param point A point on the plane.
 /// @return A `plane<T0, N>` that passes through the given point.
-template <typename T0, std::size_t N, typename T1>
-auto make_plane(const unit_vector<T0, N> &normal,
+template <std::size_t N, typename T0, typename T1>
+auto make_plane(const unit_vector_like<N, T0> &normal,
                 const vector_like<N, T1> &point) {
-  tf::value_type<T0> val = -tf::dot(normal, point);
-  return plane<T0, N>{normal, val};
+  auto val = -tf::dot(normal, point);
+  return plane<decltype(val), N>{normal, val};
 }
 
 /// @ingroup geometry
