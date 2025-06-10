@@ -55,12 +55,12 @@ auto decrement(std::pair<Iterator0, Iterator1> &it) {
 
 template <typename Iterator>
 auto difference(const Iterator &it0, const Iterator &it1) {
-  return it1 - it0;
+  return it0 - it1;
 }
 
 template <typename Iterator0, typename Iterator1>
 auto difference(const std::pair<Iterator0, Iterator1> &it0,
                 const std::pair<Iterator0, Iterator1> &it1) {
-  return it1.first - it0.first;
+  return it0.first - it1.first;
 }
 } // namespace tf::implementation::iter
