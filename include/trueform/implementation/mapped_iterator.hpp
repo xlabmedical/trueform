@@ -10,7 +10,8 @@ namespace tf::implementation::iter {
 
 template <typename Derived, typename Iterator, typename DereferncePolicy,
           bool defer = false>
-struct forward_mapped_crtp : protected dereference_policy<DereferncePolicy> {
+struct forward_mapped_crtp
+    : protected implementation::dereference_policy<DereferncePolicy> {
 private:
   template <typename It, typename DP, bool> struct reference_helper {
     using type = decltype(std::declval<DP>()(*std::declval<It>()));
@@ -22,7 +23,7 @@ private:
   };
 
 protected:
-  using dref_base_t = dereference_policy<DereferncePolicy>;
+  using dref_base_t = implementation::dereference_policy<DereferncePolicy>;
   using reference_t =
       typename reference_helper<Iterator, DereferncePolicy, defer>::type;
 
@@ -51,6 +52,12 @@ public:
   forward_mapped_crtp() = default;
 
   auto base_iter() const { return iter; }
+
+  auto dereference_policy() const -> const DereferncePolicy & {
+    return dref_base_t::get();
+  }
+
+  auto dereference_policy() -> DereferncePolicy & { return dref_base_t::get(); }
 
   auto operator*() const -> decltype(auto) {
     if constexpr (defer)
