@@ -5,19 +5,21 @@
  */
 #pragma once
 #include "./random.hpp"
+#include "./sqrt.hpp"
 #include "./transformation.hpp"
 #include "./vector.hpp"
-#include <cmath>
 
 namespace tf {
 /// @ingroup random
-/// @brief Generates a random 3D rigid transformation matrix with optional translation.
+/// @brief Generates a random 3D rigid transformation matrix with optional
+/// translation.
 ///
 /// This function returns a randomly generated 3D transformation of type
-/// @ref tf::transformation. The transformation includes a uniformly sampled random
-/// rotation matrix and an optional translation vector. The rotation is sampled uniformly
-/// over SO(3) using the method of uniform sampling from a quaternion-like approach
-/// (see "Uniform Random Rotations" by Ken Shoemake, 1992).
+/// @ref tf::transformation. The transformation includes a uniformly sampled
+/// random rotation matrix and an optional translation vector. The rotation is
+/// sampled uniformly over SO(3) using the method of uniform sampling from a
+/// quaternion-like approach (see "Uniform Random Rotations" by Ken Shoemake,
+/// 1992).
 ///
 /// @tparam T The scalar type, typically `float` or `double`.
 /// @param translation Optional translation vector. Defaults to the zero vector.
@@ -40,10 +42,10 @@ auto random_transformation(tf::vector<T, 3> translation = {{0, 0, 0}})
   T z_val =
       x2_rand * static_cast<T>(2.0); // For magnitude of pole deflection [0,2]
 
-  T r_sqrt_z = std::sqrt(z_val);
+  T r_sqrt_z = tf::sqrt(z_val);
   T Vx = std::sin(phi) * r_sqrt_z;
   T Vy = std::cos(phi) * r_sqrt_z;
-  T Vz = std::sqrt(static_cast<T>(2.0) - z_val);
+  T Vz = tf::sqrt(static_cast<T>(2.0) - z_val);
 
   T st = std::sin(theta);
   T ct = std::cos(theta);

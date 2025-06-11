@@ -13,8 +13,8 @@ template <typename T, std::size_t Dims> struct borrowed_data {
   using value_type = T;
 
   explicit borrowed_data(T *ptr) : _data(ptr) {}
-  borrowed_data(const borrowed_data &) = default;
-  borrowed_data(borrowed_data &&) = default;
+  borrowed_data(const borrowed_data & other) :_data{other._data} {} 
+  borrowed_data(borrowed_data && other) :_data{other._data} {} 
 
   auto operator=(const borrowed_data &other) -> borrowed_data & {
     for (std::size_t i = 0; i < Dims; ++i)
@@ -48,8 +48,8 @@ template <typename T, std::size_t Size> struct borrowed_data<const T, Size> {
 
   borrowed_data() = default;
   explicit borrowed_data(const T *ptr) : _data(ptr) {}
-  borrowed_data(const borrowed_data &) = default;
-  borrowed_data(borrowed_data &&) = default;
+  borrowed_data(const borrowed_data & other) :_data{other._data} {} 
+  borrowed_data(borrowed_data && other) :_data{other._data} {} 
 
   auto operator=(const borrowed_data &other) -> borrowed_data & = delete;
   auto operator=(borrowed_data &&other) -> borrowed_data & = delete;

@@ -5,17 +5,18 @@
  */
 #pragma once
 #include "./aabb.hpp"
-#include <cmath>
+#include "./sqrt.hpp"
 
 namespace tf {
 
 /// @ingroup geometry
-/// @brief Computes the squared maximal distance between two corners of two AABBs.
+/// @brief Computes the squared maximal distance between two corners of two
+/// AABBs.
 ///
 /// This function returns the maximum squared Euclidean distance between the
-/// corresponding corners (`min` and `max`) of two axis-aligned bounding boxes (AABBs).
-/// It is useful as a cheap, conservative approximation of the furthest possible
-/// distance between points inside the boxes.
+/// corresponding corners (`min` and `max`) of two axis-aligned bounding boxes
+/// (AABBs). It is useful as a cheap, conservative approximation of the furthest
+/// possible distance between points inside the boxes.
 ///
 /// Specifically, it computes:
 /// \code
@@ -26,10 +27,10 @@ namespace tf {
 /// @tparam N Dimensionality of the AABB (e.g., 2D, 3D).
 /// @param a First AABB.
 /// @param b Second AABB.
-/// @return Maximum squared distance between corresponding corners of `a` and `b`.
+/// @return Maximum squared distance between corresponding corners of `a` and
+/// `b`.
 template <typename T, std::size_t N>
-auto minimal_maximal_distance2(const aabb<T, N> &a,
-                               const aabb<T, N> &b) -> T {
+auto minimal_maximal_distance2(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
   return std::max((a.min - b.min).length2(), (a.max - b.max).length2());
 }
 
@@ -46,9 +47,8 @@ auto minimal_maximal_distance2(const aabb<T, N> &a,
 /// @param b Second AABB.
 /// @return Maximum Euclidean distance between corners of `a` and `b`.
 template <typename T, std::size_t N>
-auto minimal_maximal_distance(const aabb<T, N> &a,
-                              const aabb<T, N> &b) -> T {
-  return std::sqrt(minimal_maximal_distance2(a, b));
+auto minimal_maximal_distance(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
+  return tf::sqrt(minimal_maximal_distance2(a, b));
 }
 
 } // namespace tf

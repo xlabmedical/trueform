@@ -4,7 +4,6 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
-#include "./normalized.hpp"
 #include "./owned_data.hpp"
 #include "./unit_vector_like.hpp"
 #include "./unsafe.hpp"
@@ -24,39 +23,8 @@ namespace tf {
 ///
 /// @tparam T The scalar type (e.g. float, double).
 /// @tparam N The number of dimensions (e.g. 2, 3, 4).
-template <typename T, std::size_t N>
-struct unit_vector : tf::unit_vector_like<N, tf::owned_data<T, N>> {
-
-  unit_vector() {
-    for (std::size_t i = 1; i < N; ++i)
-      (*this)[i] = 0;
-    (*this)[0] = 1;
-  }
-
-  template <typename U>
-  unit_vector(tf::unsafe_t, const tf::vector_like<N, U> &v) {
-    for (std::size_t i = 0; i < N; ++i)
-      (*this)[i] = v[i];
-  }
-
-  template <typename U> unit_vector(const tf::unit_vector_like<N, U> &v) {
-    for (std::size_t i = 0; i < N; ++i)
-      (*this)[i] = v[i];
-  }
-
-  template <typename U> explicit unit_vector(const tf::vector_like<N, U> &v) {
-    auto normed = tf::normalized(v);
-    for (std::size_t i = 0; i < N; ++i) {
-      (*this)[i] = normed[i];
-    }
-  }
-  template <typename U>
-  auto operator=(const tf::unit_vector_like<N, U> &v) -> unit_vector & {
-    for (std::size_t i = 0; i < N; ++i)
-      (*this)[i] = v[i];
-    return *this;
-  }
-};
+template <typename T, std::size_t Dims>
+using unit_vector = tf::unit_vector_like<Dims, tf::owned_data<T, Dims>>;
 
 /// @ingroup geometry
 /// @brief Safely construct a unit vector by normalizing the input.
@@ -90,7 +58,7 @@ auto make_unit_vector(const tf::unit_vector_like<Dims, T> &v) {
 /// @param v A vector with unit length.
 /// @return A `unit_vector` instance wrapping the given vector.
 template <std::size_t Dims, typename T>
-auto make_unit_vector_unsafe(const tf::vector_like<Dims, T> &v) {
+auto make_unit_vector(tf::unsafe_t, const tf::vector_like<Dims, T> &v) {
   return unit_vector<tf::value_type<T>, Dims>{tf::unsafe, v};
 }
 

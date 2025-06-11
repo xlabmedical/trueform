@@ -12,6 +12,7 @@
 #include "trueform/transformation.hpp"
 #include "trueform/transformed.hpp"
 #include "trueform/tree.hpp"
+#include "trueform/sqrt.hpp"
 #include <iostream>
 #include <string>
 
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Closest points are on primitives: " << primitive_id0 << ", "
             << primitive_id1 << std::endl;
-  std::cout << "At distance: " << std::sqrt(metric) << std::endl;
+  std::cout << "At distance: " << tf::sqrt(metric) << std::endl;
 
   std::cout << "---------------------------------" << std::endl;
   std::cout << "Now we will compute 4 nearest points" << std::endl;
@@ -110,6 +111,6 @@ int main(int argc, char *argv[]) {
     auto [metric, point0, point1] = closest_point_pair;
     std::cout << "  Closest points are on primitives: " << primitive_id0 << ", "
               << primitive_id1 << std::endl;
-    std::cout << "  At distance: " << std::sqrt(metric) << std::endl;
+    std::cout << "  At distance: " << tf::sqrt(metric) << std::endl;
   }
 }

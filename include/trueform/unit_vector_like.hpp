@@ -4,8 +4,10 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
-#include "./normalized.hpp"
+#include "./normalize.hpp"
+#include "./owned_data.hpp"
 #include "./unsafe.hpp"
+#include "./vector_like.hpp"
 
 namespace tf {
 
@@ -25,24 +27,59 @@ namespace tf {
 template <std::size_t Dims, typename T>
 struct unit_vector_like : tf::vector_like<Dims, T> {
 private:
+  using base_t = tf::vector_like<Dims, T>;
   template <typename U>
-  using value_vec_type = unit_vector_like<Dims, owned_data<U, Dims>>;
+  using value_vec_type = unit_vector_like<Dims, tf::owned_data<U, Dims>>;
+  template <typename U>
+  using value_base_type = tf::vector_like<Dims, tf::owned_data<U, Dims>>;
+
+  using self_value_type = value_vec_type<typename base_t::value_type>;
 
 public:
-  /// @brief Converts this vector to another value type `U`.
-  /// @tparam U The target scalar type.
-  /// @return A new vector_like instance with elements converted to `U`.
-  template <typename U> auto as() const -> value_vec_type<U> {
-    return value_vec_type<U>{
-        static_cast<const tf::vector_like<Dims, T> &>(*this)};
-  }
+  using base_t::base_t;
 
-  /// @brief Implicit conversion to vector of another type.
+  unit_vector_like(const unit_vector_like &other) : base_t{other} {}
+  unit_vector_like(unit_vector_like &&other) : base_t{other} {}
+  unit_vector_like(const base_t &other) : base_t{other} {
+    tf::normalize(*this);
+  }
+  unit_vector_like(base_t &&other) : base_t{other} { tf::normalize(*this); }
+  unit_vector_like(tf::unsafe_t, const base_t &other) : base_t{other} {}
+  unit_vector_like(tf::unsafe_t, base_t &&other) : base_t{other} {}
+
   template <typename U> operator value_vec_type<U>() const { return as<U>(); }
 
-  friend auto operator-(const unit_vector_like &a) {
-    return value_vec_type<typename unit_vector_like::value_type>(
-        -static_cast<const tf::vector_like<Dims, T> &>(a));
+  template <typename U> auto as() const -> value_vec_type<U> {
+    return value_vec_type<U>{tf::unsafe,
+                             static_cast<value_base_type<U>>(*this)};
+  }
+
+  auto operator=(const unit_vector_like &v) -> unit_vector_like & {
+    base_t::operator=(v);
+    return *this;
+  }
+  auto operator=(unit_vector_like &v) -> unit_vector_like & {
+    base_t::operator=(v);
+    return *this;
+  }
+
+  template <typename U>
+  auto operator=(const unit_vector_like<Dims, U> &v) -> unit_vector_like & {
+    base_t::operator=(v);
+    return *this;
+  }
+  template <typename U>
+  auto operator=(unit_vector_like<Dims, U> &&v) -> unit_vector_like & {
+    base_t::operator=(v);
+    return *this;
+  }
+
+  auto operator=(const tf::vector_like<Dims, T> &)
+      -> unit_vector_like & = delete;
+  auto operator=(tf::vector_like<Dims, T> &&) -> unit_vector_like & = delete;
+
+  friend auto operator-(const unit_vector_like &a) -> self_value_type {
+    return self_value_type{tf::unsafe, -static_cast<const base_t &>(a)};
   }
 
   /// @brief Returns the squared length (always 1).

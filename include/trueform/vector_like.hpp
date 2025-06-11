@@ -8,7 +8,7 @@
 
 #include "./owned_data.hpp"
 #include "./static_size.hpp"
-#include <cmath>
+#include "./sqrt.hpp"
 #include <cstddef>
 #include <type_traits>
 
@@ -108,7 +108,7 @@ public:
   }
 
   /// @brief Returns length
-  auto length() const -> value_type { return std::sqrt(length2()); }
+  auto length() const -> value_type { return tf::sqrt(length2()); }
 
   /// @brief Converts this vector to another value type `U`.
   /// @tparam U The target scalar type.

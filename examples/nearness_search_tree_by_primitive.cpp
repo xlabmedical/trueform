@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Closest point: " << point[0] << ", " << point[1] << ", "
             << point[2] << " on primitive: " << primitive_id << std::endl;
-  std::cout << "At distance: " << std::sqrt(metric) << " from query_pt"
+  std::cout << "At distance: " << tf::sqrt(metric) << " from query_pt"
             << std::endl;
 
   std::cout << "---------------------------------" << std::endl;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     auto [metric, point] = closest_point;
     std::cout << "  Closest point: " << point[0] << ", " << point[1] << ", "
               << point[2] << " on primitive: " << primitive_id << std::endl;
-    std::cout << "  At distance: " << std::sqrt(metric) << " from query_pt"
+    std::cout << "  At distance: " << tf::sqrt(metric) << " from query_pt"
               << std::endl;
   }
 }

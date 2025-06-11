@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
           ids_in_tolerance.push_back(triangle_id);
         // return true (inside condition) if you want to stop the search at
         // first "collision"
-        /*return true;*/
+        /*return false;*/
       });
 
   std::cout << "Selected center of triangle with id: " << id << std::endl;

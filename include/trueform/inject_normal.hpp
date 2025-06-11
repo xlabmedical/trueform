@@ -6,6 +6,7 @@
 
 #pragma once
 #include "./unit_vector.hpp"
+#include "./unit_vector_like.hpp"
 #include <utility>
 
 namespace tf {
@@ -73,8 +74,6 @@ inline constexpr bool has_injected_normal =
     decltype(implementation::has_injected_normal(
         static_cast<const std::decay_t<T> *>(nullptr)))::value;
 
-
-
 /**
  * @ingroup injectors
  * @brief Constructs an `inject_normal_t` by injecting a normal into a base
@@ -90,15 +89,15 @@ inline constexpr bool has_injected_normal =
  * @param base   The base object to augment.
  * @return A composed object with normal support.
  */
-template <typename T, std::size_t Dims, typename Base>
-auto inject_normal(const unit_vector<T, Dims> &normal, Base &&base) {
+template <std::size_t Dims, typename T, typename Base>
+auto inject_normal(const unit_vector_like<Dims, T> &normal, Base &&base) {
   if constexpr (has_injected_normal<Base>)
     if constexpr (std::is_rvalue_reference_v<Base &&>)
       return static_cast<Base>(base);
     else
       return static_cast<Base &&>(base);
   else
-    return inject_normal_t<T, Dims, std::decay_t<Base>>{
+    return inject_normal_t<tf::value_type<T>, Dims, std::decay_t<Base>>{
         normal, static_cast<Base &&>(base)};
 }
 

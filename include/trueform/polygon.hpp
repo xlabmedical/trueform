@@ -156,16 +156,14 @@ auto make_polygon(Range0 &&ids, Range1 &&points) {
   auto policy = tf::make_indirect_range(static_cast<Range0 &&>(ids),
                                         static_cast<Range1 &&>(points));
   return tf::polygon<tf::static_size_v<Range0>, decltype(policy)>(
-      tf::make_indirect_range(static_cast<Range0 &&>(ids),
-                              static_cast<Range1 &&>(points)));
+      std::move(policy));
 }
 
 template <std::size_t V, typename Range0, typename Range1>
 auto make_polygon(Range0 &&ids, Range1 &&points) {
   auto policy = tf::make_indirect_range(static_cast<Range0 &&>(ids),
                                         static_cast<Range1 &&>(points));
-  return tf::polygon<V, decltype(policy)>(tf::make_indirect_range(
-      static_cast<Range0 &&>(ids), static_cast<Range1 &&>(points)));
+  return tf::polygon<V, decltype(policy)>(std::move(policy));
 }
 
 /// @ingroup geometry
@@ -287,6 +285,14 @@ auto inject_ids(Range &&ids, polygon<V, Policy> &poly) -> decltype(auto) {
         tf::inject_ids(static_cast<Range &&>(ids),
                        static_cast<const Policy &>(poly)));
   }
+}
+
+template <typename Range0, typename Range1, std::size_t Dims, typename T>
+auto make_polygon(Range0 &&ids, Range1 &&points,
+                  const tf::unit_vector_like<Dims, T> &normal) {
+  return tf::inject_normal(normal,
+                           tf::make_polygon(static_cast<Range0 &&>(ids),
+                                            static_cast<Range1 &&>(points)));
 }
 
 } // namespace tf

@@ -8,9 +8,9 @@
 #include "./aabb.hpp"
 #include "./dot.hpp"
 #include "./plane.hpp"
+#include "./sqrt.hpp"
 #include "./value_type.hpp"
 #include "./vector_like.hpp"
-#include <cmath>
 
 namespace tf {
 
@@ -44,7 +44,7 @@ auto distance2(const vector_like<N, T0> &a, const vector_like<N, T1> &b)
 template <std::size_t N, typename T0, typename T1>
 auto distance(const vector_like<N, T0> &a, const vector_like<N, T1> &b)
     -> tf::common_value<T0, T1> {
-  return std::sqrt(distance2(a, b));
+  return tf::sqrt(distance2(a, b));
 }
 /// @ingroup geometry
 /// @brief Computes the squared distance between two AABBs.
@@ -78,7 +78,7 @@ auto distance2(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
 /// @return Distance between AABBs.
 template <typename T, std::size_t N>
 auto distance(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
-  return std::sqrt(distance2(a, b));
+  return tf::sqrt(distance2(a, b));
 }
 
 /// @ingroup geometry
@@ -117,7 +117,7 @@ auto distance2(const vector_like<N, T0> &_point, const aabb<T1, N> &_bbox) {
 /// @brief Computes the distance from a point to an AABB.
 template <typename T, std::size_t N, typename T1>
 auto distance(const aabb<T, N> &_bbox, const vector_like<N, T1> &_point) {
-  return std::sqrt(distance2(_bbox, _point));
+  return tf::sqrt(distance2(_bbox, _point));
 }
 
 /// @ingroup geometry
@@ -125,7 +125,7 @@ auto distance(const aabb<T, N> &_bbox, const vector_like<N, T1> &_point) {
 /// order).
 template <std::size_t N, typename T0, typename T1>
 auto distance(const vector_like<N, T0> &_point, const aabb<T1, N> &_bbox) {
-  return std::sqrt(distance2(_bbox, _point));
+  return tf::sqrt(distance2(_bbox, _point));
 }
 
 /// @ingroup geometry

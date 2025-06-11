@@ -29,9 +29,20 @@ public:
   /// @brief Default constructor. Initializes an uninitialized transformation.
   transformation() = default;
 
+  /// @brief Construct from a ptr
+  template <typename U> transformation(const U *ptr) {
+    std::size_t k = 0;
+    for (std::size_t i = 0; i < Dims; ++i) {
+      for (std::size_t j = 0; j < Dims + 1; ++j, k++) {
+        _transform[i][j] = ptr[k];
+      }
+    }
+  }
+
   /// @brief Construct from a nested array of transformation coefficients.
   /// @param t A D×(D+1) nested array representing the affine transform.
-  transformation(const std::array<std::array<T, 4>, Dims> &t) : _transform{t} {}
+  transformation(const std::array<std::array<T, Dims + 1>, Dims> &t)
+      : _transform{t} {}
 
   /// @brief Accessor for transformation matrix elements (const).
   /// @param i Row index (0 ≤ i < Dims)
