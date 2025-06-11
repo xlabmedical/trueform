@@ -56,17 +56,15 @@ auto distance(const vector_like<N, T0> &a, const vector_like<N, T1> &b)
 /// @return Squared distance between AABBs.
 template <typename T, std::size_t N>
 auto distance2(const aabb<T, N> &a, const aabb<T, N> &b) -> T {
-  T sum = T{};
+  T dist2 = T{};
   for (std::size_t i = 0; i < N; ++i) {
-    if (a.max[i] < b.min[i]) {
-      T tmp = b.min[i] - a.max[i];
-      sum += tmp * tmp;
-    } else if (b.max[i] < a.min[i]) {
-      T tmp = a.min[i] - b.max[i];
-      sum += tmp * tmp;
-    }
+    const auto d1 =
+        std::max(a.min[i] - b.max[i], decltype(a.min[i] - b.max[i]){0});
+    auto d2 = std::max(b.min[i] - a.max[i], decltype(a.min[i] - b.max[i]){0});
+    d2 *= d1 == 0;
+    dist2 += d1 * d1 + d2 * d2;
   }
-  return sum;
+  return dist2;
 }
 
 /// @ingroup geometry
