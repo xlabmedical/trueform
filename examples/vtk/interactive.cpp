@@ -11,6 +11,7 @@
 #include "trueform/transformed.hpp"
 #include "trueform/tree.hpp"
 
+#include "trueform/random_transformation.hpp"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
@@ -327,8 +328,10 @@ auto center_and_scale(vtkPolyData *poly) -> void {
 }
 
 auto set_at(vtkMatrix4x4 *mat, tf::vector<float, 3> at) -> void {
+  auto tr = tf::random_transformation(at);
   for (int i = 0; i < 3; ++i)
-    mat->Element[i][3] = at[i];
+    for (int j = 0; j < 4; ++j)
+      mat->Element[i][j] = tr(i, j);
   mat->Modified();
 }
 

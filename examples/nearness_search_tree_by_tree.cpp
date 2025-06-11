@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
                                      tf::transformed(aabb1, transformation));
       },
       [&points = points, &transformation](auto id0, auto id1) {
-        auto tpt = transformation.transform_point(points[id1]);
+        auto tpt = tf::transformed(points[id1], transformation);
         auto d2 = (points[id0] - tpt).length2();
         return tf::make_metric_point_pair(d2, points[id0], tpt);
       } /*, search_radius */);
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
                                      tf::transformed(aabb1, transformation));
       },
       [&points = points, &transformation](auto id0, auto id1) {
-        auto tpt = transformation.transform_point(points[id1]);
+        auto tpt = tf::transformed(points[id1], transformation);
         auto d2 = (points[id0] - tpt).length2();
         return tf::make_metric_point_pair(d2, points[id0], tpt);
       },

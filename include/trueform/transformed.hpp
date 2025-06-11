@@ -22,13 +22,13 @@ namespace tf {
 template <std::size_t Dims, typename T, typename U>
 auto transformed(const point_like<Dims, T> &_this,
                  const transformation<U, Dims> &transform) {
-  return transform.transform_point(_this);
+  return transform(_this);
 }
 
 template <std::size_t Dims, typename T, typename U>
 auto transformed(const vector_like<Dims, T> &_this,
                  const transformation<U, Dims> &transform) {
-  return transform.transform_vector(_this);
+  return transform(_this);
 }
 
 /// @ingroup geometry
@@ -114,8 +114,7 @@ auto transformed(const aabb<T, Dims> &_this,
 template <typename T, std::size_t Dims, typename U>
 auto transformed(const ray<T, Dims> &_this,
                  const transformation<U, Dims> &transform) {
-  ray<T, Dims> out{transform.transform_point(_this.origin),
-                   transform.transform_vector(_this.direction)};
+  ray<T, Dims> out{transform(_this.origin), transform(_this.direction)};
   return out;
 }
 
@@ -124,8 +123,7 @@ auto transformed(const ray<T, Dims> &_this,
 template <typename T, std::size_t Dims, typename U>
 auto transformed(const line<T, Dims> &_this,
                  const transformation<U, Dims> &transform) {
-  ray<T, Dims> out{transform.transform_point(_this.origin),
-                   transform.transform_vector(_this.direction)};
+  ray<T, Dims> out{transform(_this.origin), transform(_this.direction)};
   return out;
 }
 

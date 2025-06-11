@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
                               std::numeric_limits<float>::epsilon());
       },
       [&points = points, &transformation, &local_ids](auto id0, auto id1) {
-        if ((points[id0] - transformation.transform_point(points[id1]))
+        if ((points[id0] - tf::transformed(points[id1], transformation))
                 .length2() < std::numeric_limits<float>::epsilon())
           local_ids.emplace_back(id0, id1);
         // return true (inside condition) if you want to stop the search at

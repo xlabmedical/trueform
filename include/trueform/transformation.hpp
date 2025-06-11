@@ -31,14 +31,7 @@ public:
   transformation() = default;
 
   /// @brief Construct from a ptr
-  template <typename U> transformation(const U *ptr) {
-    std::size_t k = 0;
-    for (std::size_t i = 0; i < Dims; ++i) {
-      for (std::size_t j = 0; j < Dims + 1; ++j, k++) {
-        _transform[i][j] = ptr[k];
-      }
-    }
-  }
+  template <typename U> transformation(const U *ptr) { fill_from(ptr); }
 
   /// @brief Construct from a nested array of transformation coefficients.
   /// @param t A D×(D+1) nested array representing the affine transform.
@@ -65,7 +58,7 @@ public:
   /// @param point The input point to transform.
   /// @return A new point of type `tf::vector<T, Dims>` representing the result.
   template <typename U>
-  auto transform_point(const point_like<Dims, U> &point) const {
+  auto operator()(const point_like<Dims, U> &point) const {
     tf::point<decltype(point[0] * T()), Dims> out;
     for (std::size_t i = 0; i < Dims; ++i) {
       out[i] = _transform[i][Dims];
@@ -78,8 +71,7 @@ public:
 
   /// @brief Transform a vector (ignores translation).
   /// @param point The input vector to transform.
-  template <typename U>
-  auto transform_vector(const vector_like<Dims, U> &v) const {
+  template <typename U> auto operator()(const vector_like<Dims, U> &v) const {
     tf::vector<decltype(v[0] * T()), Dims> out;
     for (std::size_t i = 0; i < Dims; ++i) {
       out[i] = 0;
@@ -88,6 +80,15 @@ public:
       }
     }
     return out;
+  }
+
+  template <typename U> auto fill(const U *ptr) -> void {
+    std::size_t k = 0;
+    for (std::size_t i = 0; i < Dims; ++i) {
+      for (std::size_t j = 0; j < Dims + 1; ++j, k++) {
+        _transform[i][j] = ptr[k];
+      }
+    }
   }
 
 private:

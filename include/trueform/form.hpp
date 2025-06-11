@@ -5,58 +5,54 @@
  */
 #pragma once
 
-#include "./transformation.hpp"
-#include "./tree.hpp"
+#include "./frame.hpp"
+#include "./frame_view.hpp"
+#include "./model_form.hpp"
 
 namespace tf {
-
-template <typename Index, typename RealT, std::size_t Dims, typename Policy>
-class model_form : public Policy {
-public:
-  model_form(tf::tree<Index, RealT, Dims> &_tree, Policy &&policy)
-      : Policy{std::move(policy)}, _tree{_tree} {}
-
-  auto tree() -> tf::tree<Index, RealT, Dims> & { return _tree; }
-
-  auto tree() const -> const tf::tree<Index, RealT, Dims> & { return _tree; }
-
-private:
-  tf::tree<Index, RealT, Dims> &_tree;
-};
 
 template <typename Index, typename RealT, std::size_t Dims, typename Policy>
 class form : public model_form<Index, RealT, Dims, Policy> {
   using base_t = model_form<Index, RealT, Dims, Policy>;
 
 public:
-  form(tf::tree<Index, RealT, Dims> &_tree,
-       tf::transformation<RealT, Dims> &_transformation, Policy &&policy)
-      : base_t{_tree, std::move(policy)}, _transformation{_transformation} {}
-
-  auto transformation() -> tf::transformation<RealT, Dims> & {
-    return _transformation;
-  }
+  form(tf::tree<Index, RealT, Dims> &_tree, tf::frame_view<RealT, Dims> _frame,
+       Policy &&policy)
+      : base_t{_tree, std::move(policy)}, _frame{_frame} {}
 
   auto transformation() const -> const tf::transformation<RealT, Dims> & {
-    return _transformation;
+    return _frame.transformation();
   }
 
+  auto inverse_transform() const -> const tf::transformation<RealT, Dims> & {
+    return _frame.inverse_transform();
+  }
+
+  auto frame() const -> const tf::frame_view<RealT, Dims> & { return _frame; }
+
 private:
-  tf::transformation<RealT, Dims> &_transformation;
+  tf::frame_view<RealT, Dims> _frame;
 };
 
 template <typename Index, typename RealT, std::size_t Dims, typename Policy>
 auto make_form(tf::tree<Index, RealT, Dims> &_tree,
-               tf::transformation<RealT, Dims> &_transformation,
-               Policy &&policy) -> form<Index, RealT, Dims, Policy> {
-  return form<Index, RealT, Dims, Policy>{_tree, _transformation,
+               const tf::frame_view<RealT, Dims> &_frame, Policy &&policy)
+    -> form<Index, RealT, Dims, Policy> {
+  return form<Index, RealT, Dims, Policy>{_tree, _frame, std::move(policy)};
+}
+
+template <typename Index, typename RealT, std::size_t Dims, typename Policy>
+auto make_form(tf::tree<Index, RealT, Dims> &_tree,
+               const tf::frame<RealT, Dims> &_frame, Policy &&policy)
+    -> form<Index, RealT, Dims, Policy> {
+  return form<Index, RealT, Dims, Policy>{_tree, tf::make_frame_view(_frame),
                                           std::move(policy)};
 }
 
 template <typename Index, typename RealT, std::size_t Dims, typename Policy>
 auto make_form(tf::tree<Index, RealT, Dims> &_tree, Policy &&policy)
     -> model_form<Index, RealT, Dims, Policy> {
-  return model_form<Index, RealT, Dims, Policy>{_tree, std::move(policy)};
+  return make_model_form(_tree, std::move(policy));
 }
 
 } // namespace tf
