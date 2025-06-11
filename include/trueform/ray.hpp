@@ -5,6 +5,7 @@
  */
 #pragma once
 #include "./value_type.hpp"
+#include "./point.hpp"
 #include "./vector.hpp"
 
 namespace tf {
@@ -18,7 +19,7 @@ namespace tf {
 /// @tparam T The scalar type (e.g., float, double).
 /// @tparam Dims The number of spatial dimensions.
 template <typename T, std::size_t Dims> struct ray {
-  tf::vector<T, Dims> origin;    ///< The origin point of the ray.
+  tf::point<T, Dims> origin;    ///< The origin point of the ray.
   tf::vector<T, Dims> direction; ///< The direction vector of the ray.
 };
 
@@ -35,7 +36,7 @@ template <typename T, std::size_t Dims> struct ray {
 /// @param direction The direction vector of the ray.
 /// @return A ray object.
 template <typename T0, std::size_t Dims, typename T1>
-auto make_ray(const tf::vector_like<Dims, T0> &origin,
+auto make_ray(const tf::point_like<Dims, T0> &origin,
               const tf::vector_like<Dims, T1> &direction) {
   return ray<tf::common_value<T0, T1>, Dims>{origin, direction};
 }
@@ -55,8 +56,8 @@ auto make_ray(const tf::vector_like<Dims, T0> &origin,
 /// to `end`.
 /// @return A ray object.
 template <typename T0, std::size_t Dims, typename T1>
-auto make_ray_between_points(const tf::vector_like<Dims, T0> &origin,
-                             const tf::vector_like<Dims, T1> &end) {
+auto make_ray_between_points(const tf::point_like<Dims, T0> &origin,
+                             const tf::point_like<Dims, T1> &end) {
   return ray<tf::common_value<T0, T1>, Dims>{origin, end - origin};
 }
 

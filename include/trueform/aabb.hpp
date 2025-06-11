@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "./point.hpp"
 #include "./value_type.hpp"
 #include "./vector.hpp"
 
@@ -22,15 +23,15 @@ namespace tf {
 template <typename T, std::size_t N> class aabb {
 public:
   /// @brief The minimal corner
-  vector<T, N> min;
+  point<T, N> min;
   /// @brief The maximal corner
-  vector<T, N> max;
+  point<T, N> max;
 
   // Default constructor
   aabb() = default;
 
   // Constructor from min and max
-  aabb(const vector<T, N> &min_, const vector<T, N> &max_)
+  aabb(const point<T, N> &min_, const point<T, N> &max_)
       : min(min_), max(max_) {}
 
   /// @brief Compute the center point of the AABB.
@@ -38,8 +39,9 @@ public:
   /// Returns the midpoint between `min` and `max`.
   ///
   /// @return A `vector<T, N>` representing the center.
-  auto center() const -> vector<T, N> {
-    return (min + max) * static_cast<T>(0.5);
+  auto center() const -> point<T, N> {
+    return tf::make_point((min.as_vector_view() + max.as_vector_view()) *
+                          static_cast<T>(0.5));
   }
 
   /// @brief Compute the diagonal vector of the AABB.
@@ -71,7 +73,7 @@ public:
 /// @param max The upper corner of the bounding box.
 /// @return An `aabb<T, N>` instance.
 template <std::size_t N, typename T0, typename T1>
-auto make_aabb(const vector_like<N, T0> &min, const vector_like<N, T1> &max)
+auto make_aabb(const point_like<N, T0> &min, const point_like<N, T1> &max)
     -> aabb<tf::common_value<T0, T1>, N> {
   return aabb<tf::common_value<T0, T1>, N>(min, max);
 }

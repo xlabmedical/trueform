@@ -4,8 +4,8 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
-#include "../vector.hpp"
-#include "../vector_view.hpp"
+#include "../point.hpp"
+#include "../point_view.hpp"
 #include "./stride_iterator_api.hpp"
 
 namespace tf::implementation::iter {
@@ -14,8 +14,8 @@ public:
   using iterator_category =
       typename std::iterator_traits<Iterator>::iterator_category;
   using element_t = typename std::iterator_traits<Iterator>::value_type;
-  using reference = tf::vector_view<element_t, BlockSize>;
-  using value_type = tf::vector<element_t, BlockSize>;
+  using reference = tf::point_view<element_t, BlockSize>;
+  using value_type = tf::point<element_t, BlockSize>;
   using pointer = void;
   using difference_type =
       typename std::iterator_traits<Iterator>::difference_type;
@@ -26,7 +26,7 @@ public:
   auto base_iter() -> Iterator & { return iter; }
   constexpr auto iterator_stride() const -> std::size_t { return BlockSize; }
   auto dereference() const -> reference {
-    return tf::vector_view<element_t, BlockSize>(&(*iter));
+    return tf::point_view<element_t, BlockSize>(&(*iter));
   }
 
 private:

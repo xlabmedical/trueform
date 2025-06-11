@@ -9,7 +9,7 @@
 #include "./polygon.hpp"
 #include "./segment.hpp"
 #include "./value_type.hpp"
-#include "./vector_like.hpp"
+#include "./point_like.hpp"
 
 namespace tf {
 
@@ -18,7 +18,7 @@ namespace tf {
 ///
 /// The resulting AABB has identical `min` and `max` bounds equal to the input.
 ///
-/// @tparam T The vector policy
+/// @tparam T The point policy
 /// @tparam N The number of dimensions (e.g., 2 or 3).
 /// @param pt The input point.
 /// @return An axis-aligned bounding box
@@ -33,12 +33,12 @@ auto aabb_from(const aabb<RealT, N> &box) -> aabb<RealT, N> {
 /// The resulting AABB has identical `min` and `max` bounds equal to the input
 /// point.
 ///
-/// @tparam T The vector policy
+/// @tparam T The point policy
 /// @tparam N The number of dimensions (e.g., 2 or 3).
 /// @param pt The input point.
 /// @return An axis-aligned bounding box with zero extent at the point.
 template <std::size_t N, typename T>
-auto aabb_from(const vector_like<N, T> &pt) -> aabb<tf::value_type<T>, N> {
+auto aabb_from(const point_like<N, T> &pt) -> aabb<tf::value_type<T>, N> {
   return aabb<tf::value_type<T>, N>{pt, pt};
 }
 

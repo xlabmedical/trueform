@@ -7,6 +7,7 @@
 #include "./dot.hpp"
 #include "./normal.hpp"
 #include "./unit_vector_like.hpp"
+#include "./point_like.hpp"
 
 namespace tf {
 
@@ -58,7 +59,7 @@ auto make_plane(const unit_vector_like<N, T> &normal,
 /// @return A `plane<T0, N>` that passes through the given point.
 template <std::size_t N, typename T0, typename T1>
 auto make_plane(const unit_vector_like<N, T0> &normal,
-                const vector_like<N, T1> &point) {
+                const point_like<N, T1> &point) {
   auto val = -tf::dot(normal, point);
   return plane<decltype(val), N>{normal, val};
 }
@@ -76,9 +77,9 @@ auto make_plane(const unit_vector_like<N, T0> &normal,
 /// @param pt2 Third point (used for the normal).
 /// @return A `plane` defined by the three points.
 template <std::size_t Dims, typename T0, typename T1, typename T2>
-auto make_plane(const vector_like<Dims, T0> &pt0,
-                const vector_like<Dims, T1> &pt1,
-                const vector_like<Dims, T2> &pt2) {
+auto make_plane(const point_like<Dims, T0> &pt0,
+                const point_like<Dims, T1> &pt1,
+                const point_like<Dims, T2> &pt2) {
   auto normal = tf::normal(pt0, pt1, pt2);
   auto val = -tf::dot(normal, pt0);
   return tf::plane<decltype(val), Dims>{normal, val};

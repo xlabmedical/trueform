@@ -5,7 +5,7 @@
  */
 #pragma once
 #include "./intersect_status.hpp"
-#include "./vector.hpp"
+#include "./point.hpp"
 
 namespace tf {
 
@@ -31,7 +31,7 @@ template <typename RealT, std::size_t Dims> struct ray_hit_info {
   RealT t;
 
   /// The intersection point on the ray. Only valid if `status == intersection`.
-  tf::vector<RealT, Dims> point;
+  tf::point<RealT, Dims> point;
 
   /// @brief Checks if the ray intersects the object.
   /// @return `true` if `status == intersect_status::intersection`, `false`
@@ -51,7 +51,7 @@ template <typename RealT, std::size_t Dims> struct ray_hit_info {
 /// @return A `ray_hit_info<RealT, Dims>` instance.
 template <typename RealT, std::size_t Dims>
 auto make_ray_hit_info(tf::intersect_status status, RealT t,
-                       tf::vector<RealT, Dims> pt) {
+                       tf::point<RealT, Dims> pt) {
   return ray_hit_info<RealT, Dims>{status, t, pt};
 }
 

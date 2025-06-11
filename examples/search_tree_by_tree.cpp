@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
   // 2. applies a random rotation
   // 3. aligns pt1 to pt0
   auto transformation =
-      tf::transformed(tf::make_transformation_from_translation(-pt1),
-                      tf::random_transformation<float>(pt0));
+      tf::transformed(tf::make_transformation_from_translation(-pt1.as_vector_view()),
+                      tf::random_transformation<float>(pt0.as_vector_view()));
 
   tf::local_vector<std::pair<int, int>> local_ids;
   // we may use the same tree, as we will simply

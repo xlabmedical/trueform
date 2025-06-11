@@ -9,10 +9,10 @@
 #include "trueform/random.hpp"
 #include "trueform/random_transformation.hpp"
 #include "trueform/random_vector.hpp"
+#include "trueform/sqrt.hpp"
 #include "trueform/transformation.hpp"
 #include "trueform/transformed.hpp"
 #include "trueform/tree.hpp"
-#include "trueform/sqrt.hpp"
 #include <iostream>
 #include <string>
 
@@ -58,9 +58,9 @@ int main(int argc, char *argv[]) {
   // 2. applies a random rotation
   // 3. aligns pt1 to epsilon displaced pt0
   auto dpt0 = pt0 + tf::normalized(tf::random_vector<float, 3>()) * 1.e-7f;
-  auto transformation =
-      tf::transformed(tf::make_transformation_from_translation(-pt1),
-                      tf::random_transformation<float>(dpt0));
+  auto transformation = tf::transformed(
+      tf::make_transformation_from_translation(-pt1.as_vector_view()),
+      tf::random_transformation<float>(dpt0.as_vector_view()));
 
   // apply the transformation to the aabbs and primitives.
   auto [primitive_ids, closest_point_pair] = tf::nearness_search(

@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "./point_like.hpp"
 #include "./value_type.hpp"
 #include "./vector_like.hpp"
 
@@ -29,5 +30,17 @@ auto dot(const vector_like<N, T0> &a, const vector_like<N, T1> &b)
     sum += a[i] * b[i];
   }
   return sum;
+}
+
+template <std::size_t N, typename T0, typename T1>
+auto dot(const point_like<N, T0> &a, const vector_like<N, T1> &b)
+    -> tf::common_value<T0, T1> {
+  return dot(a.as_vector_view(), b);
+}
+
+template <std::size_t N, typename T0, typename T1>
+auto dot(const vector_like<N, T0> &a, const point_like<N, T1> &b)
+    -> tf::common_value<T0, T1> {
+  return dot(a, b.as_vector_view());
 }
 } // namespace tf

@@ -4,11 +4,8 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
-#include "./inject_normal.hpp"
-#include "./inject_plane.hpp"
-#include "./polygon.hpp"
+#include "./point.hpp"
 #include "./value_type.hpp"
-#include "./vector.hpp"
 #include "./vector_like.hpp"
 
 namespace tf {
@@ -35,7 +32,7 @@ template <typename F> struct projector : private F {
   /// @param pt The point to project.
   /// @return The result of applying the wrapped projection function.
   template <std::size_t Dims, typename T>
-  auto operator()(const vector_like<Dims, T> &pt) const -> decltype(auto) {
+  auto operator()(const point_like<Dims, T> &pt) const -> decltype(auto) {
     return static_cast<const F &>(*this)(pt);
   }
 };
@@ -97,7 +94,7 @@ auto make_simple_projector(const vector_like<3, T> &normal) {
     std::swap(ids[0], ids[1]);
 
   return make_projector([x = ids[0], y = ids[1]](const auto &pt) {
-    return tf::vector<tf::value_type<T>, 2>{{pt[x], pt[y]}};
+    return tf::point<tf::value_type<T>, 2>{{pt[x], pt[y]}};
   });
 }
 } // namespace tf

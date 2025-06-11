@@ -12,7 +12,7 @@
 #include "./ray.hpp"
 #include "./ray_cast.hpp"
 #include "./segment.hpp"
-#include "./vector_like.hpp"
+#include "./point_like.hpp"
 
 namespace tf {
 
@@ -58,7 +58,7 @@ auto intersects(const aabb<T, N> &a, const aabb<T, N> &b, T epsilon) -> bool {
 /// @return `true` if the primitives intersect; otherwise `false`.
 
 template <std::size_t N, typename T0, typename T1>
-auto intersects(const vector_like<N, T0> &point, const aabb<T1, N> &box)
+auto intersects(const point_like<N, T0> &point, const aabb<T1, N> &box)
     -> bool {
   for (std::size_t i = 0; i < N; ++i) {
     if (point[i] < box.min[i] || point[i] > box.max[i])
@@ -76,7 +76,7 @@ auto intersects(const vector_like<N, T0> &point, const aabb<T1, N> &box)
 /// @return `true` if the primitives intersect; otherwise `false`.
 
 template <typename T, std::size_t N, typename T1>
-auto intersects(const aabb<T, N> &box, const vector_like<N, T1> &point)
+auto intersects(const aabb<T, N> &box, const point_like<N, T1> &point)
     -> bool {
   return intersects(point, box);
 }
@@ -90,7 +90,7 @@ auto intersects(const aabb<T, N> &box, const vector_like<N, T1> &point)
 /// @return `true` if the primitives intersect; otherwise `false`.
 
 template <std::size_t N, typename T0, typename T1>
-auto intersects(const vector_like<N, T0> &point, const aabb<T1, N> &box,
+auto intersects(const point_like<N, T0> &point, const aabb<T1, N> &box,
                 T1 epsilon) -> bool {
   for (std::size_t i = 0; i < N; ++i) {
     if (point[i] + epsilon < box.min[i] || point[i] - epsilon > box.max[i])
@@ -107,7 +107,7 @@ auto intersects(const vector_like<N, T0> &point, const aabb<T1, N> &box,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <typename T, std::size_t N, typename T1>
-auto intersects(const aabb<T, N> &box, const vector_like<N, T1> &point,
+auto intersects(const aabb<T, N> &box, const point_like<N, T1> &point,
                 T epsilon) -> bool {
   return intersects(point, box, epsilon);
 }
@@ -119,7 +119,7 @@ auto intersects(const aabb<T, N> &box, const vector_like<N, T1> &point,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t N, typename T0, typename T1>
-auto intersects(const vector_like<N, T0> &v0, const vector_like<N, T1> &v1,
+auto intersects(const point_like<N, T0> &v0, const point_like<N, T1> &v1,
                 tf::common_value<T0, T1> epsilon) -> bool {
   return (v0 - v1).length2() < epsilon * epsilon;
 }
@@ -131,8 +131,8 @@ auto intersects(const vector_like<N, T0> &v0, const vector_like<N, T1> &v1,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t N, typename T0, typename T1>
-auto intersects(const tf::vector_like<N, T0> &v0,
-                const tf::vector_like<N, T1> &v1) -> bool {
+auto intersects(const tf::point_like<N, T0> &v0,
+                const tf::point_like<N, T1> &v1) -> bool {
   return (v0 - v1).length2() <
          std::numeric_limits<tf::common_value<T0, T1>>::epsilon();
 }
@@ -146,7 +146,7 @@ auto intersects(const tf::vector_like<N, T0> &v0,
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <typename RealT, std::size_t Dims, typename T1>
 auto intersects(const tf::line<RealT, Dims> &l,
-                const tf::vector_like<Dims, T1> &v1) {
+                const tf::point_like<Dims, T1> &v1) {
   auto t = tf::closest_point_parametric(l, v1);
   auto pt = l.origin + t * l.direction;
   auto d2 = (pt - v1).length2();
@@ -161,7 +161,7 @@ auto intersects(const tf::line<RealT, Dims> &l,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t Dims, typename T1, typename RealT>
-auto intersects(const tf::vector_like<Dims, T1> &v0,
+auto intersects(const tf::point_like<Dims, T1> &v0,
                 const tf::line<RealT, Dims> &l) {
   return intersects(l, v0);
 }
@@ -175,7 +175,7 @@ auto intersects(const tf::vector_like<Dims, T1> &v0,
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <typename RealT, std::size_t Dims, typename T1>
 auto intersects(const tf::ray<RealT, Dims> &r,
-                const tf::vector_like<Dims, T1> &v1) {
+                const tf::point_like<Dims, T1> &v1) {
   auto t = tf::closest_point_parametric(r, v1);
   auto pt = r.origin + t * r.direction;
   auto d2 = (pt - v1).length2();
@@ -190,7 +190,7 @@ auto intersects(const tf::ray<RealT, Dims> &r,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t Dims, typename T1, typename RealT>
-auto intersects(const tf::vector_like<Dims, T1> &v0,
+auto intersects(const tf::point_like<Dims, T1> &v0,
                 const tf::ray<RealT, Dims> &r) {
   return intersects(r, v0);
 }
@@ -203,7 +203,7 @@ auto intersects(const tf::vector_like<Dims, T1> &v0,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <typename T0, std::size_t Dims, typename T1>
-auto intersects(const tf::segment<T0> &s, const tf::vector_like<Dims, T1> &v1) {
+auto intersects(const tf::segment<T0> &s, const tf::point_like<Dims, T1> &v1) {
   auto t = tf::closest_point_parametric(s, v1);
   auto l = tf::make_line_between_points(s[0], s[1]);
   auto pt = l.origin + t * l.direction;
@@ -219,7 +219,7 @@ auto intersects(const tf::segment<T0> &s, const tf::vector_like<Dims, T1> &v1) {
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t Dims, typename T0, typename T1>
-auto intersects(const tf::vector_like<Dims, T0> &v0, const tf::segment<T1> &s) {
+auto intersects(const tf::point_like<Dims, T0> &v0, const tf::segment<T1> &s) {
   return intersects(s, v0);
 }
 
@@ -377,7 +377,7 @@ auto intersects(const tf::segment<T0> &s0, const tf::segment<T1> &s1) {
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t V0, typename Policy0, std::size_t Dims, typename Policy1>
 auto intersects(const tf::polygon<V0, Policy0> &poly_in,
-                const tf::vector_like<Dims, Policy1> &pt) -> bool {
+                const tf::point_like<Dims, Policy1> &pt) -> bool {
   const auto &poly = tf::inject_plane(poly_in);
   auto d = tf::dot(poly.plane().normal, pt) + poly.plane().d;
   auto c_pt = pt - d * poly.plane().normal;
@@ -393,7 +393,7 @@ auto intersects(const tf::polygon<V0, Policy0> &poly_in,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <std::size_t Dims, typename Policy0, std::size_t V, typename Policy1>
-auto intersects(const tf::vector_like<Dims, Policy0> &pt,
+auto intersects(const tf::point_like<Dims, Policy0> &pt,
                 const tf::polygon<V, Policy1> &poly) -> bool {
   return intersects(poly, pt);
 }

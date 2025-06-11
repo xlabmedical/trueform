@@ -10,12 +10,26 @@
 #include "./inject_normal.hpp"
 #include "./inject_plane.hpp"
 #include "./line.hpp"
+#include "./point_like.hpp"
 #include "./polygon.hpp"
 #include "./ray.hpp"
 #include "./segment.hpp"
 #include "./transformation.hpp"
+#include "./vector_like.hpp"
 
 namespace tf {
+
+template <std::size_t Dims, typename T, typename U>
+auto transformed(const point_like<Dims, T> &_this,
+                 const transformation<U, Dims> &transform) {
+  return transform.transform_point(_this);
+}
+
+template <std::size_t Dims, typename T, typename U>
+auto transformed(const vector_like<Dims, T> &_this,
+                 const transformation<U, Dims> &transform) {
+  return transform.transform_vector(_this);
+}
 
 /// @ingroup geometry
 /// @brief Compose two affine transformations.
@@ -119,10 +133,10 @@ template <typename Range, std::size_t Dims, typename U>
 auto transformed(const Range &_this, const transformation<U, Dims> &transform) {
   constexpr std::size_t V = tf::static_size_v<Range>;
   static_assert(V != tf::dynamic_size);
-  using real_t = tf::common_value<decltype(_this[0][0]), U>;
-  std::array<tf::vector<real_t, Dims>, V> out;
+  using el_t = decltype(transformed(_this[0], transform));
+  std::array<el_t, V> out;
   for (std::size_t i = 0; i < V; ++i)
-    out[i] = transform.transform_point(_this[i]);
+    out[i] = transformed(_this[i], transform);
   return out;
 }
 
@@ -130,10 +144,10 @@ template <typename Iterator, std::size_t V, std::size_t Dims, typename U>
 auto transformed(const tf::indirect_range<Iterator, V> &_this,
                  const transformation<U, Dims> &transform) {
   static_assert(V != tf::dynamic_size);
-  using real_t = tf::common_value<decltype(_this[0][0]), U>;
-  std::array<tf::vector<real_t, Dims>, V> out;
+  using el_t = decltype(transformed(_this[0], transform));
+  std::array<el_t, V> out;
   for (std::size_t i = 0; i < V; ++i)
-    out[i] = transform.transform_point(_this[i]);
+    out[i] = transformed(_this[i], transform);
   return tf::inject_ids(_this.ids(), out);
 }
 

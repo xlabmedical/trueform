@@ -10,7 +10,7 @@
 #include "./plane.hpp"
 #include "./ray.hpp"
 #include "./segment.hpp"
-#include "./vector_like.hpp"
+#include "./point_like.hpp"
 #include <algorithm>
 
 namespace tf {
@@ -62,7 +62,7 @@ auto closest_point_parametric(const tf::segment<Policy> &segment,
 /// @brief Computes the parametric location on a segment closest to a point.
 template <typename RealType, std::size_t Dims, typename T>
 auto closest_point_parametric(const tf::ray<RealType, Dims> &ray,
-                              const tf::vector_like<Dims, T> &point) {
+                              const tf::point_like<Dims, T> &point) {
   auto dist_vec = point - ray.origin;
   auto t = tf::dot(dist_vec, ray.direction) / ray.direction.length2();
   return std::max(decltype(t)(0), t);
@@ -72,7 +72,7 @@ auto closest_point_parametric(const tf::ray<RealType, Dims> &ray,
 /// @brief Computes the parametric location on a line closest to a point.
 template <typename RealType, std::size_t Dims, typename T>
 auto closest_point_parametric(const tf::line<RealType, Dims> &line,
-                              const tf::vector_like<Dims, T> &point) {
+                              const tf::point_like<Dims, T> &point) {
   auto dist_vec = point - line.origin;
   auto t = tf::dot(dist_vec, line.direction) / line.direction.length2();
   return t;
@@ -82,7 +82,7 @@ auto closest_point_parametric(const tf::line<RealType, Dims> &line,
 /// @brief Computes the parametric location on a segment closest to a point.
 template <typename Policy0, std::size_t Dims, typename T>
 auto closest_point_parametric(const tf::segment<Policy0> &segment,
-                              const tf::vector_like<Dims, T> &point) {
+                              const tf::point_like<Dims, T> &point) {
   auto direction = segment[1] - segment[0];
   auto dist_vec = point - segment[0];
   auto t = tf::dot(dist_vec, direction) / direction.length2();

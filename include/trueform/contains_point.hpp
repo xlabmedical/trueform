@@ -8,7 +8,7 @@
 #include "./polygon.hpp"
 #include "./projector.hpp"
 #include "./static_size.hpp"
-#include "./vector_like.hpp"
+#include "./point_like.hpp"
 #include <cstddef>
 
 namespace tf {
@@ -22,7 +22,7 @@ namespace tf {
 /// @return True if the point lies inside the polygon.
 template <std::size_t V, typename Policy, typename T>
 auto contains_point(const tf::polygon<V, Policy> &poly,
-                    const vector_like<2, T> &input_pt) -> bool {
+                    const point_like<2, T> &input_pt) -> bool {
   static_assert(tf::static_size_v<decltype(poly[0])> == 2,
                 "Points must be in 2D.");
   return contains_coplanar_point(poly, input_pt);
@@ -38,7 +38,7 @@ auto contains_point(const tf::polygon<V, Policy> &poly,
 /// @return True if the point lies inside the polygon.
 template <std::size_t V, typename Policy, std::size_t Dims, typename T>
 auto contains_point(const tf::polygon<V, Policy> &poly_in,
-                    const vector_like<Dims, T> &input_pt) -> bool {
+                    const point_like<Dims, T> &input_pt) -> bool {
   const auto &poly = tf::inject_plane(poly_in);
   auto d = tf::dot(poly.plane().normal, input_pt) + poly.plane().d;
   if (std::abs(d) > std::numeric_limits<decltype(d)>::epsilon())

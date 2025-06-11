@@ -4,6 +4,7 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
+#include "./point.hpp"
 #include "./value_type.hpp"
 #include "./vector.hpp"
 #include <array>
@@ -60,49 +61,32 @@ public:
     return _transform[i][j];
   }
 
-  /// @brief Transform a point (with translation).
-  /// @param point The input point to transform.
-  /// @param out The output point, overwritten with the result.
-  template <typename Point0, typename Point1>
-  auto transform_point(const Point0 &point, Point1 &&out) const {
-    auto size = Dims;
-    for (decltype(size) i = 0; i < size; ++i) {
-      out[i] = _transform[i][size];
-      for (decltype(size) j = 0; j < size; ++j) {
-        out[i] += point[j] * _transform[i][j];
-      }
-    }
-  }
-
   /// @brief Transform a point and return the result.
   /// @param point The input point to transform.
   /// @return A new point of type `tf::vector<T, Dims>` representing the result.
-  template <typename Point> auto transform_point(const Point &point) const {
-    tf::vector<decltype(point[0] * T()), Dims> out;
-    transform_point(point, out);
+  template <typename U>
+  auto transform_point(const point_like<Dims, U> &point) const {
+    tf::point<decltype(point[0] * T()), Dims> out;
+    for (std::size_t i = 0; i < Dims; ++i) {
+      out[i] = _transform[i][Dims];
+      for (std::size_t j = 0; j < Dims; ++j) {
+        out[i] += point[j] * _transform[i][j];
+      }
+    }
     return out;
   }
 
   /// @brief Transform a vector (ignores translation).
   /// @param point The input vector to transform.
-  /// @param out The output vector, overwritten with the result.
-  template <typename Point0, typename Point1>
-  auto transform_vector(const Point0 &point, Point1 &&out) const {
-    auto size = Dims;
-    for (decltype(size) i = 0; i < size; ++i) {
+  template <typename U>
+  auto transform_vector(const vector_like<Dims, U> &v) const {
+    tf::vector<decltype(v[0] * T()), Dims> out;
+    for (std::size_t i = 0; i < Dims; ++i) {
       out[i] = 0;
-      for (decltype(size) j = 0; j < size; ++j) {
-        out[i] += point[j] * _transform[i][j];
+      for (std::size_t j = 0; j < Dims; ++j) {
+        out[i] += v[j] * _transform[i][j];
       }
     }
-  }
-
-  /// @brief Transform a vector and return the result.
-  /// @param point The input vector to transform.
-  /// @return A new vector of the same type as the input.
-  template <typename Point> auto transform_vector(const Point &point) const {
-    decltype(point - point) out;
-    transform_vector(point, out);
     return out;
   }
 

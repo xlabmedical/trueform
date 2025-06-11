@@ -8,6 +8,7 @@
 #include "./owned_data.hpp"
 #include "./unsafe.hpp"
 #include "./vector_like.hpp"
+#include <type_traits>
 
 namespace tf {
 
@@ -105,4 +106,38 @@ public:
       -> unit_vector_like & = delete;
 };
 
+template <std::size_t Dims, typename Policy>
+struct static_size<unit_vector_like<Dims, Policy>>
+    : std::integral_constant<std::size_t, Dims> {};
+
+} // namespace tf
+
+namespace std {
+
+template <std::size_t I, std::size_t Dims, typename Policy>
+struct tuple_element<I, tf::unit_vector_like<Dims, Policy>> {
+  using type = typename tf::unit_vector_like<Dims, Policy>::value_type;
+};
+
+template <std::size_t Dims, typename Policy>
+struct tuple_size<tf::unit_vector_like<Dims, Policy>>
+    : std::integral_constant<std::size_t, Dims> {};
+
+} // namespace std
+
+namespace tf {
+
+template <std::size_t I, std::size_t Dims, typename Policy>
+constexpr auto get(const tf::unit_vector_like<Dims, Policy> &v) ->
+    typename tf::unit_vector_like<Dims, Policy>::const_reference {
+  static_assert(I < Dims);
+  return v[I];
+}
+
+template <std::size_t I, std::size_t Dims, typename Policy>
+constexpr auto get(tf::unit_vector_like<Dims, Policy> &v) ->
+    typename tf::unit_vector_like<Dims, Policy>::reference {
+  static_assert(I < Dims);
+  return v[I];
+}
 } // namespace tf

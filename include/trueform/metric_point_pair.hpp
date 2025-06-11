@@ -4,8 +4,8 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
+#include "./point.hpp"
 #include "./value_type.hpp"
-#include "./vector.hpp"
 
 namespace tf {
 
@@ -23,9 +23,9 @@ template <typename RealT, std::size_t Dims> struct metric_point_pair {
   /// @brief The metric between the points
   RealT metric;
   /// @brief The first point
-  vector<RealT, Dims> first;
+  point<RealT, Dims> first;
   /// @brief The second point
-  vector<RealT, Dims> second;
+  point<RealT, Dims> second;
 };
 
 /// @ingroup geometry
@@ -44,9 +44,9 @@ template <typename RealT, std::size_t Dims> struct metric_point_pair {
 /// @param second The closest point from the second object or tree.
 /// @return A `closest_point_pair<RealT, Dims>` instance.
 template <typename RealT, std::size_t Dims, typename T0, typename T1>
-auto make_metric_point_pair(RealT metric, vector_like<Dims, T0> first,
-                             vector_like<Dims, T1> second) {
-  return metric_point_pair<tf::common_value<RealT, T0, T1>, Dims>{
-      metric, first, second};
+auto make_metric_point_pair(RealT metric, point_like<Dims, T0> first,
+                            point_like<Dims, T1> second) {
+  return metric_point_pair<tf::common_value<RealT, T0, T1>, Dims>{metric, first,
+                                                                  second};
 }
 } // namespace tf

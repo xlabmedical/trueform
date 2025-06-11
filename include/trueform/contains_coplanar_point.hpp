@@ -8,7 +8,7 @@
 #include "./projector.hpp"
 #include "./static_size.hpp"
 #include "./value_type.hpp"
-#include "./vector_like.hpp"
+#include "./point_like.hpp"
 #include <cstddef>
 
 namespace tf {
@@ -35,7 +35,7 @@ namespace tf {
 template <std::size_t V, typename Policy, std::size_t Dims, typename T,
           typename F>
 auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
-                             const vector_like<Dims, T> &input_pt,
+                             const point_like<Dims, T> &input_pt,
                              const tf::projector<F> &projector) -> bool {
   static_assert(tf::static_size_v<decltype(projector(poly[0]))> == 2,
                 "We must project into 2D");
@@ -43,7 +43,7 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
   int winding_number = 0;
   auto n = poly.size();
 
-  tf::vector<real_t, 2> pt = projector(input_pt);
+  tf::point<real_t, 2> pt = projector(input_pt);
 
   auto check_edge = [&](const auto &a, const auto &b) {
     auto ab = b - a;
@@ -59,10 +59,10 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
     }
   };
 
-  tf::vector<real_t, 2> first_pt = projector(poly[0]);
-  tf::vector<real_t, 2> prev_pt = first_pt;
+  tf::point<real_t, 2> first_pt = projector(poly[0]);
+  tf::point<real_t, 2> prev_pt = first_pt;
   for (std::size_t i = 1; i < n; i++) {
-    tf::vector<real_t, 2> current_pt = projector(poly[i]);
+    tf::point<real_t, 2> current_pt = projector(poly[i]);
     check_edge(prev_pt, current_pt);
     prev_pt = current_pt;
   }
@@ -77,7 +77,7 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
 
 template <std::size_t V, typename Policy, typename T>
 auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
-                             const vector_like<2, T> &input_pt) -> bool {
+                             const point_like<2, T> &input_pt) -> bool {
   static_assert(tf::static_size_v<decltype(poly[0])> == 2,
                 "Points must be in 2D.");
   return contains_coplanar_point(poly, input_pt, tf::make_identity_projector());
@@ -89,7 +89,7 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
 
 template <std::size_t V, typename Policy, std::size_t Dims, typename T>
 auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
-                             const vector_like<Dims, T> &input_pt) -> bool {
+                             const point_like<Dims, T> &input_pt) -> bool {
   return contains_coplanar_point(poly, input_pt,
                                  tf::make_simple_projector(poly));
 }
@@ -115,7 +115,7 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
 template <std::size_t V, typename Policy, std::size_t Dims, typename T,
           typename F>
 auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
-                             const vector_like<Dims, T> &input_pt,
+                             const point_like<Dims, T> &input_pt,
                              const tf::projector<F> &projector,
                              tf::common_value<T, decltype(poly[0][0])> epsilon)
     -> bool {
@@ -125,7 +125,7 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
   int winding_number = 0;
   auto n = poly.size();
 
-  tf::vector<real_t, 2> pt = projector(input_pt);
+  tf::point<real_t, 2> pt = projector(input_pt);
 
   auto check_edge = [&](const auto &a, const auto &b) {
     // Check if point is on the edge (epsilon-based)
@@ -154,10 +154,10 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
     return false;
   };
 
-  tf::vector<real_t, 2> first_pt = projector(poly[0]);
-  tf::vector<real_t, 2> prev_pt = first_pt;
+  tf::point<real_t, 2> first_pt = projector(poly[0]);
+  tf::point<real_t, 2> prev_pt = first_pt;
   for (std::size_t i = 1; i < n; i++) {
-    tf::vector<real_t, 2> current_pt = projector(poly[i]);
+    tf::point<real_t, 2> current_pt = projector(poly[i]);
     if (check_edge(prev_pt, current_pt))
       return true;
     prev_pt = current_pt;
@@ -174,7 +174,7 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
 
 template <std::size_t V, typename Policy, typename T>
 auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
-                             const vector_like<2, T> &input_pt,
+                             const point_like<2, T> &input_pt,
                              tf::common_value<T, decltype(poly[0][0])> epsilon)
     -> bool {
   static_assert(tf::static_size_v<decltype(poly[0])> == 2,
@@ -189,7 +189,7 @@ auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
 
 template <std::size_t V, typename Policy, std::size_t Dims, typename T>
 auto contains_coplanar_point(const tf::polygon<V, Policy> &poly,
-                             const vector_like<Dims, T> &input_pt,
+                             const point_like<Dims, T> &input_pt,
                              tf::common_value<T, decltype(poly[0][0])> epsilon)
     -> bool {
   return contains_coplanar_point(poly, input_pt,

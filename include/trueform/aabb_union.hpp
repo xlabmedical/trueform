@@ -6,7 +6,7 @@
 #pragma once
 #include "./aabb.hpp"
 #include "./value_type.hpp"
-#include "./vector_like.hpp"
+#include "./point_like.hpp"
 
 namespace tf {
 
@@ -55,13 +55,13 @@ auto aabb_union(const aabb<T, N> &aabb0, const aabb<T, N> &aabb1)
 /// Updates `aabb0` to include the given point `pt`.
 ///
 /// @tparam T The scalar coordinate type.
-/// @tparam T1 The vector policy
+/// @tparam T1 The point policy
 /// @tparam N The spatial dimension.
 /// @param aabb0 The AABB to be expanded.
 /// @param pt The point to include.
 /// @return A reference to `aabb0`.
 template <typename T, std::size_t N, typename T1>
-auto aabb_union_inplace(aabb<T, N> &aabb0, const vector_like<N, T1> &pt)
+auto aabb_union_inplace(aabb<T, N> &aabb0, const point_like<N, T1> &pt)
     -> aabb<T, N> & {
   for (int i = 0; i < int(N); i++) {
     aabb0.min[i] = std::min(aabb0.min[i], T(pt[i]));
@@ -78,12 +78,12 @@ auto aabb_union_inplace(aabb<T, N> &aabb0, const vector_like<N, T1> &pt)
 ///
 /// @tparam T The scalar coordinate type.
 /// @tparam N The spatial dimension.
-/// @tparam T1 The vector policy
+/// @tparam T1 The point policy
 /// @param aabb0 The bounding box.
 /// @param pt The point to include.
 /// @return An `aabb<T, N>` containing the original box and the point.
 template <typename T, std::size_t N, typename T1>
-auto aabb_union(const aabb<T, N> &aabb0, const vector_like<N, T> &pt)
+auto aabb_union(const aabb<T, N> &aabb0, const point_like<N, T> &pt)
     -> aabb<tf::common_value<T, T1>, N> {
   aabb<tf::common_value<T, T1>, N> out = aabb0;
   aabb_union_inplace(out, pt);

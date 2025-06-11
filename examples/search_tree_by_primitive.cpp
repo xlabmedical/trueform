@@ -42,7 +42,10 @@ int main(int argc, char *argv[]) {
   // pick random triangle
   auto id = tf::random<int>(0, triangles.size() - 1);
   const auto &triangle = triangles[id];
-  auto center = (triangle[0] + triangle[1] + triangle[2]) / 3;
+  auto center = tf::make_point((triangle[0].as_vector_view() +
+                                triangle[1].as_vector_view() +
+                                triangle[2].as_vector_view()) /
+                               3);
 
   // find all triangles within epsilon of center
 

@@ -53,9 +53,9 @@ int main(int argc, char *argv[]) {
   // 1. makes pt1 the origin
   // 2. applies a random rotation
   // 3. aligns pt1 to pt0
-  auto transformation =
-      tf::transformed(tf::make_transformation_from_translation(-pt1),
-                      tf::random_transformation<float>(pt0));
+  auto transformation = tf::transformed(
+      tf::make_transformation_from_translation(-pt1.as_vector_view()),
+      tf::random_transformation<float>(pt0.as_vector_view()));
 
   // we may use the same tree, as we will simply
   // apply the transformation to the aabbs and primitives.

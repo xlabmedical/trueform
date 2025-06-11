@@ -1,13 +1,14 @@
 #include "trueform/inject_plane.hpp"
 #include "trueform/plane.hpp"
+#include "trueform/point.hpp"
 #include "trueform/polygon.hpp"
 
-struct A : std::array<tf::vector<float, 3>, 3> {};
+struct A : std::array<tf::point<float, 3>, 3> {};
 struct has_plane_t : tf::inject_plane_t<float, 3, A> {};
 struct has_normal_t : tf::inject_normal_t<float, 3, A> {};
 
 int main() {
-  tf::vector<float, 3> x;
+  tf::point<float, 3> x;
   auto plane = tf::make_plane(x, x, x);
 
   auto inj_plane0 = tf::inject_plane(

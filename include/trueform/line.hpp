@@ -4,6 +4,7 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
+#include "./point.hpp"
 #include "./value_type.hpp"
 #include "./vector.hpp"
 
@@ -19,7 +20,7 @@ namespace tf {
 /// @tparam T The scalar type (e.g., float, double).
 /// @tparam Dims The number of spatial dimensions.
 template <typename T, std::size_t Dims> struct line {
-  tf::vector<T, Dims> origin;    ///< A point on the line.
+  tf::point<T, Dims> origin;     ///< A point on the line.
   tf::vector<T, Dims> direction; ///< The direction vector of the line.
 };
 
@@ -37,7 +38,7 @@ template <typename T, std::size_t Dims> struct line {
 /// @param direction The direction of the line (not necessarily normalized).
 /// @return A line object.
 template <typename T0, std::size_t Dims, typename T1>
-auto make_line(const tf::vector_like<Dims, T0> &origin,
+auto make_line(const tf::point_like<Dims, T0> &origin,
                const tf::vector_like<Dims, T1> &direction) {
   return line<tf::common_value<T0, T1>, Dims>{origin, direction};
 }
@@ -55,8 +56,8 @@ auto make_line(const tf::vector_like<Dims, T0> &origin,
 /// @param end The second point on the line (used to compute the direction).
 /// @return A line object.
 template <typename T0, std::size_t Dims, typename T1>
-auto make_line_between_points(const tf::vector_like<Dims, T0> &origin,
-                              const tf::vector_like<Dims, T1> &end) {
+auto make_line_between_points(const tf::point_like<Dims, T0> &origin,
+                              const tf::point_like<Dims, T1> &end) {
   return line<tf::common_value<T0, T1>, Dims>{origin, end - origin};
 }
 

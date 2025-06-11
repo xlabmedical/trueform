@@ -6,8 +6,8 @@
 #pragma once
 #include "./dot.hpp"
 #include "./value_type.hpp"
-#include "./vector.hpp"
-#include "./vector_like.hpp"
+#include "./point.hpp"
+#include "./point_like.hpp"
 
 namespace tf {
 
@@ -17,14 +17,14 @@ namespace tf {
 /// @tparam Range A range type representing the triangle's vertices (typically 3
 /// points).
 /// @tparam Dims Dimensionality
-/// @tparam T The vector policy
+/// @tparam T The point policy
 /// @param triangle A range of 3 points representing the triangle vertices.
-/// @param point A N-D point provided as a `tf::vector_view<T, Dims>`.
-/// @return The closest point on the triangle to `point`, as `tf::vector<T, 3>`.
+/// @param point A N-D point provided as a `tf::point_view<T, Dims>`.
+/// @return The closest point on the triangle to `point`, as `tf::point<T, 3>`.
 template <typename Range, std::size_t Dims, typename T>
 auto closest_point_on_triangle(const Range &triangle,
-                               const tf::vector_like<Dims, T> &point)
-    -> tf::vector<tf::common_value<T, decltype(triangle[0])>, Dims> {
+                               const tf::point_like<Dims, T> &point)
+    -> tf::point<tf::common_value<T, decltype(triangle[0])>, Dims> {
   auto ab = triangle[1] - triangle[0];
   auto ac = triangle[2] - triangle[0];
   auto ap = point - triangle[0];

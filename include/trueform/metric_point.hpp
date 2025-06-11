@@ -5,8 +5,8 @@
  */
 #pragma once
 #include "./value_type.hpp"
-#include "./vector.hpp"
-#include "./vector_like.hpp"
+#include "./point.hpp"
+#include "./point_like.hpp"
 
 namespace tf {
 
@@ -22,7 +22,7 @@ namespace tf {
 /// @tparam Dims The spatial dimension (e.g., 2 or 3).
 template <typename RealT, std::size_t Dims> struct metric_point {
   RealT metric;
-  vector<RealT, Dims> point;
+  tf::point<RealT, Dims> point;
 };
 
 /// @ingroup geometry
@@ -34,12 +34,12 @@ template <typename RealT, std::size_t Dims> struct metric_point {
 ///
 /// @tparam RealT The scalar coordinate type.
 /// @tparam Dims The spatial dimension.
-/// @tparam T The vector policy
+/// @tparam T The point policy
 /// @param metric The distance metric (typically squared distance).
 /// @param point The closest spatial point corresponding to the metric.
 /// @return A `closest_point<RealT, Dims>` instance.
 template <typename RealT, std::size_t Dims, typename T>
-auto make_metric_point(RealT metric, vector_like<Dims, T> point) {
+auto make_metric_point(RealT metric, point_like<Dims, T> point) {
   return metric_point<tf::common_value<RealT, T>, Dims>{metric, point};
 }
 } // namespace tf

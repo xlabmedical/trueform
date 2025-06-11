@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
                "a random direction."
             << std::endl;
 
-  std::vector<tf::vector<float, 3>> duplicated_points(points.begin(),
+  std::vector<tf::point<float, 3>> duplicated_points(points.begin(),
                                                       points.end());
   float epsilon = std::numeric_limits<float>::epsilon() * 2;
   for (int i = 0; i < 10; ++i) {

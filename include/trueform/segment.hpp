@@ -9,7 +9,7 @@
 #include "./inject_ids.hpp"
 #include "./static_size.hpp"
 #include "./value_type.hpp"
-#include "./vector.hpp"
+#include "./point.hpp"
 namespace tf {
 /**
  * @ingroup geometry
@@ -153,20 +153,9 @@ template <typename Range> auto make_segment(Range &&points) {
 /// @ingroup geometry
 /// @brief Constructs a segment between two points.
 template <std::size_t Dims, typename T0, typename T1>
-auto make_segment_between_points(const tf::vector_like<Dims, T0> &pt0,
-                                 const tf::vector_like<Dims, T1> &pt1) {
-  using pt_t = tf::vector<tf::common_value<T0, T1>, Dims>;
-  return tf::segment<std::array<pt_t, 2>>(
-      std::array<pt_t, 2>{pt_t{pt0}, pt_t{pt1}});
-}
-
-/// @ingroup geometry
-/// @brief Constructs a segment between two points.
-///
-template <std::size_t Dims, typename T>
-auto make_segment_between_points(const tf::vector_like<Dims, T> &pt0,
-                                 const tf::vector_like<Dims, T> &pt1) {
-  using pt_t = tf::vector_like<Dims, T>;
+auto make_segment_between_points(const tf::point_like<Dims, T0> &pt0,
+                                 const tf::point_like<Dims, T1> &pt1) {
+  using pt_t = tf::point<tf::common_value<T0, T1>, Dims>;
   return tf::segment<std::array<pt_t, 2>>(
       std::array<pt_t, 2>{pt_t{pt0}, pt_t{pt1}});
 }

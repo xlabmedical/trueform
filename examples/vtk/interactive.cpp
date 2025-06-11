@@ -42,7 +42,7 @@ public:
   auto get_actors() const -> const auto & { return actors; }
 
   auto ray_hit(tf::ray<float, 3> ray)
-      -> std::pair<vtkActor *, tf::vector<float, 3>> {
+      -> std::pair<vtkActor *, tf::point<float, 3>> {
     tf::tree_ray_info<int, tf::ray_cast_info<float>> result;
     tf::ray_config<float> config{};
     vtkActor *picked = nullptr;
@@ -147,7 +147,7 @@ public:
   std::array<double, 3> selected_mesh_color{1, 0.9, 1};
 
   tf::plane<float, 3> moving_plane;
-  tf::vector<float, 3> last_point;
+  tf::point<float, 3> last_point;
   tf::vector<float, 3> dx;
   vtkActor *selected_actor = nullptr;
   bool selected_mode = false;
@@ -193,7 +193,7 @@ public:
     return std::make_pair(_ray, renderer);
   }
 
-  auto make_moving_plane(tf::vector<float, 3> origin, vtkRenderer *renderer) {
+  auto make_moving_plane(tf::point<float, 3> origin, vtkRenderer *renderer) {
     vtkCamera *camera = renderer->GetActiveCamera();
     // Get the camera's position and focal point
     double cameraPosition[3];
@@ -316,11 +316,13 @@ vtkStandardNewMacro(cursor_interactor);
 auto center_and_scale(vtkPolyData *poly) -> void {
   auto pts = get_points(poly);
   auto aabb = tf::aabb_from(tf::make_polygon(pts));
-  auto center = aabb.center();
+  auto center = aabb.center().as_vector();
   auto r = aabb.diagonal().length() / 2;
   for (auto pt : pts) {
     pt -= center;
-    pt *= 10 / r;
+    auto v = pt.as_vector_view();
+    v *= 10 / r;
+    pt = tf::make_point(v);
   }
 }
 
