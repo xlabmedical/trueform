@@ -4,6 +4,13 @@
 #include "trueform/polygon_range.hpp"
 #include "vtkPolyData.h"
 
+inline auto get_points(vtkPoints * points) {
+  auto ptr =
+      static_cast<float *>(points->GetData()->GetVoidPointer(0));
+  return tf::make_point_range<3>(
+      tf::make_range(ptr, 3 * points->GetNumberOfPoints()));
+}
+
 inline auto get_points(vtkPolyData *poly) {
   auto ptr =
       static_cast<float *>(poly->GetPoints()->GetData()->GetVoidPointer(0));

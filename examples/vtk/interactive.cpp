@@ -1,8 +1,10 @@
 #include "./util/common.hpp"
 #include "./util/data_bridge.hpp"
+#include "trueform/closest_metric_point_pair.hpp"
 #include "trueform/form.hpp"
 #include "trueform/frame.hpp"
 #include "trueform/intersects.hpp"
+#include "trueform/nearness_search.hpp"
 #include "trueform/plane.hpp"
 #include "trueform/random_transformation.hpp"
 #include "trueform/ray_config.hpp"
@@ -16,10 +18,10 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
-#include "vtkXRenderWindowInteractor.h"
 #include <filesystem>
 #include <set>
 #include <string>
@@ -87,7 +89,7 @@ private:
 };
 
 class cursor_interactor : public vtkInteractorStyleTrackballCamera {
-public:
+private:
   geometry_handle_t geometry_handle;
   std::vector<float> pick_times;
   std::vector<float> collide_times;
@@ -159,36 +161,11 @@ public:
     moving_plane = tf::make_plane(normal, origin);
   }
 
-  auto reset_active_color(vtkActor *selected_actor) {
-    if (!selected_actor)
-      return;
-    selected_actor->GetProperty()->SetColor(
-        normal_mesh_color[0], normal_mesh_color[1], normal_mesh_color[2]);
-  }
-
-  auto set_active_color(vtkActor *selected_actor) {
-    selected_actor->GetProperty()->SetColor(
-        selected_mesh_color[0], selected_mesh_color[1], selected_mesh_color[2]);
-  }
-
-  auto set_colliding_color(vtkActor *selected_actor) {
-    selected_actor->GetProperty()->SetColor(
-        coliding_mesh_color[0], coliding_mesh_color[1], coliding_mesh_color[2]);
-  }
-
   auto move_selected(vtkActor *selected_actor) {
     for (int i = 0; i < 3; ++i)
       selected_actor->GetUserMatrix()->Element[i][3] += dx[i];
     selected_actor->GetUserMatrix()->Modified();
     geometry_handle.update_frame(selected_actor);
-  }
-
-  auto reset_colliding_colors() {
-    colliding.clear();
-    for (auto actor : geometry_handle.get_actors()) {
-      if (actor != selected_actor)
-        reset_active_color(actor);
-    }
   }
 
   auto handle_collisions() {
@@ -206,10 +183,47 @@ public:
     }
   }
 
+public:
+  auto reset_active_color(vtkActor *selected_actor) -> void {
+    if (!selected_actor)
+      return;
+    selected_actor->GetProperty()->SetColor(
+        normal_mesh_color[0], normal_mesh_color[1], normal_mesh_color[2]);
+  }
+
+  auto set_active_color(vtkActor *selected_actor) -> void {
+    selected_actor->GetProperty()->SetColor(
+        selected_mesh_color[0], selected_mesh_color[1], selected_mesh_color[2]);
+  }
+
+  auto reset_colliding_colors() -> void {
+    colliding.clear();
+    for (auto actor : geometry_handle.get_actors()) {
+      if (actor != selected_actor)
+        reset_active_color(actor);
+    }
+  }
+
+  auto set_colliding_color(vtkActor *selected_actor) -> void {
+    selected_actor->GetProperty()->SetColor(
+        coliding_mesh_color[0], coliding_mesh_color[1], coliding_mesh_color[2]);
+  }
+
+  auto set_text_actors(vtkTextActor *_pick_text, vtkTextActor *_collide_text)
+      -> void {
+    pick_text = _pick_text;
+    collide_text = _collide_text;
+  }
+
+  auto push_back(vtkActor *actor, vtkPolyData *poly,
+                 tf::tree<int, float, 3> &tree) -> void {
+    geometry_handle.push_back(actor, poly, tree);
+  }
+
   auto OnLeftButtonDown() -> void override {
     if (selected_actor) {
       selected_mode = true;
-      /*this->Interactor->GetRenderWindow()->HideCursor();*/
+      this->Interactor->GetRenderWindow()->HideCursor();
       this->Interactor->Render();
     } else {
       camera_mode = true;
@@ -221,7 +235,7 @@ public:
     if (selected_mode) {
       selected_mode = false;
       reset_colliding_colors();
-      /*this->Interactor->GetRenderWindow()->ShowCursor();*/
+      this->Interactor->GetRenderWindow()->ShowCursor();
       this->Interactor->Render();
     } else if (camera_mode) {
       camera_mode = false;
@@ -326,7 +340,7 @@ int main(int argc, char *argv[]) {
   auto inter = vtk_make_unique<cursor_interactor>();
   auto renderer = vtk_make_unique<vtkRenderer>();
   auto render_window = vtk_make_unique<vtkRenderWindow>();
-  auto interactor = vtk_make_unique<vtkXRenderWindowInteractor>();
+  auto interactor = vtk_make_unique<vtkRenderWindowInteractor>();
   interactor->SetInteractorStyle(inter.get());
   int n_actors_in_dim = 5;
   std::size_t poly_index = 0;
@@ -343,8 +357,7 @@ int main(int argc, char *argv[]) {
       matrix->Identity();
       set_at(matrix.get(), {{i * 15.f, j * 15.f, 0.f}});
       actor->SetUserMatrix(matrix.get());
-      inter->geometry_handle.push_back(actor.get(), poly.get(),
-                                       trees[poly_index]);
+      inter->push_back(actor.get(), poly.get(), trees[poly_index]);
       renderer->AddActor(actor.get());
       inter->reset_active_color(actor.get());
       poly_index = (poly_index + 1) % polys.size();
@@ -391,8 +404,26 @@ int main(int argc, char *argv[]) {
   text2->SetDisplayPosition(40, 175);
   renderer_text->AddActor2D(text2.get());
 
-  inter->pick_text = text1.get();
-  inter->collide_text = text2.get();
+  auto text3 = vtk_make_unique<vtkTextActor>();
+  text3->SetInput("Grab and drag a mesh to test.\n"
+                  "Intersecting meshes are highlighted.\n"
+                  "Powered by trueform.");
+  auto textprop3 = text3->GetTextProperty();
+  textprop3->SetFontSize(40);
+  textprop3->SetColor(1.0, 1.0, 1.0);
+  textprop3->SetJustificationToRight();
+  textprop3->SetVerticalJustificationToCentered();
+  textprop3->SetLineSpacing(1.5);
+  render_window->Render();
+  text3->SetDisplayPosition(renderer->GetSize()[0] - 40, 120);
+  auto aligner = vtk_make_unique<RightAlignTextUpdater>(render_window.get(),
+                                                        text3.get(), 40, 120);
+
+  render_window->AddObserver(vtkCommand::WindowResizeEvent, aligner.get());
+
+  renderer_text->AddActor2D(text3.get());
+
+  inter->set_text_actors(text1.get(), text2.get());
 
   renderer_text->SetBackground(0.090, 0.143, 0.173); // darker tone
   render_window->AddRenderer(renderer_text.get());
