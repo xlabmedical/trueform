@@ -5,11 +5,14 @@
  */
 #pragma once
 
+#include "./aabb_metrics.hpp"
+#include "./form.hpp"
 #include "./implementation/tree_closest_point.hpp"
 #include "./implementation/tree_closest_point_pair.hpp"
 #include "./implementation/tree_closest_point_using_sort_by_level.hpp"
 #include "./implementation/tree_tree_proximity.hpp"
 #include "./mod_tree.hpp"
+#include "./transformed.hpp"
 #include "./tree.hpp"
 #include "./tree_knn.hpp"
 
@@ -51,7 +54,8 @@ auto nearness_search(strategy::top_k_sorted_t,
 }
 
 /// @ingroup spatial_queries
-/// @brief Perform a nearest-point spatial query against a single tree structure.
+/// @brief Perform a nearest-point spatial query against a single tree
+/// structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
 /// based on user-provided AABB distance and primitive distance callbacks.
@@ -60,8 +64,10 @@ auto nearness_search(strategy::top_k_sorted_t,
 /// @param tree The spatial tree to query.
 /// @param aabb_metric A function that estimates the distance to a node's AABB.
 ///                    Signature: `(const tf::aabb<RealT, N>& aabb) -> RealT`
-/// @param closest_point_f A function that evaluates the true distance to a primitive.
-///                        Signature: `(Index id) -> tf::closest_point<RealT, N>`
+/// @param closest_point_f A function that evaluates the true distance to a
+/// primitive.
+///                        Signature: `(Index id) -> tf::closest_point<RealT,
+///                        N>`
 ///
 /// @return tf::tree_closest_point<Index, RealT, N>.
 template <typename Index, typename RealT, std::size_t N, typename F0,
@@ -73,7 +79,8 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
 }
 
 /// @ingroup spatial_queries
-/// @brief Perform a nearest-point spatial query against a single tree structure.
+/// @brief Perform a nearest-point spatial query against a single tree
+/// structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
 /// based on user-provided AABB distance and primitive distance callbacks.
@@ -82,8 +89,10 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
 /// @param tree The spatial tree to query.
 /// @param aabb_metric A function that estimates the distance to a node's AABB.
 ///                    Signature: `(const tf::aabb<RealT, N>& aabb) -> RealT`
-/// @param closest_point_f A function that evaluates the true distance to a primitive.
-///                        Signature: `(Index id) -> tf::closest_point<RealT, N>`
+/// @param closest_point_f A function that evaluates the true distance to a
+/// primitive.
+///                        Signature: `(Index id) -> tf::closest_point<RealT,
+///                        N>`
 ///
 /// @return tf::tree_closest_point<Index, RealT, N>.
 template <typename Index, typename RealT, std::size_t N, typename F0,
@@ -193,19 +202,23 @@ auto nearness_search(strategy::top_k_sorted_t,
   return result.points;
 }
 
-
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
 template <typename Index, typename RealT, std::size_t N, typename F0,
@@ -220,15 +233,20 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
 template <typename Index, typename RealT, std::size_t N, typename F0,
@@ -243,15 +261,20 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
 template <typename Index, typename RealT, std::size_t N, typename F0,
@@ -266,15 +289,20 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
 template <typename Index, typename RealT, std::size_t N, typename F0,
@@ -390,7 +418,8 @@ auto nearness_search(strategy::top_k_sorted_t,
 }
 
 /// @ingroup spatial_queries
-/// @brief Perform a nearest-point spatial query against a single tree structure.
+/// @brief Perform a nearest-point spatial query against a single tree
+/// structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
 /// based on user-provided AABB distance and primitive distance callbacks.
@@ -398,9 +427,12 @@ auto nearness_search(strategy::top_k_sorted_t,
 ///
 /// @param tree The spatial tree to query.
 /// @param aabb_metric A function that estimates the distance to a node's AABB.
-///                    Signature: `(const tf::aabb<RealT, N>& aabb) -> tf::aabb_metrics<RealT>`
-/// @param closest_point_f A function that evaluates the true distance to a primitive.
-///                        Signature: `(Index id) -> tf::closest_point<RealT, N>`
+///                    Signature: `(const tf::aabb<RealT, N>& aabb) ->
+///                    tf::aabb_metrics<RealT>`
+/// @param closest_point_f A function that evaluates the true distance to a
+/// primitive.
+///                        Signature: `(Index id) -> tf::closest_point<RealT,
+///                        N>`
 /// @param radius The search radius for the query
 ///
 /// @return tf::tree_closest_point<Index, RealT, N>.
@@ -414,7 +446,8 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
 }
 
 /// @ingroup spatial_queries
-/// @brief Perform a nearest-point spatial query against a single tree structure.
+/// @brief Perform a nearest-point spatial query against a single tree
+/// structure.
 ///
 /// Traverses the tree to find the closest primitive to an implicit query point,
 /// based on user-provided AABB distance and primitive distance callbacks.
@@ -422,9 +455,12 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
 ///
 /// @param tree The spatial tree to query.
 /// @param aabb_metric A function that estimates the distance to a node's AABB.
-///                    Signature: `(const tf::aabb<RealT, N>& aabb) -> tf::aabb_metrics<RealT>`
-/// @param closest_point_f A function that evaluates the true distance to a primitive.
-///                        Signature: `(Index id) -> tf::closest_point<RealT, N>`
+///                    Signature: `(const tf::aabb<RealT, N>& aabb) ->
+///                    tf::aabb_metrics<RealT>`
+/// @param closest_point_f A function that evaluates the true distance to a
+/// primitive.
+///                        Signature: `(Index id) -> tf::closest_point<RealT,
+///                        N>`
 /// @param radius The search radius for the query
 ///
 /// @return tf::tree_closest_point<Index, RealT, N>.
@@ -545,15 +581,20 @@ auto nearness_search(strategy::top_k_sorted_t,
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param radius The search radius for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -570,15 +611,20 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param radius The search radius for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -595,15 +641,20 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param radius The search radius for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -620,15 +671,20 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a nearest-point spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the closest pair of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the closest pair of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param radius The search radius for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -746,15 +802,17 @@ auto nearness_search(strategy::top_k_sorted_t,
 /// @ingroup spatial_queries
 /// @brief Perform a knn spatial query against a single tree structure.
 ///
-/// Traverses the tree to find the k nearest primitives to an implicit query point,
-/// based on user-provided AABB distance and primitive distance callbacks.
-/// The tree is searched using a top-k sorted traversal strategy.
+/// Traverses the tree to find the k nearest primitives to an implicit query
+/// point, based on user-provided AABB distance and primitive distance
+/// callbacks. The tree is searched using a top-k sorted traversal strategy.
 ///
 /// @param tree The spatial tree to query.
 /// @param aabb_metric A function that estimates the distance to a node's AABB.
 ///                    Signature: `(const tf::aabb<RealT, N>& aabb) -> RealT`
-/// @param closest_point_f A function that evaluates the true distance to a primitive.
-///                        Signature: `(Index id) -> tf::closest_point<RealT, N>`
+/// @param closest_point_f A function that evaluates the true distance to a
+/// primitive.
+///                        Signature: `(Index id) -> tf::closest_point<RealT,
+///                        N>`
 /// @param knn The accumulator `tf::tree_knn` for the query
 ///
 /// @return tf::tree_closest_point<Index, RealT, N>.
@@ -770,15 +828,17 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree,
 /// @ingroup spatial_queries
 /// @brief Perform a knn spatial query against a single tree structure.
 ///
-/// Traverses the tree to find the k nearest primitives to an implicit query point,
-/// based on user-provided AABB distance and primitive distance callbacks.
-/// The tree is searched using a top-k sorted traversal strategy.
+/// Traverses the tree to find the k nearest primitives to an implicit query
+/// point, based on user-provided AABB distance and primitive distance
+/// callbacks. The tree is searched using a top-k sorted traversal strategy.
 ///
 /// @param tree The spatial tree to query.
 /// @param aabb_metric A function that estimates the distance to a node's AABB.
 ///                    Signature: `(const tf::aabb<RealT, N>& aabb) -> RealT`
-/// @param closest_point_f A function that evaluates the true distance to a primitive.
-///                        Signature: `(Index id) -> tf::closest_point<RealT, N>`
+/// @param closest_point_f A function that evaluates the true distance to a
+/// primitive.
+///                        Signature: `(Index id) -> tf::closest_point<RealT,
+///                        N>`
 /// @param knn The accumulator `tf::tree_knn` for the query
 ///
 /// @return tf::tree_closest_point<Index, RealT, N>.
@@ -876,15 +936,20 @@ auto nearness_search(strategy::top_k_sorted_t,
 /// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the k nearest pairs of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the k nearest pairs of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param knn The accumulator `tf::tree_knn` for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -901,15 +966,20 @@ auto nearness_search(const tf::tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the k nearest pairs of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the k nearest pairs of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param knn The accumulator `tf::tree_knn` for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -926,15 +996,20 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the k nearest pairs of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the k nearest pairs of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param knn The accumulator `tf::tree_knn` for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -951,15 +1026,20 @@ auto nearness_search(const tf::mod_tree<Index, RealT, N> &tree0,
 /// @ingroup spatial_queries
 /// @brief Perform a knn spatial query between two tree structures.
 ///
-/// Traverses both trees in tandem to find the k nearest pairs of primitives between them,
-/// using user-provided AABB distance and primitive distance callbacks. 
+/// Traverses both trees in tandem to find the k nearest pairs of primitives
+/// between them, using user-provided AABB distance and primitive distance
+/// callbacks.
 ///
 /// @param tree0 The first spatial tree to query.
 /// @param tree1 The second spatial tree to query.
-/// @param aabb_metrics_f A function that estimates the distances between two AABBs.
-///                       Signature: `(const tf::aabb<RealT, N>& a, const tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
-/// @param closest_points_f A function that evaluates the true distance between a pair of primitives.
-///                         Signature: `(Index id0, Index id1) -> tf::closest_point_pair<RealT, N>`
+/// @param aabb_metrics_f A function that estimates the distances between two
+/// AABBs.
+///                       Signature: `(const tf::aabb<RealT, N>& a, const
+///                       tf::aabb<RealT, N>& b) -> tf::aabb_metrics<RealT>`
+/// @param closest_points_f A function that evaluates the true distance between
+/// a pair of primitives.
+///                         Signature: `(Index id0, Index id1) ->
+///                         tf::closest_point_pair<RealT, N>`
 /// @param knn The accumulator `tf::tree_knn` for the query
 ///
 /// @return tf::tree_closest_point_pair<Index, RealT, N>.
@@ -1029,6 +1109,114 @@ auto nearness_search(strategy::priority_queue_t,
       tree0.main_tree(), tree1, aabb_metrics_f, closest_points_f, knn);
   tf::implementation::tree_tree_proximity_heap(
       tree0.delta_tree(), tree1, aabb_metrics_f, closest_points_f, knn);
+}
+
+template <typename Index, typename RealT, std::size_t N, typename Policy0,
+          typename F0, typename F1>
+auto nearness_search(const tf::form<Index, RealT, N, Policy0> &form,
+                     const F0 &aabb_metric, const F1 &closest_point_f) {
+  return nearness_search(
+      form.tree(),
+      [&](const auto &aabb) {
+        return aabb_metric(tf::transformed(aabb, form.transformation()));
+      },
+      [&](Index id) {
+        return closest_point_f(
+            tf::transformed(form[id], form.transformation()));
+      });
+}
+
+template <typename Index, typename RealT, std::size_t N, typename Policy0,
+          typename F0, typename F1>
+auto nearness_search(const tf::form<Index, RealT, N, Policy0> &form,
+                     const F0 &aabb_metric, const F1 &closest_point_f,
+                     RealT radius) {
+  return nearness_search(
+      form.tree(),
+      [&](const auto &aabb) {
+        return aabb_metric(tf::transformed(aabb, form.transformation()));
+      },
+      [&](Index id) {
+        return closest_point_f(
+            tf::transformed(form[id], form.transformation()));
+      },
+      radius);
+}
+
+template <typename Index, typename RealT, std::size_t N, typename Policy0,
+          typename F0, typename F1, typename RandomIt>
+auto nearness_search(const tf::form<Index, RealT, N, Policy0> &form,
+                     const F0 &aabb_metric, const F1 &closest_point_f,
+                     tree_knn<RandomIt> &knn) {
+  return nearness_search(
+      form.tree(),
+      [&](const auto &aabb) {
+        return aabb_metric(tf::transformed(aabb, form.transformation()));
+      },
+      [&](Index id) {
+        return closest_point_f(
+            tf::transformed(form[id], form.transformation()));
+      },
+      knn);
+}
+
+template <typename Index, typename RealT, std::size_t N, typename Policy0,
+          typename Policy1, typename F>
+auto nearness_search(const tf::form<Index, RealT, N, Policy0> &form0,
+                     const tf::form<Index, RealT, N, Policy1> &form1,
+                     const F &closest_point_f) {
+  return nearness_search(
+      form0.tree(), form1.tree(),
+      [&](const auto &aabb0, const auto &aabb1) {
+        return tf::make_aabb_metrics(
+            tf::transformed(aabb0, form0.transformation()),
+            tf::transformed(aabb1, form1.transformation()));
+      },
+      [&](Index id0, Index id1) {
+        return closest_point_f(
+            tf::transformed(form0[id0], form0.transformation()),
+            tf::transformed(form1[id1], form1.transformation()));
+      });
+}
+
+template <typename Index, typename RealT, std::size_t N, typename Policy0,
+          typename Policy1, typename F>
+auto nearness_search(const tf::form<Index, RealT, N, Policy0> &form0,
+                     const tf::form<Index, RealT, N, Policy1> &form1,
+                     const F &closest_point_f, RealT radius) {
+  return nearness_search(
+      form0.tree(), form1.tree(),
+      [&](const auto &aabb0, const auto &aabb1) {
+        return tf::make_aabb_metrics(
+            tf::transformed(aabb0, form0.transformation()),
+            tf::transformed(aabb1, form1.transformation()));
+      },
+      [&](Index id0, Index id1) {
+        return closest_point_f(
+            tf::transformed(form0[id0], form0.transformation()),
+            tf::transformed(form1[id1], form1.transformation()));
+      },
+      radius);
+}
+
+template <typename Index, typename RealT, std::size_t N, typename Policy0,
+          typename Policy1, typename F, typename RandomIt>
+auto nearness_search(const tf::form<Index, RealT, N, Policy0> &form0,
+                     const tf::form<Index, RealT, N, Policy1> &form1,
+                     const F &closest_point_f, tree_knn<RandomIt> &knn) {
+  return nearness_search(
+      form0.tree(), form1.tree(),
+      [&](const auto &aabb0, const auto &aabb1) {
+        return tf::make_aabb_metrics(
+            tf::transformed(aabb0, form0.transformation()),
+            tf::transformed(aabb1, form1.transformation()));
+      },
+      [&](Index id0, Index id1) {
+        return closest_point_f(
+            tf::transformed(form0[id0], form0.transformation()),
+            tf::transformed(form1[id1], form1.transformation()));
+      },
+      knn);
 }
 
 } // namespace tf

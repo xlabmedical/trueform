@@ -8,9 +8,9 @@
 #include "./implementation/line_line_check.hpp"
 #include "./line.hpp"
 #include "./plane.hpp"
+#include "./point_like.hpp"
 #include "./ray.hpp"
 #include "./segment.hpp"
-#include "./point_like.hpp"
 #include <algorithm>
 
 namespace tf {
@@ -90,7 +90,8 @@ auto closest_point_parametric(const tf::segment<Policy0> &segment,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a ray, and a ray.
+/// @brief Computes the parametric locations of closest points on a ray, and a
+/// ray.
 template <typename RealT, std::size_t Dims>
 auto closest_point_parametric(const tf::ray<RealT, Dims> &ray0,
                               const tf::ray<RealT, Dims> &ray1) {
@@ -125,7 +126,8 @@ auto closest_point_parametric(const tf::ray<RealT, Dims> &ray0,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a ray, and a line.
+/// @brief Computes the parametric locations of closest points on a ray, and a
+/// line.
 template <typename RealT, std::size_t Dims>
 auto closest_point_parametric(const tf::ray<RealT, Dims> &ray,
                               const tf::line<RealT, Dims> &line) {
@@ -153,7 +155,8 @@ auto closest_point_parametric(const tf::ray<RealT, Dims> &ray,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a line, and a ray.
+/// @brief Computes the parametric locations of closest points on a line, and a
+/// ray.
 template <typename RealT, std::size_t Dims>
 auto closest_point_parametric(const tf::line<RealT, Dims> &line,
                               const tf::ray<RealT, Dims> &ray) {
@@ -163,7 +166,8 @@ auto closest_point_parametric(const tf::line<RealT, Dims> &line,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a ray, and a segment.
+/// @brief Computes the parametric locations of closest points on a ray, and a
+/// segment.
 template <typename RealT, std::size_t Dims, typename T>
 auto closest_point_parametric(const tf::ray<RealT, Dims> &ray0,
                               const tf::segment<T> &segment) {
@@ -195,7 +199,8 @@ auto closest_point_parametric(const tf::ray<RealT, Dims> &ray0,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a segment, and a ray.
+/// @brief Computes the parametric locations of closest points on a segment, and
+/// a ray.
 template <typename Policy0, typename RealT, std::size_t Dims>
 auto closest_point_parametric(const tf::segment<Policy0> &segment0,
                               const tf::ray<RealT, Dims> &ray1) {
@@ -205,7 +210,8 @@ auto closest_point_parametric(const tf::segment<Policy0> &segment0,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a line, and a segment.
+/// @brief Computes the parametric locations of closest points on a line, and a
+/// segment.
 template <typename RealT, std::size_t Dims, typename Policy0>
 auto closest_point_parametric(const tf::line<RealT, Dims> &line,
                               const tf::segment<Policy0> &segment) {
@@ -234,7 +240,8 @@ auto closest_point_parametric(const tf::line<RealT, Dims> &line,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a segment, and a line.
+/// @brief Computes the parametric locations of closest points on a segment, and
+/// a line.
 template <typename Policy0, typename RealT, std::size_t Dims>
 auto closest_point_parametric(const tf::segment<Policy0> &segment,
                               const tf::line<RealT, Dims> &line) {
@@ -243,7 +250,8 @@ auto closest_point_parametric(const tf::segment<Policy0> &segment,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a line, and a line.
+/// @brief Computes the parametric locations of closest points on a line, and a
+/// line.
 template <typename RealT, std::size_t Dims>
 auto closest_point_parametric(const tf::line<RealT, Dims> &line0,
                               const tf::line<RealT, Dims> &line1) {
@@ -268,7 +276,8 @@ auto closest_point_parametric(const tf::line<RealT, Dims> &line0,
 }
 
 /// @ingroup geometry
-/// @brief Computes the parametric locations of closest points on a segment, and a segment.
+/// @brief Computes the parametric locations of closest points on a segment, and
+/// a segment.
 template <typename Policy0, typename Policy1>
 auto closest_point_parametric(const tf::segment<Policy0> &segment0,
                               const tf::segment<Policy1> &segment1) {
@@ -285,24 +294,19 @@ auto closest_point_parametric(const tf::segment<Policy0> &segment0,
     t1 = std::clamp(t1, real_t(0), real_t(1));
   } else {
     // Lines are parallel; find the closest endpoints
-    real_t min_dist_sq = std::numeric_limits<real_t>::max();
+    real_t min_dist_sq = (segment0[0] - segment1[0]).length2();
     std::pair<real_t, real_t> min_pair{0, 0};
 
-    std::array<std::pair<real_t, real_t>, 4> candidates = {
-        std::make_pair(real_t(0), real_t(0)),
-        std::make_pair(real_t(0), real_t(1)),
-        std::make_pair(real_t(1), real_t(0)),
-        std::make_pair(real_t(1), real_t(1))};
-
-    for (const auto &candidate : candidates) {
-      auto p0 = segment0[0] + candidate.first * (segment0[1] - segment0[0]);
-      auto p1 = segment1[0] + candidate.second * (segment1[1] - segment1[0]);
+    auto check_f = [&](const auto &p0, const auto &p1, auto candidate) {
       auto dist_sq = (p0 - p1).length2();
       if (dist_sq < min_dist_sq) {
         min_dist_sq = dist_sq;
         min_pair = candidate;
       }
-    }
+    };
+    check_f(segment0[0], segment1[1], std::make_pair(real_t(0), real_t(1)));
+    check_f(segment0[1], segment1[0], std::make_pair(real_t(1), real_t(0)));
+    check_f(segment0[1], segment1[1], std::make_pair(real_t(1), real_t(1)));
     t0 = min_pair.first;
     t1 = min_pair.second;
   }

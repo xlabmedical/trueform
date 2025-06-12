@@ -78,8 +78,9 @@ auto tree_tree_proximity_sort(const tf::tree<Index, RealT, N> &tree0,
     } else {
       for (auto n_id0 = data0[0]; n_id0 < data0[0] + data0[1]; ++n_id0)
         for (auto n_id1 = data1[0]; n_id1 < data1[0] + data1[1]; ++n_id1) {
-          result.update(std::make_pair(ids0[n_id0], ids1[n_id1]),
-                        closest_pts(ids0[n_id0], ids1[n_id1]));
+          if (result.update(std::make_pair(ids0[n_id0], ids1[n_id1]),
+                            closest_pts(ids0[n_id0], ids1[n_id1])))
+            return;
         }
     }
   }
@@ -150,8 +151,9 @@ auto tree_tree_proximity_heap(const tf::tree<Index, RealT, N> &tree0,
     } else {
       for (auto n_id0 = data0[0]; n_id0 < data0[0] + data0[1]; ++n_id0)
         for (auto n_id1 = data1[0]; n_id1 < data1[0] + data1[1]; ++n_id1) {
-          result.update(std::make_pair(ids0[n_id0], ids1[n_id1]),
-                        closest_pts(ids0[n_id0], ids1[n_id1]));
+          if (result.update(std::make_pair(ids0[n_id0], ids1[n_id1]),
+                            closest_pts(ids0[n_id0], ids1[n_id1])))
+            return;
         }
     }
   }

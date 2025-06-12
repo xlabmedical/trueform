@@ -16,11 +16,12 @@ public:
   tree_closest_point(RealT metric) { point.point.metric = metric; }
 
   auto update(Index c_element, const tf::metric_point<RealT, Dims> &c_point)
-      -> void {
+      -> bool {
     if (c_point.metric < point.point.metric) {
       point.point = c_point;
       point.element = c_element;
     }
+    return metric() < std::numeric_limits<RealT>::epsilon();
   }
 
   auto metric() { return point.point.metric; }

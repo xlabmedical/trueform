@@ -9,6 +9,7 @@
 #include <tuple>
 
 namespace tf::implementation {
+
 template <typename Line0, typename Line1>
 auto line_line_check(const Line0 &line0, const Line1 &line1) {
   auto dif = line0.origin - line1.origin;
@@ -23,14 +24,19 @@ auto line_line_check(const Line0 &line0, const Line1 &line1) {
   auto denom = d2121 * d4343 - d4321 * d4321;
 
   using real_t = tf::common_value<decltype(numer), decltype(denom)>;
-  real_t t0;
-  real_t t1;
+  real_t t0 = real_t(0);
+  real_t t1 = real_t(0);
   bool non_parallel = false;
 
-  if (!(std::abs(denom) * decltype(denom)(1 << 10) <= std::abs(numer))) {
+  auto eps = std::numeric_limits<decltype(denom)>::epsilon() *
+             (std::abs(d2121) + std::abs(d4343));
+
+  if (std::abs(denom) > eps) {
     t0 = numer / denom;
     t1 = (d1343 + d4321 * t0) / d4343;
-  } else non_parallel = true;
+    non_parallel = true;
+  }
+
   return std::make_tuple(non_parallel, t0, t1);
 }
 } // namespace tf::implementation
