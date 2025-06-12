@@ -49,4 +49,22 @@ auto make_metric_point_pair(RealT metric, point_like<Dims, T0> first,
   return metric_point_pair<tf::common_value<RealT, T0, T1>, Dims>{metric, first,
                                                                   second};
 }
+
+template <typename RealT, std::size_t Dims>
+auto min(const metric_point_pair<RealT, Dims> &lhs,
+         const metric_point_pair<RealT, Dims> &rhs)
+    -> const metric_point_pair<RealT, Dims> & {
+  if (lhs.metric < rhs.metric)
+    return lhs;
+  return rhs;
+}
+
+template <typename RealT, std::size_t Dims>
+auto max(const metric_point_pair<RealT, Dims> &lhs,
+         const metric_point_pair<RealT, Dims> &rhs)
+    -> const metric_point_pair<RealT, Dims> & {
+  if (lhs.metric > rhs.metric)
+    return lhs;
+  return rhs;
+}
 } // namespace tf

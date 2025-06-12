@@ -288,8 +288,7 @@ auto closest_metric_point_pair(const tf::polygon<V, Policy0> &poly_in,
   if (hit_info) {
     return tf::make_metric_point_pair(RealT(0), hit_info.point, hit_info.point);
   }
-  auto best = tf::make_metric_point_pair(std::numeric_limits<RealT>::max(),
-                                         hit_info.point, hit_info.point);
+  auto best = tf::closest_metric_point_pair(poly, ray.origin);
   std::size_t size = poly.size();
   std::size_t prev = size - 1;
   for (std::size_t i = 0; i < size; prev = i++) {
@@ -310,11 +309,11 @@ auto closest_metric_point_pair(const tf::ray<RealT, Dims> &ray,
   std::swap(res.first, res.second);
   return res;
 }
-/// @ingroup geometry
-/// @brief Computes the closest @ref tf::metric_point_pair between the objects.
+
+namespace implementation {
 template <std::size_t V, typename Policy0, typename Policy1>
-auto closest_metric_point_pair(const tf::polygon<V, Policy0> &poly_in,
-                               const tf::segment<Policy1> &seg1) {
+auto closest_metric_point_pair_impl(const tf::polygon<V, Policy0> &poly_in,
+                                    const tf::segment<Policy1> &seg1) {
   const auto &poly = tf::inject_plane(poly_in);
   auto ray = tf::make_ray_between_points(seg1[0], seg1[1]);
   using RealT = tf::common_value<decltype(poly[0][0]), decltype(seg1[0][0])>;
@@ -323,17 +322,46 @@ auto closest_metric_point_pair(const tf::polygon<V, Policy0> &poly_in,
   if (hit_info) {
     return tf::make_metric_point_pair(RealT(0), hit_info.point, hit_info.point);
   }
-  auto best = tf::make_metric_point_pair(std::numeric_limits<RealT>::max(),
-                                         hit_info.point, hit_info.point);
+  // only check the first vertex
+  auto best = closest_metric_point_pair(poly, seg1[0]);
   std::size_t size = poly.size();
   std::size_t prev = size - 1;
   for (std::size_t i = 0; i < size; prev = i++) {
-    auto seg = tf::make_segment_between_points(poly[prev], poly[i]);
-    auto tmp = tf::closest_metric_point_pair(seg, seg1);
-    if (tmp.metric < best.metric)
-      best = tmp;
+    auto line0 = tf::make_line_between_points(poly[prev], poly[i]);
+    auto [non_parallel, t0, t1] =
+        tf::implementation::line_line_check(line0, ray);
+    if (non_parallel) {
+      t0 = std::clamp(t0, RealT(0), RealT(1));
+      t1 = std::clamp(t1, RealT(0), RealT(1));
+      auto pt0 = line0.origin + t0 * line0.direction;
+      auto pt1 = ray.origin + t1 * ray.direction;
+      best = tf::min(
+          best, tf::make_metric_point_pair((pt0 - pt1).length2(), pt0, pt1));
+    } // else check vertex-vertex which is already done from vertex-polygon
   }
   return best;
+}
+
+template <typename Policy, std::size_t V, typename Policy0>
+auto closest_metric_point_pair_impl(const tf::segment<Policy> &seg,
+                                    const tf::polygon<V, Policy0> &poly) {
+  auto res = closest_metric_point_pair_impl(poly, seg);
+  std::swap(res.first, res.second);
+  return res;
+}
+
+} // namespace implementation
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point_pair between the objects.
+template <std::size_t V, typename Policy0, typename Policy1>
+auto closest_metric_point_pair(const tf::polygon<V, Policy0> &poly_in,
+                               const tf::segment<Policy1> &seg1) {
+  const auto &poly = tf::inject_plane(poly_in);
+  auto best = implementation::closest_metric_point_pair_impl(poly, seg1);
+  if (best.metric == 0)
+    return best;
+  return tf::min(best, closest_metric_point_pair(poly, seg1[1]));
 }
 
 /// @ingroup geometry
@@ -356,33 +384,26 @@ auto closest_metric_point_pair(const tf::polygon<V0, Policy0> &poly_in0,
 
   std::size_t size = poly1.size();
   std::size_t prev = size - 1;
-  auto best = closest_metric_point_pair(
+  auto best = implementation::closest_metric_point_pair_impl(
       poly0, tf::make_segment_between_points(poly1[prev], poly1[0]));
 
   for (std::size_t i = 1; i < size; prev = i++) {
-    auto tmp = closest_metric_point_pair(
-        poly0, tf::make_segment_between_points(poly1[prev], poly1[i]));
-    if (tmp.metric < best.metric)
-      best = tmp;
+    best = tf::min(best, implementation::closest_metric_point_pair_impl(
+                             poly0, tf::make_segment_between_points(poly1[prev],
+                                                                    poly1[i])));
     if (best.metric < std::numeric_limits<decltype(best.metric)>::epsilon())
       return best;
   }
 
   size = poly0.size();
   prev = size - 1;
-  // we only need to check if the edges of poly1 intersect
-  // poly0 (as all the edge combinations have been checked
-  // by the closest_metric_point_pair calls until now)
   for (std::size_t i = 0; i < size; prev = i++) {
-    auto ray = tf::make_ray_between_points(poly0[prev], poly0[i]);
-    using RealT =
-        tf::common_value<decltype(poly0[0][0]), decltype(poly1[0][0])>;
-    auto hit_info =
-        tf::ray_hit(ray, poly1, tf::make_ray_config(RealT(0), RealT(1)));
-    if (hit_info) {
-      return tf::make_metric_point_pair(RealT(0), hit_info.point,
-                                        hit_info.point);
-    }
+    best = tf::min(
+        best,
+        implementation::closest_metric_point_pair_impl(
+            tf::make_segment_between_points(poly0[prev], poly0[i]), poly1));
+    if (best.metric < std::numeric_limits<decltype(best.metric)>::epsilon())
+      return best;
   }
 
   return best;

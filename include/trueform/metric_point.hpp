@@ -4,9 +4,9 @@
  * https://github.com/xlabmedical/trueform
  */
 #pragma once
-#include "./value_type.hpp"
 #include "./point.hpp"
 #include "./point_like.hpp"
+#include "./value_type.hpp"
 
 namespace tf {
 
@@ -41,5 +41,23 @@ template <typename RealT, std::size_t Dims> struct metric_point {
 template <typename RealT, std::size_t Dims, typename T>
 auto make_metric_point(RealT metric, point_like<Dims, T> point) {
   return metric_point<tf::common_value<RealT, T>, Dims>{metric, point};
+}
+
+template <typename RealT, std::size_t Dims>
+auto min(const metric_point<RealT, Dims> &lhs,
+         const metric_point<RealT, Dims> &rhs)
+    -> const metric_point<RealT, Dims> & {
+  if (lhs.metric < rhs.metric)
+    return lhs;
+  return rhs;
+}
+
+template <typename RealT, std::size_t Dims>
+auto max(const metric_point<RealT, Dims> &lhs,
+         const metric_point<RealT, Dims> &rhs)
+    -> const metric_point<RealT, Dims> & {
+  if (lhs.metric > rhs.metric)
+    return lhs;
+  return rhs;
 }
 } // namespace tf
