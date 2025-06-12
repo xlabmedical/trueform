@@ -22,7 +22,8 @@ public:
     return _transformation;
   }
 
-  auto inv_transformation() const -> const tf::transformation<RealT, Dims> & {
+  auto inverse_transformation() const
+      -> const tf::transformation<RealT, Dims> & {
     return _inv_transformation;
   }
 

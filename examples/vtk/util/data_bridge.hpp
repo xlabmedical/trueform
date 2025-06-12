@@ -1,7 +1,8 @@
 #pragma once
-#include "vtkPolyData.h"
-#include "trueform/point_range.hpp"
 #include "trueform/blocked_range.hpp"
+#include "trueform/point_range.hpp"
+#include "trueform/polygon_range.hpp"
+#include "vtkPolyData.h"
 
 inline auto get_points(vtkPolyData *poly) {
   auto ptr =
@@ -29,4 +30,8 @@ inline auto get_triangle_faces(vtkCellArray *_cell_array) {
 
 inline auto get_triangle_faces(vtkPolyData *poly) {
   return get_triangle_faces(poly->GetPolys());
+}
+
+inline auto get_triangles(vtkPolyData *poly) {
+  return tf::make_polygon_range(get_triangle_faces(poly), get_points(poly));
 }

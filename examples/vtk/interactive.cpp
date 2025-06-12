@@ -1,17 +1,15 @@
 #include "./util/common.hpp"
 #include "./util/data_bridge.hpp"
+#include "trueform/form.hpp"
+#include "trueform/frame.hpp"
 #include "trueform/intersects.hpp"
 #include "trueform/plane.hpp"
-#include "trueform/polygon_range.hpp"
+#include "trueform/random_transformation.hpp"
 #include "trueform/ray_config.hpp"
 #include "trueform/ray_hit.hpp"
-#include "trueform/search.hpp"
 #include "trueform/tick_tock.hpp"
 #include "trueform/transformation.hpp"
-#include "trueform/transformed.hpp"
 #include "trueform/tree.hpp"
-
-#include "trueform/random_transformation.hpp"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
@@ -22,22 +20,21 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkXRenderWindowInteractor.h"
+#include <filesystem>
 #include <set>
 #include <string>
+#include <string_view>
 
-template <class> struct print_t;
-
-class ray_caster {
+class geometry_handle_t {
 public:
-  auto push_back(vtkActor *actor, vtkPolyData *poly) -> void {
+  auto push_back(vtkActor *actor, vtkPolyData *poly,
+                 tf::tree<int, float, 3> &tree) -> void {
     map[actor] = actors.size();
     actors.push_back(actor);
     polys.push_back(poly);
-    inv_matrix.push_back(vtk_make_unique<vtkMatrix4x4>());
-    trees.emplace_back();
-    trees.back().build(
-        tf::make_polygon_range(get_triangle_faces(poly), get_points(poly)),
-        tf::config_tree(4, 4));
+    frames.emplace_back();
+    frames.back().fill(actor->GetUserMatrix()->GetData());
+    trees.push_back(&tree);
   }
 
   auto get_actors() const -> const auto & { return actors; }
@@ -49,16 +46,8 @@ public:
     vtkActor *picked = nullptr;
 
     for (std::size_t i = 0; i < polys.size(); ++i) {
-      auto polygons = tf::make_polygon_range(get_triangle_faces(polys[i]),
-                                             get_points(polys[i]));
-      auto tr = inv_transform(i);
-      auto l_ray = tf::transformed(ray, tr);
-      auto res = tf::ray_cast(
-          l_ray, trees[i],
-          [&polygons](const auto &ray, auto id) {
-            return tf::ray_cast(ray, polygons[id]);
-          },
-          config);
+      auto form = tf::make_form(frames[i], *trees[i], get_triangles(polys[i]));
+      auto res = tf::ray_cast(ray, form, config);
       if (res) {
         result = res;
         config.max_t = result.info.t;
@@ -68,29 +57,15 @@ public:
     return std::make_pair(picked, ray.origin + result.info.t * ray.direction);
   }
 
-  auto collision(vtkActor *actor, std::set<vtkActor *> &colliding) {
+  auto intersects_any(vtkActor *actor, std::set<vtkActor *> &colliding) {
     std::size_t id = map[actor];
-    auto polygons0 = tf::make_polygon_range(get_triangle_faces(polys[id]),
-                                            get_points(polys[id]));
-    auto tr0 = transform(id);
-    const auto &tree0 = trees[id];
+    auto form0 =
+        tf::make_form(frames[id], *trees[id], get_triangles(polys[id]));
     for (std::size_t i = 0; i < polys.size(); ++i) {
       if (i == id)
         continue;
-      auto polygons1 = tf::make_polygon_range(get_triangle_faces(polys[i]),
-                                              get_points(polys[i]));
-      const auto &tree1 = trees[i];
-      auto tr1 = transform(i);
-      auto collision = tf::search(
-          tree0, tree1,
-          [&](const auto &aabb0, const auto &aabb1) {
-            return tf::intersects(tf::transformed(aabb0, tr0),
-                                  tf::transformed(aabb1, tr1));
-          },
-          [&](auto i0, auto i1) {
-            return tf::intersects(tf::transformed(polygons0[i0], tr0),
-                                  tf::transformed(polygons1[i1], tr1));
-          });
+      auto collision = tf::intersects(
+          form0, tf::make_form(frames[i], *trees[i], get_triangles(polys[i])));
       if (collision)
         colliding.insert(actors[i]);
       else
@@ -98,46 +73,22 @@ public:
     }
   }
 
+  auto update_frame(vtkActor *actor) -> void {
+    auto id = map[actor];
+    frames[id].fill(actors[id]->GetUserMatrix()->GetData());
+  }
+
 private:
-  auto invert(int i) -> void {
-    /*if (actors[i]->GetUserMatrix()->GetMTime() < inv_matrix[i]->GetMTime())
-     * {*/
-    vtkMatrix4x4::Invert(actors[i]->GetUserMatrix(), inv_matrix[i].get());
-    inv_matrix[i]->Modified();
-    /*}*/
-  }
-
-  auto inv_transform(int id) -> tf::transformation<float, 3> {
-    invert(id);
-    tf::transformation<float, 3> out;
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 4; ++j) {
-        out(i, j) = inv_matrix[id]->Element[i][j];
-      }
-    }
-    return out;
-  }
-
-  auto transform(int id) -> tf::transformation<float, 3> {
-    tf::transformation<float, 3> out;
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 4; ++j) {
-        out(i, j) = actors[id]->GetUserMatrix()->Element[i][j];
-      }
-    }
-    return out;
-  }
-
   std::map<vtkActor *, int> map;
   std::vector<vtkPolyData *> polys;
   std::vector<vtkActor *> actors;
-  std::vector<vtk_unique_ptr<vtkMatrix4x4>> inv_matrix;
-  std::vector<tf::tree<int, float, 3>> trees;
+  std::vector<tf::frame<float, 3>> frames;
+  std::vector<tf::tree<int, float, 3> *> trees;
 };
 
 class cursor_interactor : public vtkInteractorStyleTrackballCamera {
 public:
-  ray_caster rc;
+  geometry_handle_t geometry_handle;
   std::vector<float> pick_times;
   std::vector<float> collide_times;
   int time_index = 0;
@@ -229,11 +180,12 @@ public:
     for (int i = 0; i < 3; ++i)
       selected_actor->GetUserMatrix()->Element[i][3] += dx[i];
     selected_actor->GetUserMatrix()->Modified();
+    geometry_handle.update_frame(selected_actor);
   }
 
   auto reset_colliding_colors() {
     colliding.clear();
-    for (auto actor : rc.get_actors()) {
+    for (auto actor : geometry_handle.get_actors()) {
       if (actor != selected_actor)
         reset_active_color(actor);
     }
@@ -241,9 +193,9 @@ public:
 
   auto handle_collisions() {
     tf::tick();
-    rc.collision(selected_actor, colliding);
+    geometry_handle.intersects_any(selected_actor, colliding);
     add_collide_time(tf::tock());
-    for (auto actor : rc.get_actors()) {
+    for (auto actor : geometry_handle.get_actors()) {
       if (actor == selected_actor)
         continue;
       if (colliding.find(actor) == colliding.end()) {
@@ -278,11 +230,11 @@ public:
   }
 
   auto OnMouseMove() -> void override {
-    tf::tick();
     auto [ray, renderer] = get_ray_and_renderer();
-    add_pick_time(tf::tock());
     if (!selected_mode && !camera_mode) {
-      auto [actor, point] = rc.ray_hit(ray);
+      tf::tick();
+      auto [actor, point] = geometry_handle.ray_hit(ray);
+      add_pick_time(tf::tock());
       if (actor) {
         make_moving_plane(point, renderer);
         if (selected_actor != actor) {
@@ -337,11 +289,39 @@ auto set_at(vtkMatrix4x4 *mat, tf::vector<float, 3> at) -> void {
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
-    std::cerr << "Usage: program <input.stl>\n";
+    std::cerr << "Usage: program <input1.stl> <input2.stl> ...\n";
+    return 1;
+  } else if (argc == 2 && (std::string_view(argv[1]) == "-h" ||
+                           std::string_view(argv[1]) == "--help")) {
+    std::cerr << "Usage: program <input1.stl> <input2.stl> ...\n";
     return 1;
   }
-  auto poly = readSTL(argv[1]);
-  center_and_scale(poly.get());
+
+  std::vector<decltype(readSTL(argv[1]))> polys;
+  std::vector<tf::tree<int, float, 3>> trees;
+
+  for (int i = 1; i < argc; ++i) {
+    std::filesystem::path path{argv[i]};
+
+    if (!path.has_extension() || path.extension() != ".stl") {
+      std::cerr << "Skipping file " << path.filename()
+                << ": not an .stl file\n";
+      continue;
+    }
+
+    std::cout << "Reading file: " << path.filename() << std::endl;
+    auto poly = readSTL(argv[i]);
+    center_and_scale(poly.get());
+    polys.emplace_back(std::move(poly));
+    trees.emplace_back();
+    trees.back().build(get_triangles(polys.back().get()),
+                       tf::config_tree(4, 4));
+  }
+
+  if (polys.empty()) {
+    std::cerr << "No valid .stl files provided.\n";
+    return 1;
+  }
 
   auto inter = vtk_make_unique<cursor_interactor>();
   auto renderer = vtk_make_unique<vtkRenderer>();
@@ -349,9 +329,11 @@ int main(int argc, char *argv[]) {
   auto interactor = vtk_make_unique<vtkXRenderWindowInteractor>();
   interactor->SetInteractorStyle(inter.get());
   int n_actors_in_dim = 5;
+  std::size_t poly_index = 0;
   std::size_t total_polygons = 0;
   for (int i = 0; i < n_actors_in_dim; ++i) {
     for (int j = 0; j < n_actors_in_dim; ++j) {
+      auto &poly = polys[poly_index];
       total_polygons += poly->GetNumberOfPolys();
       auto mapper = vtk_make_unique<vtkOpenGLPolyDataMapper>();
       auto actor = vtk_make_unique<vtkOpenGLActor>();
@@ -361,9 +343,11 @@ int main(int argc, char *argv[]) {
       matrix->Identity();
       set_at(matrix.get(), {{i * 15.f, j * 15.f, 0.f}});
       actor->SetUserMatrix(matrix.get());
-      inter->rc.push_back(actor.get(), poly.get());
+      inter->geometry_handle.push_back(actor.get(), poly.get(),
+                                       trees[poly_index]);
       renderer->AddActor(actor.get());
       inter->reset_active_color(actor.get());
+      poly_index = (poly_index + 1) % polys.size();
     }
   }
 

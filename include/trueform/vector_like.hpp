@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "./inject_id.hpp"
 #include "./owned_data.hpp"
 #include "./sqrt.hpp"
 #include "./static_size.hpp"
@@ -71,6 +72,9 @@ public:
 
   using Policy::Policy;
   using Policy::operator=;
+  vector_like() = default;
+  vector_like(const Policy &policy) : Policy{policy} {}
+  vector_like(Policy &&policy) : Policy{std::move(policy)} {}
 
   /// @brief Returns pointer to the internal data.
   auto data() -> pointer { return Policy::data(); }
@@ -272,6 +276,28 @@ public:
 template <std::size_t Dims, typename Policy>
 struct static_size<vector_like<Dims, Policy>>
     : std::integral_constant<std::size_t, Dims> {};
+
+template <typename Index, std::size_t Dims, typename Policy>
+auto inject_id(Index index, tf::vector_like<Dims, Policy> &pt)
+    -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return pt;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(pt));
+    return tf::vector_like<Dims, decltype(base)>{{base}};
+  }
+}
+
+template <typename Index, std::size_t Dims, typename Policy>
+auto inject_id(Index index, const tf::vector_like<Dims, Policy> &pt)
+    -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return pt;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(pt));
+    return tf::vector_like<Dims, decltype(base)>{{base}};
+  }
+}
 
 } // namespace tf
 

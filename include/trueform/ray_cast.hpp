@@ -6,6 +6,7 @@
 #pragma once
 #include "./contains_coplanar_point.hpp"
 #include "./dot.hpp"
+#include "./form.hpp"
 #include "./implementation/line_line_check.hpp"
 #include "./implementation/tree_ray_cast.hpp"
 #include "./implementation/tree_ray_info.hpp"
@@ -16,6 +17,7 @@
 #include "./ray_cast_info.hpp"
 #include "./ray_config.hpp"
 #include "./segment.hpp"
+#include "./transformed.hpp"
 #include "./tree.hpp"
 #include "./tree_ray_info.hpp"
 #include <limits>
@@ -199,6 +201,19 @@ auto ray_cast(const ray<RealT, Dims> &ray,
   tf::implementation::tree_ray_cast(tree.main_tree(), ray, result, ray_cast_f);
   tf::implementation::tree_ray_cast(tree.delta_tree(), ray, result, ray_cast_f);
   return result.info();
+}
+
+template <typename RealT, std::size_t Dims, typename Index, typename Policy>
+auto ray_cast(const ray<RealT, Dims> &ray,
+              const tf::form<Index, RealT, Dims, Policy> &form,
+              tf::ray_config<RealT> config = {}) {
+  auto l_ray = tf::transformed(ray, form.inverse_transformation());
+  return ray_cast(
+      l_ray, form.tree(),
+      [&form](const auto &l_ray, Index id) {
+        return ray_cast(l_ray, form[id]);
+      },
+      config);
 }
 
 } // namespace tf

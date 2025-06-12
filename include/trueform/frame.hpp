@@ -15,6 +15,11 @@ public:
   frame(const tf::transformation<RealT, Dims> &_transformation)
       : _transformation{_transformation}, _is_dirty{true} {}
 
+  frame() : _transformation{tf::make_identity_transformation<RealT, Dims>()} {
+    _inv_transformation = _transformation;
+    _is_dirty = false;
+  }
+
   auto operator=(const tf::transformation<RealT, Dims> &transformation)
       -> frame & {
     _transformation = transformation;
@@ -22,7 +27,7 @@ public:
     return *this;
   }
 
-  auto fill(const RealT *ptr) -> void {
+  template <typename U> auto fill(const U *ptr) -> void {
     _transformation.fill(ptr);
     _is_dirty = true;
   }

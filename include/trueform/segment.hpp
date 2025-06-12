@@ -7,9 +7,9 @@
 
 #include "./indirect_range.hpp"
 #include "./inject_ids.hpp"
+#include "./point.hpp"
 #include "./static_size.hpp"
 #include "./value_type.hpp"
-#include "./point.hpp"
 namespace tf {
 /**
  * @ingroup geometry
@@ -178,6 +178,26 @@ auto inject_ids(segment<Policy> &seg, Range &&ids) -> decltype(auto) {
   } else {
     return tf::make_segment( //
         tf::inject_ids(static_cast<Range &&>(ids), static_cast<Policy &>(seg)));
+  }
+}
+
+template <typename Index, typename Policy>
+auto inject_id(Index index, const tf::segment<Policy> &pt) -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return pt;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(pt));
+    return tf::segment<decltype(base)>{base};
+  }
+}
+
+template <typename Index, typename Policy>
+auto inject_id(Index index, tf::segment<Policy> &pt) -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return pt;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(pt));
+    return tf::segment<decltype(base)>{base};
   }
 }
 

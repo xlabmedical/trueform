@@ -6,6 +6,7 @@
 
 #pragma once
 #include "./borrowed_data.hpp"
+#include "./inject_id.hpp"
 #include "./owned_data.hpp"
 #include "./sqrt.hpp"
 #include "./static_size.hpp"
@@ -63,6 +64,9 @@ public:
 
   using Policy::Policy;
   using Policy::operator=;
+  point_like() = default;
+  point_like(const Policy &policy) : Policy{policy} {}
+  point_like(Policy &&policy) : Policy{std::move(policy)} {}
 
   /// @brief Returns pointer to the internal data.
   auto data() -> pointer { return Policy::data(); }
@@ -241,6 +245,28 @@ public:
 template <std::size_t Dims, typename Policy>
 struct static_size<point_like<Dims, Policy>>
     : std::integral_constant<std::size_t, Dims> {};
+
+template <typename Index, std::size_t Dims, typename Policy>
+auto inject_id(Index index, tf::point_like<Dims, Policy> &pt)
+    -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return pt;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(pt));
+    return tf::point_like<Dims, decltype(base)>{{base}};
+  }
+}
+
+template <typename Index, std::size_t Dims, typename Policy>
+auto inject_id(Index index, const tf::point_like<Dims, Policy> &pt)
+    -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return pt;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(pt));
+    return tf::point_like<Dims, decltype(base)>{{base}};
+  }
+}
 
 } // namespace tf
 

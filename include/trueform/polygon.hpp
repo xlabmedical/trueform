@@ -6,6 +6,7 @@
 #pragma once
 
 #include "./indirect_range.hpp"
+#include "./inject_id.hpp"
 #include "./inject_ids.hpp"
 #include "./inject_normal.hpp"
 #include "./inject_plane.hpp"
@@ -284,6 +285,26 @@ auto inject_ids(Range &&ids, polygon<V, Policy> &poly) -> decltype(auto) {
     return tf::make_polygon<V>( //
         tf::inject_ids(static_cast<Range &&>(ids),
                        static_cast<const Policy &>(poly)));
+  }
+}
+
+template <typename Index, std::size_t V, typename Policy>
+auto inject_id(Index index, tf::polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return poly;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(poly));
+    return tf::polygon<V, decltype(base)>{base};
+  }
+}
+
+template <typename Index, std::size_t V, typename Policy>
+auto inject_id(Index index, const tf::polygon<V, Policy> &poly) -> decltype(auto) {
+  if constexpr (has_injected_id<Policy>)
+    return poly;
+  else {
+    auto base = tf::inject_id(index, static_cast<const Policy &>(poly));
+    return tf::polygon<V, decltype(base)>{base};
   }
 }
 

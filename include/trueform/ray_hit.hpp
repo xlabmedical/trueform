@@ -183,4 +183,19 @@ auto ray_hit(const ray<RealT, Dims> &ray,
   return result.info();
 }
 
+template <typename RealT, std::size_t Dims, typename Index, typename Policy>
+auto ray_hit(const ray<RealT, Dims> &ray,
+             const tf::form<Index, RealT, Dims, Policy> &form,
+             tf::ray_config<RealT> config = {}) {
+  auto result = ray_cast(ray, form, config);
+
+  tf::ray_hit_info<RealT, Dims> out;
+  out.status = result.status;
+  out.t = result.t;
+  if (result) {
+    out.point = ray.origin + result.t * ray.direction;
+  }
+  return out;
+}
+
 } // namespace tf

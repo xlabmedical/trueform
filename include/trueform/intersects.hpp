@@ -7,12 +7,14 @@
 
 #include "./aabb.hpp"
 #include "./closest_point_parametric.hpp"
+#include "./form.hpp"
 #include "./line.hpp"
+#include "./point_like.hpp"
 #include "./polygon.hpp"
 #include "./ray.hpp"
 #include "./ray_cast.hpp"
+#include "./search.hpp"
 #include "./segment.hpp"
-#include "./point_like.hpp"
 
 namespace tf {
 
@@ -76,8 +78,7 @@ auto intersects(const point_like<N, T0> &point, const aabb<T1, N> &box)
 /// @return `true` if the primitives intersect; otherwise `false`.
 
 template <typename T, std::size_t N, typename T1>
-auto intersects(const aabb<T, N> &box, const point_like<N, T1> &point)
-    -> bool {
+auto intersects(const aabb<T, N> &box, const point_like<N, T1> &point) -> bool {
   return intersects(point, box);
 }
 
@@ -277,7 +278,7 @@ auto intersects(const tf::line<RealT, Dims> &l0,
 /// @brief Computes the closest @ref tf::metric_point_pair between the objects.
 template <typename RealT, std::size_t Dims>
 auto intersects(const tf::ray<RealT, Dims> &r0,
-                               const tf::line<RealT, Dims> &l1) {
+                const tf::line<RealT, Dims> &l1) {
   return intersects(l1, r0);
 }
 
@@ -289,8 +290,7 @@ auto intersects(const tf::ray<RealT, Dims> &r0,
 ///
 /// @return `true` if the primitives intersect; otherwise `false`.
 template <typename RealT, std::size_t Dims, typename T>
-auto intersects(const tf::ray<RealT, Dims> &r0,
-                               const tf::segment<T> &s1) {
+auto intersects(const tf::ray<RealT, Dims> &r0, const tf::segment<T> &s1) {
   auto l1 = tf::make_line_between_points(s1[0], s1[1]);
   auto [t0, t1] = tf::closest_point_parametric(r0, l1);
   auto pt0 = r0.origin + t0 * r0.direction;
@@ -510,6 +510,19 @@ auto intersects(const tf::polygon<V0, Policy0> &poly_in0,
       return true;
   }
   return false;
+}
+
+constexpr auto intersects_f =
+    [](const auto &obj0,
+       const auto &obj1) -> decltype(tf::intersects(obj0, obj1)) {
+  return tf::intersects(obj0, obj1);
+};
+
+template <typename Index, typename RealT, std::size_t Dims, typename Policy0,
+          typename Policy1>
+auto intersects(const tf::form<Index, RealT, Dims, Policy0> &form0,
+                const tf::form<Index, RealT, Dims, Policy1> &form1) -> bool {
+  return tf::search(form0, form1, tf::intersects_f, tf::intersects_f);
 }
 
 } // namespace tf
