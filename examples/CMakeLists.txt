@@ -11,12 +11,6 @@ foreach(src ${example_sources})
   target_link_libraries(${name} PRIVATE tf::trueform)
   target_compile_options(${name} PRIVATE -Wall -Wextra -Wpedantic)
 
-
-  if(ENABLE_ASAN)
-    target_compile_options(${name} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-    target_link_options(${name} PRIVATE -fsanitize=address)
-  endif()
-
   add_custom_target(${alias_target} DEPENDS ${name})
   list(APPEND EXAMPLE_TARGETS ${alias_target})
   list(APPEND EXAMPLE_EXECUTABLES ${name})
@@ -36,14 +30,22 @@ endif()
 list(APPEND EXAMPLE_EXECUTABLES ${VTK_EXAMPLE_EXECUTABLES})
 list(APPEND EXAMPLE_TARGETS ${VTK_EXAMPLE_TARGETS})
 
+if(ENABLE_ASAN)
+  foreach(target ${EXAMPLE_EXECUTABLES})
+    target_compile_options(${target} PRIVATE -fsanitize=address
+                                             -fno-omit-frame-pointer)
+    target_link_options(${target} PRIVATE -fsanitize=address)
+  endforeach()
+endif()
+
 # Group target to build all
 add_custom_target(examples DEPENDS ${EXAMPLE_EXECUTABLES})
 
 # Copy compile_commands.json only after 'make examples'
 add_custom_command(
-  TARGET examples POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy
-          ${CMAKE_BINARY_DIR}/compile_commands.json
+  TARGET examples
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/compile_commands.json
           ${CMAKE_SOURCE_DIR}/compile_commands.json
-  COMMENT "Copying compile_commands.json to project root after building examples"
-)
+  COMMENT
+    "Copying compile_commands.json to project root after building examples")
