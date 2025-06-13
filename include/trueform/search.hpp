@@ -7,60 +7,18 @@
 #include "./implementation/search.hpp"
 
 namespace tf {
-template <typename Index, typename RealT, std::size_t N, typename Policy,
-          typename F0, typename F1>
-auto search(const tf::form<Index, RealT, N, Policy> &form, const F0 &check_aabb,
+template <std::size_t N, typename Policy, typename F0, typename F1>
+auto search(const tf::form<N, Policy> &form, const F0 &check_aabb,
             const F1 &primitive_apply) -> bool {
   return tf::implementation::search(form, check_aabb, primitive_apply);
 }
 
-template <typename Index, typename RealT, std::size_t N, typename Policy,
-          typename F0, typename F1>
-auto search(const tf::mod_form<Index, RealT, N, Policy> &form,
-            const F0 &check_aabb, const F1 &primitive_apply) -> bool {
-  if (!search(form.main_form(), check_aabb, primitive_apply))
-    return search(form.delta_form(), check_aabb, primitive_apply);
-  else
-    return true;
-}
-
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1>
-auto search(const tf::form<Index, RealT, N, Policy0> &form0,
-            const tf::form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply,
-            int paralelism_depth = 6) -> bool {
-  return implementation::dual_form_search_dispatch<Index>(
-      form0, form1, check_aabbs, primitive_apply, paralelism_depth);
-}
-
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1>
-auto search(const tf::mod_form<Index, RealT, N, Policy0> &form0,
-            const tf::form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply,
-            int paralelism_depth = 6) -> bool {
-  return implementation::dual_form_search_dispatch<Index>(
-      form0, form1, check_aabbs, primitive_apply, paralelism_depth);
-}
-
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1>
-auto search(const tf::form<Index, RealT, N, Policy0> &form0,
-            const tf::mod_form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply,
-            int paralelism_depth = 6) -> bool {
-  return implementation::dual_form_search_dispatch<Index>(
-      form0, form1, check_aabbs, primitive_apply, paralelism_depth);
-}
-
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1>
-auto search(const tf::mod_form<Index, RealT, N, Policy0> &form0,
-            const tf::mod_form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply,
-            int paralelism_depth = 6) -> bool {
-  return implementation::dual_form_search_dispatch<Index>(
+template <std::size_t N, typename Policy0, typename Policy1, typename F0,
+          typename F1>
+auto search(const tf::form<N, Policy0> &form0,
+            const tf::form<N, Policy1> &form1, const F0 &check_aabbs,
+            const F1 &primitive_apply, int paralelism_depth = 6) -> bool {
+  return implementation::dual_form_search_dispatch<typename Policy0::index_t>(
       form0, form1, check_aabbs, primitive_apply, paralelism_depth);
 }
 

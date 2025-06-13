@@ -13,7 +13,7 @@ namespace tf {
 /// @brief Helper structure for k-nearest-neighbor (k-NN) queries in spatial
 /// trees.
 ///
-/// `tf::tree_knn` maintains a sorted buffer of up to `k` nearest elements
+/// `tf::nearest_neighbors` maintains a sorted buffer of up to `k` nearest elements
 /// during spatial traversal. It is used internally by `tf::nearness_search`
 /// when the result is a ranked set of closest elements. The structure may be
 /// iterated over like a range.
@@ -31,7 +31,7 @@ namespace tf {
 ///
 /// @tparam RandomIt A random-access iterator pointing to a buffer of
 /// `tf::tree_closest_point` or `tf::tree_closest_point_pair`.
-template <typename RandomIt> class tree_knn {
+template <typename RandomIt> class nearest_neighbors {
   using tree_metric_info_t =
       typename std::iterator_traits<RandomIt>::value_type;
   using element_t = typename tree_metric_info_t::element_t;
@@ -39,10 +39,10 @@ template <typename RandomIt> class tree_knn {
   using info_t = typename tree_metric_info_t::info_t;
 
 public:
-  tree_knn(RandomIt out, std::size_t k, real_t radius)
+  nearest_neighbors(RandomIt out, std::size_t k, real_t radius)
       : out(out), k(k), count(0), worst_metric{radius * radius} {}
 
-  tree_knn(RandomIt out, std::size_t k)
+  nearest_neighbors(RandomIt out, std::size_t k)
       : out(out), k(k), count(0),
         worst_metric{std::numeric_limits<real_t>::max()} {}
 
@@ -113,10 +113,10 @@ private:
 ///
 /// @param iterator The output iterator pointing to a user-provided buffer.
 /// @param k The number of nearest neighbors to retain.
-/// @return A `tree_knn<RandomIt>` instance.
+/// @return A `nearest_neighbors<RandomIt>` instance.
 template <typename RandomIt>
-auto make_tree_knn(RandomIt iterator, std::size_t k) {
-  return tree_knn<RandomIt>{iterator, k};
+auto make_nearest_neighbors(RandomIt iterator, std::size_t k) {
+  return nearest_neighbors<RandomIt>{iterator, k};
 }
 
 /// @brief Construct a radius-limited `tree_knn` container with automatic type
@@ -126,9 +126,9 @@ auto make_tree_knn(RandomIt iterator, std::size_t k) {
 /// @param k The number of nearest neighbors to retain.
 /// @param radius The query radius. Only neighbors within this distance are
 /// considered.
-/// @return A `tree_knn<RandomIt>` instance.
+/// @return A `nearest_neighbors<RandomIt>` instance.
 template <typename RandomIt, typename RealT>
-auto make_tree_knn(RandomIt iterator, std::size_t k, RealT radius) {
-  return tree_knn<RandomIt>{iterator, k, radius};
+auto make_nearest_neighbors(RandomIt iterator, std::size_t k, RealT radius) {
+  return nearest_neighbors<RandomIt>{iterator, k, radius};
 }
 } // namespace tf

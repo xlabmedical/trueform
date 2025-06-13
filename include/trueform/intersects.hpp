@@ -518,10 +518,9 @@ constexpr auto intersects_f =
   return tf::intersects(obj0, obj1);
 };
 
-template <typename Index, typename RealT, std::size_t Dims, typename Policy0,
-          typename Policy1>
-auto intersects(const tf::form<Index, RealT, Dims, Policy0> &form0,
-                const tf::form<Index, RealT, Dims, Policy1> &form1) -> bool {
+template <std::size_t Dims, typename Policy0, typename Policy1>
+auto intersects(const tf::form<Dims, Policy0> &form0,
+                const tf::form<Dims, Policy1> &form1) -> bool {
   return tf::search(form0, form1, tf::intersects_f, tf::intersects_f);
 }
 

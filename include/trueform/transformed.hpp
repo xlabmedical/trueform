@@ -5,6 +5,7 @@
  */
 #pragma once
 #include "./aabb.hpp"
+#include "./identity_transformation.hpp"
 #include "./indirect_range.hpp"
 #include "./inject_ids.hpp"
 #include "./inject_normal.hpp"
@@ -18,6 +19,12 @@
 #include "./vector_like.hpp"
 
 namespace tf {
+
+template <typename T, typename U>
+auto transformed(const T &_this, const identity_transformation_t<U> &)
+    -> const T & {
+  return _this;
+}
 
 template <std::size_t Dims, typename T, typename U>
 auto transformed(const point_like<Dims, T> &_this,

@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
             << std::endl;
 
   std::array<tf::tree_closest_point<int, float, 3>, 4> closest_points;
-  auto knn = tf::make_tree_knn(closest_points.begin(), 4 /*, search_radius */);
+  auto knn = tf::make_nearest_neighbors(closest_points.begin(), 4 /*, search_radius */);
 
   tf::nearness_search(
       mesh_tree,

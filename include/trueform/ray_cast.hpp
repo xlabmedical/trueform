@@ -203,16 +203,13 @@ auto ray_cast(const ray<RealT, Dims> &ray,
   return result.info();
 }
 
-template <typename RealT, std::size_t Dims, typename Index, typename Policy>
-auto ray_cast(const ray<RealT, Dims> &ray,
-              const tf::form<Index, RealT, Dims, Policy> &form,
+template <typename RealT, std::size_t Dims, typename Policy>
+auto ray_cast(const ray<RealT, Dims> &ray, const tf::form<Dims, Policy> &form,
               tf::ray_config<RealT> config = {}) {
   auto l_ray = tf::transformed(ray, form.inverse_transformation());
   return ray_cast(
       l_ray, form.tree(),
-      [&form](const auto &l_ray, Index id) {
-        return ray_cast(l_ray, form[id]);
-      },
+      [&form](const auto &l_ray, auto id) { return ray_cast(l_ray, form[id]); },
       config);
 }
 

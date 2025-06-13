@@ -184,8 +184,7 @@ auto ray_hit(const ray<RealT, Dims> &ray,
 }
 
 template <typename RealT, std::size_t Dims, typename Index, typename Policy>
-auto ray_hit(const ray<RealT, Dims> &ray,
-             const tf::form<Index, RealT, Dims, Policy> &form,
+auto ray_hit(const ray<RealT, Dims> &ray, const tf::form<Dims, Policy> &form,
              tf::ray_config<RealT> config = {}) {
   auto result = ray_cast(ray, form, config);
 

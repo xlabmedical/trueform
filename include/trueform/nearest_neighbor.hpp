@@ -9,6 +9,6 @@
 
 namespace tf {
 template <typename Index, typename RealT, std::size_t Dims>
-using tree_metric_point =
+using nearest_neighbor =
     tree_metric_info<Index, tf::metric_point<RealT, Dims>>;
 }

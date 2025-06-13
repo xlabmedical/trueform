@@ -3,14 +3,14 @@
 #include "trueform/aabb_from.hpp"
 #include "trueform/closest_metric_point.hpp"
 #include "trueform/distance.hpp"
-#include "trueform/nearness_search.hpp"
+#include "trueform/nearest_neighbor.hpp"
+#include "trueform/nearest_neighbors.hpp"
+#include "trueform/neighbor_search.hpp"
 #include "trueform/normalized.hpp"
 #include "trueform/point_range.hpp"
 #include "trueform/random_vector.hpp"
 #include "trueform/tick_tock.hpp"
 #include "trueform/tree.hpp"
-#include "trueform/tree_knn.hpp"
-#include "trueform/tree_metric_point.hpp"
 #include <filesystem>
 #include <vector>
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
 
     size_t ret_index[10];
     float out_dist_sqr[10];
-    std::array<tf::tree_metric_point<int, float, 3>, 10> buff;
+    std::array<tf::nearest_neighbor<int, float, 3>, 10> buff;
 
     for (int i = 0; i < n_iters; ++i) {
 
@@ -95,12 +95,9 @@ int main(int argc, char *argv[]) {
       index.findNeighbors(resultSet, &pt[0], nanoflann::SearchParameters());
       nanoflann_time += tf::tock();
       sum_for_return += ret_index[n - 1];
-      auto knn = tf::make_tree_knn(buff.data(), n);
+      auto knn = tf::make_nearest_neighbors(buff.data(), n);
       tf::tick();
-      tf::nearness_search(
-          tree, [&](const auto &aabb) { return tf::distance2(aabb, pt); },
-          [&](auto id) { return tf::closest_metric_point(points[id], pt); },
-          knn);
+      tf::neighbor_search(tf::make_form(tree, points), pt, knn);
       tf_time += tf::tock();
       sum_for_return += buff[n - 1].element;
     }

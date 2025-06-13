@@ -6,7 +6,6 @@
 #pragma once
 #include "../form.hpp"
 #include "../inject_id.hpp"
-#include "../mod_form.hpp"
 #include "../mod_tree.hpp"
 #include "../transformed.hpp"
 #include "../tree.hpp"
@@ -15,9 +14,8 @@
 #include <atomic>
 
 namespace tf::implementation {
-template <typename Index, typename RealT, std::size_t N, typename Policy,
-          typename F0, typename F1>
-auto search(const tf::form<Index, RealT, N, Policy> &form, const F0 &check_aabb,
+template <std::size_t N, typename Policy, typename F0, typename F1>
+auto search(const tf::form<N, Policy> &form, const F0 &check_aabb,
             const F1 &primitive_apply) -> bool {
   return tf::implementation::tree_search(
       form.tree().nodes(), form.tree().ids(),
@@ -80,11 +78,11 @@ auto search(const tf::tree<Index, RealT, N> &tree0,
       abort, paralelism_depth);
 }
 
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1, typename F2>
-auto search(const tf::form<Index, RealT, N, Policy0> &form0,
-            const tf::form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply, const F2 &abort,
+template <std::size_t N, typename Policy0, typename Policy1, typename F0,
+          typename F1, typename F2>
+auto search(const tf::form<N, Policy0> &form0,
+            const tf::form<N, Policy1> &form1, const F0 &check_aabbs,
+            const F1 &primitive_apply, const F2 &abort,
             int paralelism_depth = 6) -> bool {
   auto aabb_f = [&](const auto &aabb0, const auto &aabb1) -> bool {
     return check_aabbs(tf::transformed(aabb0, form0.transformation()),
@@ -126,20 +124,6 @@ auto search(const tf::mod_tree<Index, RealT, N> &tree0,
     return true;
 }
 
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1, typename F2>
-auto search(const tf::mod_form<Index, RealT, N, Policy0> &form0,
-            const tf::form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply, const F2 &abort,
-            int paralelism_depth = 6) -> bool {
-  if (!search(form0.main_form(), form1, check_aabbs, primitive_apply, abort,
-              paralelism_depth))
-    return search(form0.delta_form(), form1, check_aabbs, primitive_apply,
-                  abort, paralelism_depth);
-  else
-    return true;
-}
-
 template <typename Index, typename RealT, std::size_t N, typename F0,
           typename F1, typename F2>
 auto search(const tf::tree<Index, RealT, N> &tree0,
@@ -149,48 +133,6 @@ auto search(const tf::tree<Index, RealT, N> &tree0,
   if (!search(tree0, tree1.main_tree(), check_aabbs, primitive_apply, abort,
               paralelism_depth))
     return search(tree0, tree1.delta_tree(), check_aabbs, primitive_apply,
-                  abort, paralelism_depth);
-  else
-    return true;
-}
-
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1, typename F2>
-auto search(const tf::form<Index, RealT, N, Policy0> &form0,
-            const tf::mod_form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply, const F2 &abort,
-            int paralelism_depth = 6) -> bool {
-  if (!search(form0, form1.main_form(), check_aabbs, primitive_apply, abort,
-              paralelism_depth))
-    return search(form0, form1.delta_form(), check_aabbs, primitive_apply,
-                  abort, paralelism_depth);
-  else
-    return true;
-}
-
-template <typename Index, typename RealT, std::size_t N, typename F0,
-          typename F1, typename F2>
-auto search(const tf::mod_tree<Index, RealT, N> &tree0,
-            const tf::mod_tree<Index, RealT, N> &tree1, const F0 &check_aabbs,
-            const F1 &primitive_apply, const F2 &abort,
-            int paralelism_depth = 6) -> bool {
-  if (!search(tree0, tree1.main_tree(), check_aabbs, primitive_apply, abort,
-              paralelism_depth))
-    return search(tree0, tree1.delta_tree(), check_aabbs, primitive_apply,
-                  abort, paralelism_depth);
-  else
-    return true;
-}
-
-template <typename Index, typename RealT, std::size_t N, typename Policy0,
-          typename Policy1, typename F0, typename F1, typename F2>
-auto search(const tf::mod_form<Index, RealT, N, Policy0> &form0,
-            const tf::mod_form<Index, RealT, N, Policy1> &form1,
-            const F0 &check_aabbs, const F1 &primitive_apply, const F2 &abort,
-            int paralelism_depth = 6) -> bool {
-  if (!search(form0, form1.main_form(), check_aabbs, primitive_apply, abort,
-              paralelism_depth))
-    return search(form0, form1.delta_form(), check_aabbs, primitive_apply,
                   abort, paralelism_depth);
   else
     return true;
