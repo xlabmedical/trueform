@@ -32,10 +32,11 @@ namespace tf {
 /// @tparam RandomIt A random-access iterator pointing to a buffer of
 /// `tf::tree_closest_point` or `tf::tree_closest_point_pair`.
 template <typename RandomIt> class tree_knn {
-  using tree_closest_pt_t = typename std::iterator_traits<RandomIt>::value_type;
-  using element_t = typename tree_closest_pt_t::element_t;
-  using real_t = typename tree_closest_pt_t::real_t;
-  using closest_point_t = typename tree_closest_pt_t::closest_point_t;
+  using tree_metric_info_t =
+      typename std::iterator_traits<RandomIt>::value_type;
+  using element_t = typename tree_metric_info_t::element_t;
+  using real_t = typename tree_metric_info_t::real_t;
+  using info_t = typename tree_metric_info_t::info_t;
 
 public:
   tree_knn(RandomIt out, std::size_t k, real_t radius)
@@ -45,9 +46,9 @@ public:
       : out(out), k(k), count(0),
         worst_metric{std::numeric_limits<real_t>::max()} {}
 
-  auto update(element_t element, const closest_point_t &point) -> bool {
+  auto update(element_t element, const info_t &point) -> bool {
     if (count < k) {
-      out[count++] = tree_closest_pt_t{element, point};
+      out[count++] = tree_metric_info_t{element, point};
       std::inplace_merge(
           out, out + count - 1, out + count,
           [](const auto &a, const auto &b) { return a.metric() < b.metric(); });
@@ -58,7 +59,7 @@ public:
                                    return value < elem.metric();
                                  });
       std::move_backward(it, out + k - 1, out + k);
-      *it = tree_closest_pt_t{element, point};
+      *it = tree_metric_info_t{element, point};
       worst_metric = out[k - 1].metric();
     }
     return count == k && metric() < std::numeric_limits<real_t>::epsilon();

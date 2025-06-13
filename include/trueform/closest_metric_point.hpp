@@ -16,6 +16,15 @@ auto closest_metric_point(const tf::vector_like<Dims, T0> &v0,
                           const tf::vector_like<Dims, T1> &v1) {
   return tf::make_metric_point((v0 - v1).length2(), v0);
 }
+
+/// @ingroup geometry
+/// @brief Computes the closest @ref tf::metric_point on the first object.
+template <std::size_t Dims, typename T0, typename T1>
+auto closest_metric_point(const tf::point_like<Dims, T0> &v0,
+                          const tf::point_like<Dims, T1> &v1) {
+  return tf::make_metric_point((v0 - v1).length2(), v0);
+}
+
 /// @ingroup geometry
 /// @brief Computes the closest @ref tf::metric_point on the first object.
 template <typename RealT, std::size_t Dims, typename T1>
