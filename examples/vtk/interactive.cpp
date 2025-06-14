@@ -1,10 +1,8 @@
 #include "./util/common.hpp"
 #include "./util/data_bridge.hpp"
-#include "trueform/closest_metric_point_pair.hpp"
 #include "trueform/form.hpp"
 #include "trueform/frame.hpp"
 #include "trueform/intersects.hpp"
-#include "trueform/nearness_search.hpp"
 #include "trueform/neighbor_search.hpp"
 #include "trueform/plane.hpp"
 #include "trueform/random_transformation.hpp"
@@ -60,14 +58,13 @@ public:
     return std::make_pair(picked, ray.origin + result.info.t * ray.direction);
   }
 
-  auto closest_metric_point_pair(int id0, int id1) {
+  auto closest_metric_point_pair(int id0, int id1, float radius) {
     auto form0 =
         tf::make_form(frames[id0], *trees[id0], get_triangles(polys[id0]));
     auto form1 =
         tf::make_form(frames[id1], *trees[id1], get_triangles(polys[id1]));
 
-    auto result0 = tf::neighbor_search(form0, form1);
-
+    auto result0 = tf::neighbor_search(form0, form1, radius);
     return result0;
   }
 
@@ -84,26 +81,6 @@ public:
         colliding.insert(actors[i]);
       else {
         colliding.erase(actors[i]);
-      }
-    }
-  }
-
-  auto describe_scene(vtkActor *actor, std::set<vtkActor *> &colliding,
-                      std::vector<std::array<tf::point<float, 3>, 2>> &pairs) {
-    std::size_t id = map[actor];
-    auto form0 =
-        tf::make_form(frames[id], *trees[id], get_triangles(polys[id]));
-    for (std::size_t i = 0; i < polys.size(); ++i) {
-      if (i == id)
-        continue;
-      auto collision = tf::intersects(
-          form0, tf::make_form(frames[i], *trees[i], get_triangles(polys[i])));
-      if (collision)
-        colliding.insert(actors[i]);
-      else {
-        colliding.erase(actors[i]);
-        auto pts = closest_metric_point_pair(id, i);
-        pairs.push_back({{pts.info.first, pts.info.second}});
       }
     }
   }
@@ -140,8 +117,6 @@ private:
   bool selected_mode = false;
   bool camera_mode = false;
   std::set<vtkActor *> colliding;
-  segments_actor segments;
-  std::vector<std::array<tf::point<float, 3>, 2>> segment_data;
 
   auto add_time(std::vector<float> &times, float t) {
     if (times.size() < 100) {
@@ -205,11 +180,8 @@ private:
 
   auto handle_collisions() {
     tf::tick();
-    segment_data.clear();
-    geometry_handle.describe_scene(selected_actor, colliding, segment_data);
-    /*geometry_handle.intersects_any(selected_actor, colliding);*/
+    geometry_handle.intersects_any(selected_actor, colliding);
     add_collide_time(tf::tock());
-    segments.reset(segment_data);
     for (auto actor : geometry_handle.get_actors()) {
       if (actor == selected_actor)
         continue;
@@ -256,10 +228,6 @@ public:
   auto push_back(vtkActor *actor, vtkPolyData *poly,
                  tf::tree<int, float, 3> &tree) -> void {
     geometry_handle.push_back(actor, poly, tree);
-  }
-
-  auto init_on_renderer(vtkRenderer *renderer) {
-    segments.add_to_renderer(renderer);
   }
 
   auto OnLeftButtonDown() -> void override {
@@ -387,8 +355,8 @@ int main(int argc, char *argv[]) {
   int n_actors_in_dim = 5;
   std::size_t poly_index = 0;
   std::size_t total_polygons = 0;
-  for (int i = 0; i < 2; ++i) {
-    for (int j = 0; j < 1; ++j) {
+  for (int i = 0; i < n_actors_in_dim; ++i) {
+    for (int j = 0; j < n_actors_in_dim; ++j) {
       auto &poly = polys[poly_index];
       total_polygons += poly->GetNumberOfPolys();
       auto mapper = vtk_make_unique<vtkOpenGLPolyDataMapper>();
@@ -405,7 +373,6 @@ int main(int argc, char *argv[]) {
       poly_index = (poly_index + 1) % polys.size();
     }
   }
-  inter->init_on_renderer(renderer.get());
 
   renderer->SetBackground(27. / 255, 43. / 255, 52. / 255);
   render_window->SetInteractor(interactor.get());
